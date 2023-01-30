@@ -36,13 +36,27 @@ export HTTP_PROXY="http://aproxy.corproot.net:8080"
 export HTTPS_PROXY="http://aproxy.corproot.net:8080"
 export NO_PROXY="localhost,.vptt.ch,.swissptt.ch,.corproot.net,.sharedtcs.net,.swisscom.com,127.0.0.1,locahost"
 ```
+## Pre-Requirements
+You need to have Docker Desktop application or colima installed on your machine.
+[Install Docker](https://hub.docker.com/editions/community/docker-ce-desktop-mac/) 
+[Install Docker with home brew](https://www.cprime.com/resources/blog/docker-for-mac-with-homebrew-a-step-by-step-tutorial/)
+[Install cilima with home brew](https://opensource.com/article/22/9/docker-desktop-colima)
 
 ## How to Run
 Use the command:
 ```
 docker run --rm -i --log-driver=none -a stdin -a stdout -a stderr --name pytest_img -p 8000:8000 python-nat-pytest
 ```
-Alternative:
+Alternative 1:
+Run the scripts **deploy.sh** and **run.sh** to build and run like this :
+```
+. ./scripts/deploy.sh 
+```
+and
+```
+. ./scripts/run.sh
+```
+Alternative 2:
 - Start your Docker desktop appliaction
 - locate the image
 - press the **Run** button
