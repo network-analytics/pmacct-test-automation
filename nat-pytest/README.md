@@ -18,6 +18,25 @@ You can use the following command:
 docker build -f ./Dockerfile_pytest -t python-nat-pytest .
 ```
 
+# Troubleshooting
+If you get the error:
+```
+------
+failed to solve with frontend dockerfile.v0: failed to create LLB definition: failed to authorize: rpc error: code = Unknown desc = failed to fetch anonymous token
+```
+This is because we are fetching the python image from artifactory
+For this reason you need to set your proxy parameters in the shell where 
+you are going to build the image:
+
+```
+export http_proxy="http://aproxy.corproot.net:8080"
+export https_proxy="http://aproxy.corproot.net:8080"
+export no_proxy="localhost,.vptt.ch,.swissptt.ch,.corproot.net,.sharedtcs.net,.swisscom.com,127.0.0.1,localhost"
+export HTTP_PROXY="http://aproxy.corproot.net:8080"
+export HTTPS_PROXY="http://aproxy.corproot.net:8080"
+export NO_PROXY="localhost,.vptt.ch,.swissptt.ch,.corproot.net,.sharedtcs.net,.swisscom.com,127.0.0.1,locahost"
+```
+
 ## How to Run
 - launch your docker
 - start runing the image -> a container will start executing and after it's doen
@@ -28,4 +47,4 @@ Exit status 1 if there where errors
 ## Changelog
 
 ### Version 0.1
-Initla release
+Initial release
