@@ -38,11 +38,23 @@ export NO_PROXY="localhost,.vptt.ch,.swissptt.ch,.corproot.net,.sharedtcs.net,.s
 ```
 
 ## How to Run
-- launch your docker
-- start runing the image -> a container will start executing and after it's doen
-with the tests it will exit:
-Exit status 0 if all went well
-Exit status 1 if there where errors
+Use the command:
+```
+docker run -i --log-driver=none -a stdin -a stdout -a stderr --name pytest_img -p 8000:8000 python-nat-pytest
+
+```
+Alternative:
+- Start your Docker desktop appliaction
+- locate the image
+- press the **Run** button
+- go to Containers/apps
+- locate the last container that run
+- select by single clicking
+there you can see the output of the container after it run
+
+This container will run the tests and then will exit.
+Exit status 0 if all passt through well
+Exit status 1 if there where errors during the tests (it fails a test on purposse at the moment)
 
 ## Changelog
 
