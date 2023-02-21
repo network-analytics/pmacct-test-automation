@@ -1,5 +1,5 @@
-pytest
-scapy
-confluent_kafka
-requests
-avro
+pytest==7.2.1
+scapy==2.5.0
+confluent_kafka==2.0.2
+requests==2.28.2
+avro==1.11.1
