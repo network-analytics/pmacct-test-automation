@@ -1,0 +1,5 @@
+pytest
+scapy
+confluent_kafka
+requests
+avro
