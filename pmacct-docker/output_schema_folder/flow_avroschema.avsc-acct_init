@@ -1,1 +1,0 @@
-{"type":"record","name":"acct_init","fields":[{"name":"event_type","type":{"type":"string"}},{"name":"writer_id","type":{"type":"string"}}]}
