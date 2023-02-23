@@ -10,8 +10,11 @@ def run_script(command):
         result = subprocess.run(command, stdout=subprocess.PIPE, check=True)
         output = result.stdout.decode('utf-8').strip()
         success = result.returncode==0
-    except Exception:
-        output = None
+    except subprocess.CalledProcessError as e:
+        output = str(e)
+        success = 'returned non-zero exit status' in output
+    except Exception as e:
+        output = 'Exception thrown' + str(e)
         success = False
     return [success, output]
 
@@ -45,13 +48,33 @@ def wait_for_container(command, name, checkfunc, seconds, sec_update=1):
 
 def wait_pmacct_running(seconds):
     def checkfunction(out):
-        return out[0] and not 'false' in out[1].lower()
+        return len(out)>1 and out[0] and not 'false' in out[1].lower()
     return wait_for_container('docker-tools/check-container-running.sh', 'pmacct', checkfunction, seconds)
 
 def wait_schemaregistry_healthy(seconds):
     def checkfunction(out):
-        return out[0] and 'healthy' in out[1].lower()
+        return len(out)>1 and out[0] and 'healthy' in out[1].lower()
     return wait_for_container('docker-tools/check-container-health.sh', 'schema-registry', checkfunction, seconds, 5)
+
+def create_daisy_topic():
+    topic = 'daisy.dev.flow-avro-raw'
+    out = run_script(['./docker-tools/create_topic.sh', topic])
+    if len(out)<1 or not out[0]:
+        print('Topic creation failed')
+        return False
+    existsAlready = False
+    if 'returned non-zero exit status' in out[1]:
+        existsAlready = True
+    out = run_script('./docker-tools/list_topics.sh')
+    retval = len(out)>1 and out[0] and topic in out[1]
+    if retval:
+        if existsAlready:
+            print ('Daisy topic exists already')
+        else:
+            print('Daisy topic created successfully')
+    else:
+        print('Failed to create Daisy topic')
+    return retval
 
 def send_ipfix_packets():
     print('Sending IPFIX packets for smoke test')

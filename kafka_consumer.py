@@ -19,7 +19,7 @@ def get_next_message(seconds):
     msg = consumer.poll(seconds)
     consumer.close()
     if msg is None:
-        print('No messages read by kafka consumer in ' + str(seconds) + ' seconds')
+        print('No messages read by kafka consumer in ' + str(seconds) + ' seconds - ', end='')
         return False
     if msg.error():
         print("Kafka consumer error: " + str(msg.error()))

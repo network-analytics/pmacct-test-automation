@@ -4,7 +4,7 @@ import run_scripts as scripts
 from helpers import print_message
 
 
-@print_message('Starting Kafka containers: zoekeeper, broker, schema-registry (this will take some time)')
+@print_message('Starting Kafka containers (zoekeeper, broker, schema-registry)')
 def setup_module():
     assert scripts.start_kafka_containers()
     assert scripts.wait_schemaregistry_healthy(120)
@@ -19,8 +19,9 @@ class Test_Smoke:
     #pmacct_conf_file = 'nfacctd-ipfix-basic.conf'
     #kafka_topic_name = 'smoke_kafka_topic'
 
-    @print_message('Starting pmacct container')
+    @print_message('Creating daisy topic and starting pmacct container')
     def setup_class():
+        assert scripts.create_daisy_topic()
         assert scripts.start_pmacct_container()
         assert scripts.wait_pmacct_running(5) # wait 5 seconds
 
