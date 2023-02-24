@@ -1,10 +1,7 @@
 
 #from confluent_kafka.avro.serializer import SerializerError
 from confluent_kafka.avro import AvroConsumer
-import json
-import warnings
 import time
-warnings.filterwarnings('ignore') # suppress AvroConsumer deprecation warning
 
 def get_next_message(seconds):
     consumer = AvroConsumer({

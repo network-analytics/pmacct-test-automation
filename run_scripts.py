@@ -25,10 +25,10 @@ def start_kafka_containers():
 def start_pmacct_container():
     return run_script('./pmacct-docker/start.sh')[0]
 
-def stop_kafka_containers():
+def stop_and_remove_kafka_containers():
     return run_script('./kafka-compose/stop.sh')[0]
 
-def stop_pmacct_container():
+def stop_and_remove_pmacct_container():
     return run_script('./pmacct-docker/stop.sh')[0]
 
 def wait_for_container(command, name, checkfunc, seconds, sec_update=1):

@@ -1,4 +1,3 @@
-
 import kafka_consumer
 import run_scripts as scripts
 from helpers import print_message
@@ -8,10 +7,6 @@ from helpers import print_message
 def setup_module():
     assert scripts.start_kafka_containers()
     assert scripts.wait_schemaregistry_healthy(120)
-
-@print_message('Stopping Kafka containers (zoekeeper, broker, schema-registry)')
-def teardown_module():
-    scripts.stop_kafka_containers()
 
 
 class Test_Smoke:
@@ -30,12 +25,14 @@ class Test_Smoke:
         assert scripts.send_ipfix_packets()
         assert kafka_consumer.check_kafka_packets()
 
-    @print_message('Stopping pmacct container')
+    @print_message('Stopping and removing pmacct container')
     def teardown_class():
-        scripts.stop_pmacct_container()
+        scripts.stop_and_remove_pmacct_container()
 
 
-
+@print_message('Stopping and removing Kafka containers (zoekeeper, broker, schema-registry)')
+def teardown_module():
+    scripts.stop_and_remove_kafka_containers()
 
 
 
