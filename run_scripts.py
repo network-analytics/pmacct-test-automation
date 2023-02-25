@@ -6,7 +6,6 @@ import re
 
 def run_script(command):
     try:
-#        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
         result = subprocess.run(command, stdout=subprocess.PIPE, check=True)
         output = result.stdout.decode('utf-8').strip()
         success = result.returncode==0

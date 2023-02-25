@@ -56,6 +56,7 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:29092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
+# pmacct is deployed as a sepaarate container
 #  pmacct:
 #    image: remote-docker.artifactory.swisscom.com/pmacct/nfacctd:latest
 #    container_name: pmacct
