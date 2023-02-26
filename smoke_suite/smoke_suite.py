@@ -2,7 +2,7 @@
 from py_test_tools.helpers import print_message, find_kafka_topic_name
 import py_test_tools.kafka_consumer as kafka_consumer
 import py_test_tools.scripts as scripts
-import os
+import os, time
 
 pmacct_conf_file_fullpath = os.path.dirname(__file__) + '/pmacctd.conf'
 kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
@@ -25,10 +25,13 @@ class Test_Smoke:
     @print_message('Running smoke test functionality')
     def test_smoketest(self):
         packets_sent = scripts.send_smoketest_ipfix_packets()
+        time_sent = round(time.time()*1000) # current timestamp in milliseconds
         assert packets_sent>=0
-        packets_processed = kafka_consumer.check_kafka_packets(kafka_topic_name)
-        assert packets_processed>=0
-        assert packets_sent==packets_processed
+        packet_info = kafka_consumer.check_packets_in_kafka_message(kafka_topic_name)
+        assert packet_info!=None
+        assert packet_info[0]>=0 # packets processed
+        print('Pmacct needed ' + str(packet_info[1]-time_sent) + 'ms to respond')
+        assert packets_sent==packet_info[0]
 
     @print_message('Stopping and removing pmacct container')
     def teardown_class():
