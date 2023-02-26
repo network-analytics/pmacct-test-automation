@@ -1,29 +1,34 @@
-import kafka_consumer
-import run_scripts as scripts
-from helpers import print_message
 
+from py_test_tools.helpers import print_message, find_kafka_topic_name
+import py_test_tools.kafka_consumer as kafka_consumer
+import py_test_tools.scripts as scripts
+import os
+
+pmacct_conf_file_fullpath = os.path.dirname(__file__) + '/pmacctd.conf'
+kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
 
 @print_message('Starting Kafka containers (zoekeeper, broker, schema-registry)')
 def setup_module():
+    assert kafka_topic_name!=None
     assert scripts.start_kafka_containers()
     assert scripts.wait_schemaregistry_healthy(120)
 
 
 class Test_Smoke:
 
-    #pmacct_conf_file = 'nfacctd-ipfix-basic.conf'
-    #kafka_topic_name = 'smoke_kafka_topic'
-
     @print_message('Creating daisy topic and starting pmacct container')
     def setup_class():
-        assert scripts.create_daisy_topic()
-        assert scripts.start_pmacct_container()
+        assert scripts.create_daisy_topic(kafka_topic_name)
+        assert scripts.start_pmacct_container(pmacct_conf_file_fullpath)
         assert scripts.wait_pmacct_running(5) # wait 5 seconds
 
     @print_message('Running smoke test functionality')
     def test_smoketest(self):
-        assert scripts.send_ipfix_packets()
-        assert kafka_consumer.check_kafka_packets()
+        packets_sent = scripts.send_smoketest_ipfix_packets()
+        assert packets_sent>=0
+        packets_processed = kafka_consumer.check_kafka_packets(kafka_topic_name)
+        assert packets_processed>=0
+        assert packets_sent==packets_processed
 
     @print_message('Stopping and removing pmacct container')
     def teardown_class():
