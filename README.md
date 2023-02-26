@@ -15,7 +15,7 @@ $ pip install -r requirements.txt
 
 ## How To Run
 
-To run unit tests:
+To run unit tests (root privileges are required by scapy library to send packets out):
 ```shell
-$ pytest -s smoke_suite.py 
+$ sudo python -m pytest -s smoke_suite.py 
 ```

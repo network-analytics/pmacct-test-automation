@@ -3,4 +3,5 @@
 **/__pycache__/
 .DS_Store
 notes.rtf
-pmacct-docker/output_schema_folder/*
+sh_test_tools/pmacct-docker/output_schema_folder/*
+
