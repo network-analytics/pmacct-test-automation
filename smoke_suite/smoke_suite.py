@@ -9,6 +9,7 @@ kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
 
 @print_message('Starting Kafka containers (zoekeeper, broker, schema-registry)')
 def setup_module():
+    assert not scripts.check_broker_running()
     assert kafka_topic_name!=None
     assert scripts.start_kafka_containers()
     assert scripts.wait_schemaregistry_healthy(120)

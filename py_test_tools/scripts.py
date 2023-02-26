@@ -20,6 +20,11 @@ def wait_pmacct_running(seconds):
         return len(out)>1 and out[0] and not 'false' in out[1].lower()
     return wait_for_container('./sh_test_tools/docker_tools/check-container-running.sh', 'pmacct', checkfunction, seconds)
 
+def check_broker_running():
+    def checkfunction(out):
+        return len(out)>1 and out[0] and not 'false' in out[1].lower()
+    return wait_for_container('./sh_test_tools/docker_tools/check-container-running.sh', 'broker', checkfunction, 1)
+
 def wait_schemaregistry_healthy(seconds):
     def checkfunction(out):
         return len(out)>1 and out[0] and 'healthy' in out[1].lower()
