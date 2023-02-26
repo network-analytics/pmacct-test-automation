@@ -1,1 +1,0 @@
-{"type":"record","name":"acct_close","fields":[{"name":"event_type","type":{"type":"string"}},{"name":"writer_id","type":{"type":"string"}},{"name":"purged_entries","type":{"type":"long"}},{"name":"total_entries","type":{"type":"long"}},{"name":"duration","type":{"type":"int"}}]}
