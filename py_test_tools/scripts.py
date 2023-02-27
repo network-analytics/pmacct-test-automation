@@ -4,15 +4,19 @@ import re
 
 
 def start_kafka_containers():
+    print("Starting Kafka containers")
     return run_script('./sh_test_tools/kafka_compose/start.sh')[0]
 
 def start_pmacct_container(pmacct_conf_file):
+    print("Starting pmacct container")
     return run_script(['./sh_test_tools/pmacct_docker/start.sh', pmacct_conf_file])[0]
 
 def stop_and_remove_kafka_containers():
+    print("Stopping Kafka containers")
     return run_script('./sh_test_tools/kafka_compose/stop.sh')[0]
 
 def stop_and_remove_pmacct_container():
+    print("Stopping and removing pmacct container")
     return run_script('./sh_test_tools/pmacct_docker/stop.sh')[0]
 
 def wait_pmacct_running(seconds):
@@ -21,28 +25,37 @@ def wait_pmacct_running(seconds):
     return wait_for_container('./sh_test_tools/docker_tools/check-container-running.sh', 'pmacct', checkfunction, seconds)
 
 def check_broker_running():
+    print("Checking if broker is running")
     return run_script(['./sh_test_tools/docker_tools/check-container-running.sh', 'broker'])[0]
 
 def wait_schemaregistry_healthy(seconds):
+    print("Checking if schema-registry is healthy")
     def checkfunction(out):
         return out[0] and 'healthy' in out[1].lower()
     return wait_for_container('./sh_test_tools/docker_tools/check-container-health.sh', 'schema-registry', checkfunction, seconds, 5)
 
-def create_daisy_topic(topic):
-    out = run_script(['./sh_test_tools/docker_tools/create-topic.sh', topic])
-    if not out[0]:
-        print('Topic creation failed')
-        return False
-    existsAlready = False
-    if 'returned non-zero exit status' in out[1]:
-        existsAlready = True
+def clear_kafka_topic(topic):
+    print("Clearing topic " + topic)
+    return run_script(['./sh_test_tools/docker_tools/clear-topic.sh', topic])[0]
+
+def create_or_clear_kafka_topic(topic):
+    print("Creating (or clearing) Kafka topic " + topic)
     out = run_script('./sh_test_tools/docker_tools/list-topics.sh')
-    retval = out[0] and topic in out[1]
-    if retval:
-        if existsAlready:
-            print ('Topic exists already')
+    if not out[0]:
+        print("Could not list existing topics")
+        return False
+    if topic in out[1]:
+        print("Topic exists already")
+        retval = clear_kafka_topic(topic)
+        if retval:
+            print("Topic cleared successfully")
         else:
-            print('Topic created successfully')
+            print("Falied to clear topic")
+        return retval
+    print("Creating Kafka topic " + topic)
+    retval = run_script(['./sh_test_tools/docker_tools/create-topic.sh', topic])[0]
+    if retval:
+        print('Topic created successfully')
     else:
         print('Failed to create topic')
     return retval

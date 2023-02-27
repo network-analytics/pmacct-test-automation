@@ -19,7 +19,7 @@ class Test_Smoke:
 
     @print_message('Creating daisy topic and starting pmacct container')
     def setup_class():
-        assert scripts.create_daisy_topic(kafka_topic_name)
+        assert scripts.create_or_clear_kafka_topic(kafka_topic_name)
         assert scripts.start_pmacct_container(pmacct_conf_file_fullpath)
         assert scripts.wait_pmacct_running(5) # wait 5 seconds
 
@@ -40,15 +40,11 @@ class Test_Smoke:
     @print_message('Stopping and removing pmacct container')
     def teardown_class():
         scripts.stop_and_remove_pmacct_container()
-        #pass
 
 
 @print_message('Stopping and removing Kafka containers (zoekeeper, broker, schema-registry)')
 def teardown_module():
     scripts.stop_and_remove_kafka_containers()
-    #pass
-
-
 
 
 
