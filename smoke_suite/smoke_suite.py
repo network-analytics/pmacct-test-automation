@@ -25,13 +25,14 @@ class Test_Smoke:
 
     @print_message('Running smoke test functionality')
     def test_smoketest(self):
+        time_traffic_started = round(time.time() * 1000)  # current timestamp in milliseconds
         packets_sent = scripts.send_smoketest_ipfix_packets()
-        time_sent = round(time.time()*1000) # current timestamp in milliseconds
+        time_traffic_stopped = round(time.time()*1000) # current timestamp in milliseconds
         assert packets_sent>=0
         packet_info = kafka_consumer.check_packets_in_kafka_message(kafka_topic_name)
         assert packet_info!=None
         assert packet_info[0]>=0 # packets processed
-        print('Pmacct needed ' + str(packet_info[1]-time_sent) + 'ms to respond')
+        print('Pmacct needed ' + str(packet_info[1]-time_traffic_started) + 'ms to respond')
         assert packets_sent==packet_info[0]
 
     @print_message('Stopping and removing pmacct container')

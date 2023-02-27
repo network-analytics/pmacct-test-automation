@@ -17,29 +17,27 @@ def stop_and_remove_pmacct_container():
 
 def wait_pmacct_running(seconds):
     def checkfunction(out):
-        return len(out)>1 and out[0] and not 'false' in out[1].lower()
+        return out[0] and not 'false' in out[1].lower()
     return wait_for_container('./sh_test_tools/docker_tools/check-container-running.sh', 'pmacct', checkfunction, seconds)
 
 def check_broker_running():
-    def checkfunction(out):
-        return len(out)>1 and out[0] and not 'false' in out[1].lower()
-    return wait_for_container('./sh_test_tools/docker_tools/check-container-running.sh', 'broker', checkfunction, 1)
+    return run_script(['./sh_test_tools/docker_tools/check-container-running.sh', 'broker'])[0]
 
 def wait_schemaregistry_healthy(seconds):
     def checkfunction(out):
-        return len(out)>1 and out[0] and 'healthy' in out[1].lower()
+        return out[0] and 'healthy' in out[1].lower()
     return wait_for_container('./sh_test_tools/docker_tools/check-container-health.sh', 'schema-registry', checkfunction, seconds, 5)
 
 def create_daisy_topic(topic):
     out = run_script(['./sh_test_tools/docker_tools/create-topic.sh', topic])
-    if len(out)<1 or not out[0]:
+    if not out[0]:
         print('Topic creation failed')
         return False
     existsAlready = False
     if 'returned non-zero exit status' in out[1]:
         existsAlready = True
     out = run_script('./sh_test_tools/docker_tools/list-topics.sh')
-    retval = len(out)>1 and out[0] and topic in out[1]
+    retval = out[0] and topic in out[1]
     if retval:
         if existsAlready:
             print ('Topic exists already')
