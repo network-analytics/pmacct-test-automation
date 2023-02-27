@@ -29,7 +29,7 @@ class Test_Smoke:
         packets_sent = scripts.send_smoketest_ipfix_packets()
         time_traffic_stopped = round(time.time()*1000) # current timestamp in milliseconds
         assert packets_sent>=0
-        packet_info = kafka_consumer.check_packets_in_kafka_message(kafka_topic_name)
+        packet_info = kafka_consumer.check_packets_in_kafka_message(kafka_topic_name, packets_sent)
         assert packet_info!=None
         assert packet_info[0]>=0 # packets processed
         print('Traffic generation started at 0ms')
@@ -40,12 +40,13 @@ class Test_Smoke:
     @print_message('Stopping and removing pmacct container')
     def teardown_class():
         scripts.stop_and_remove_pmacct_container()
+        #pass
 
 
 @print_message('Stopping and removing Kafka containers (zoekeeper, broker, schema-registry)')
 def teardown_module():
     scripts.stop_and_remove_kafka_containers()
-
+    #pass
 
 
 
@@ -58,7 +59,4 @@ def teardown_module():
     #     # run before each test case starts
     #     pass
 
-    # @print_message('Make sure traffic generator has finished')
-    # def teardown_method(self, method):
-    #     # run after each test case finishes
-    #     pass
+
