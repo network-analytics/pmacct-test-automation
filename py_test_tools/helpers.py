@@ -1,8 +1,14 @@
+###################################################
+# Automated Testing Framework for Network Analytics
+#
+# helpers file for python auxiliary functions
+#
+###################################################
 
 import re
 
-# message printing decorator for the test file
-def print_message(msg):
+# Message printing decorator for the tests
+def print_message(msg: str) -> str:
     def decorator(fun):
         def wrapper(*args, **kwargs):
             print('\033[94m' + fun.__name__ + '\033[0m' + ': ' + msg)
@@ -10,21 +16,11 @@ def print_message(msg):
         return wrapper
     return decorator
 
-
-def find_kafka_topic_name(filename):
+# Gets a pmacct configuration filename as input and returns the name of the Kafka topic
+def find_kafka_topic_name(filename: str) -> str:
     with open(filename) as f:
         content = f.read()
         matches = re.findall(r"(?<=kafka_topic: ).+", content)
     if len(matches)<1:
         return None
     return matches[0]
-
-
-
-def my_decorator(func):
-    def wrapper(*args, **kwargs):
-        print("Before the method call")
-        result = func(*args, **kwargs)
-        print("After the method call")
-        return result
-    return wrapper

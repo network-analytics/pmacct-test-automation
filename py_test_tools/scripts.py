@@ -1,44 +1,65 @@
+###################################################
+# Automated Testing Framework for Network Analytics
+#
+# python functions calling specific shell scripts
+# and returning the outcome
+#
+###################################################
 
 from py_test_tools.script_tools import *
 import re
 
-
-def start_kafka_containers():
+# Starts Kafka containers using docker-compose and returns success or not
+def start_kafka_containers() -> bool:
     print("Starting Kafka containers")
     return run_script('./sh_test_tools/kafka_compose/start.sh')[0]
 
-def start_pmacct_container(pmacct_conf_file):
+# Starts pmacct container using docker run and returns success or not
+# If the pmacct container exists, it removes it using docker rm (pmacct needs to have exited)
+# It gets as input the full-path filename of the pmacct configuration file
+def start_pmacct_container(pmacct_conf_file: str) -> bool:
     print("Starting pmacct container")
     return run_script(['./sh_test_tools/pmacct_docker/start.sh', pmacct_conf_file])[0]
 
-def stop_and_remove_kafka_containers():
+# Stops Kafka containers using docker-compose and returns success or not
+def stop_and_remove_kafka_containers() -> bool:
     print("Stopping Kafka containers")
     return run_script('./sh_test_tools/kafka_compose/stop.sh')[0]
 
-def stop_and_remove_pmacct_container():
+# Stops pmacct container using docker stop and docker rm and returns success or not
+def stop_and_remove_pmacct_container() -> bool:
     print("Stopping and removing pmacct container")
     return run_script('./sh_test_tools/pmacct_docker/stop.sh')[0]
 
-def wait_pmacct_running(seconds):
+# Waits for pmacct container to be reported as running and return success or not
+# seconds: maximum time to wait for pmacct
+def wait_pmacct_running(seconds: int) -> bool:
     def checkfunction(out):
         return out[0] and not 'false' in out[1].lower()
     return wait_for_container('./sh_test_tools/docker_tools/check-container-running.sh', 'pmacct', checkfunction, seconds)
 
-def check_broker_running():
+# Checks if broker container is running or not and return boolean value
+def check_broker_running() -> bool:
     print("Checking if broker is running")
     return run_script(['./sh_test_tools/docker_tools/check-container-running.sh', 'broker'])[0]
 
-def wait_schemaregistry_healthy(seconds):
+# Waits for schema-registry container to be reported as healthy and return success or not
+# seconds: maximum time to wait for schema-registry
+def wait_schemaregistry_healthy(seconds: int) -> bool:
     print("Checking if schema-registry is healthy")
     def checkfunction(out):
         return out[0] and 'healthy' in out[1].lower()
     return wait_for_container('./sh_test_tools/docker_tools/check-container-health.sh', 'schema-registry', checkfunction, seconds, 5)
 
-def clear_kafka_topic(topic):
+# Clears Kafka topic by moving the low_watermark to the end of the messages. Returns success or failure.
+# topic: the name of the topic to clear
+def clear_kafka_topic(topic: str) -> bool:
     print("Clearing topic " + topic)
     return run_script(['./sh_test_tools/docker_tools/clear-topic.sh', topic])[0]
 
-def create_or_clear_kafka_topic(topic):
+# Creates new Kafka topic. If it exists already, it clears/resets it.
+# topic: name of the topic to create
+def create_or_clear_kafka_topic(topic: str) -> bool:
     print("Creating (or clearing) Kafka topic " + topic)
     out = run_script('./sh_test_tools/docker_tools/list-topics.sh')
     if not out[0]:
@@ -60,7 +81,8 @@ def create_or_clear_kafka_topic(topic):
         print('Failed to create topic')
     return retval
 
-def send_smoketest_ipfix_packets():
+# Sends IPFIX packets to pmacct for smoke test purposes. It returns the number of packets sent, or -1 upon failure
+def send_smoketest_ipfix_packets() -> int:
     print('Sending IPFIX packets for smoke test')
     [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', '10.1.1.1', \
                                     '-D', '10', '-F', '15', '-C', '1', '-w', '10', '-p', '2929'])

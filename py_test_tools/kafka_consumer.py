@@ -1,10 +1,23 @@
+###################################################
+# Automated Testing Framework for Network Analytics
+#
+# functions for Kafka consumption
+#
+###################################################
 
 #from confluent_kafka.avro.serializer import SerializerError
 from confluent_kafka.avro import AvroConsumer
+from confluent_kafka import cimpl
 import time
+from typing import List
 
-
-def get_all_messages(topic, max_time_seconds, packets_expected):
+# Reads all messages currently available in Kafka topic
+# topic: Kafka topic name to read messages from
+# packets_expected: number of packets expected to be reported by pmacct. If the sum of packets reported
+#    in the messages reaches this number, the message reading process is stopped and messages are returned
+# max_time_seconds: maximum time in seconds, in which the expected number of packets needs to be reported. If
+#    the time is reached without all packets having been reported, the messages read so far are returned
+def get_all_messages(topic: str, max_time_seconds: int, packets_expected: int) -> List[cimpl.Message]:
     consumer = AvroConsumer({
         'bootstrap.servers': 'localhost:9092',
         'schema.registry.url': 'http://localhost:8081',
@@ -37,17 +50,22 @@ def get_all_messages(topic, max_time_seconds, packets_expected):
     return messages
 
 
-def check_packets_in_kafka_message(topic, packets_expected):
+# Returns the total number of packets reported by pmacct in the queued Kafka messages
+# It uses get_all_messages function and a max waiting time of 120 seconds
+# topic: Kafka topic name to read messages from
+# packets_expected: number of packets expected to be reported by pmacct. If equal or more packets are reported,
+#    process stops. Also, if time exceeds 120 seconds, the process stops.
+def check_packets_in_kafka_message(topic: str, packets_expected: int) -> (int, int):
     tries = 20
     messages = get_all_messages(topic, 120, packets_expected)
     if not messages:
         print('Kafka consumer timed out')
         return None
-    print('Received following data from pmacct through Kafka: ')
+    #print('Received following data from pmacct through Kafka: ')
     packet_count = 0
     for msg in messages:
         packet_count += int(msg.value()["packets"])
-        print(str(msg.value()))
+        #print(str(msg.value()))
     message_timestamp = int(messages[0].timestamp()[1])
     print('Pmacct processed ' + str(packet_count) + ' packets')
     return (packet_count, message_timestamp)
