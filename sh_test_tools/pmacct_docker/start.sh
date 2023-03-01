@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 PMACCTD_CONF="$1"
 
 # find directory, where this script resides

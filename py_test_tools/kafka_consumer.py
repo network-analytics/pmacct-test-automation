@@ -33,7 +33,6 @@ def get_all_messages(topic: str, max_time_seconds: int, packets_expected: int) -
         msg = consumer.poll(5)
         if not msg or msg.error():
             print('No msg or msg error, sleeping (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
-            #time.sleep(2)
         else:
             print('Received: ' + str(msg.value()))
             messages.append(msg)
@@ -61,11 +60,9 @@ def check_packets_in_kafka_message(topic: str, packets_expected: int) -> (int, i
     if not messages:
         print('Kafka consumer timed out')
         return None
-    #print('Received following data from pmacct through Kafka: ')
     packet_count = 0
     for msg in messages:
         packet_count += int(msg.value()["packets"])
-        #print(str(msg.value()))
     message_timestamp = int(messages[0].timestamp()[1])
     print('Pmacct processed ' + str(packet_count) + ' packets')
     return (packet_count, message_timestamp)

@@ -5,7 +5,7 @@
 #
 ###################################################
 
-import re
+import re, time
 
 # Message printing decorator for the tests
 def print_message(msg: str) -> str:
@@ -24,3 +24,6 @@ def find_kafka_topic_name(filename: str) -> str:
     if len(matches)<1:
         return None
     return matches[0]
+
+def get_current_time_in_milliseconds() -> int:
+    return round(time.time()*1000)
