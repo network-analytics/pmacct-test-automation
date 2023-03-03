@@ -5,13 +5,15 @@
 #
 ###################################################
 
-import re, time
+import re, time, logging
+logger = logging.getLogger(__name__)
 
 # Message printing decorator for the tests
-def print_message(msg: str) -> str:
+def log_message(msg: str) -> str:
     def decorator(fun):
         def wrapper(*args, **kwargs):
-            print('\033[94m' + fun.__name__ + '\033[0m' + ': ' + msg)
+            #print('\033[94m' + fun.__name__ + '\033[0m' + ': ' + msg)
+            logger.info('\033[94m' + fun.__name__ + '\033[0m' + ': ' + msg)
             return fun(*args, **kwargs)
         return wrapper
     return decorator

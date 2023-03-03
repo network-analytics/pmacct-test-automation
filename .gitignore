@@ -5,4 +5,7 @@
 notes.rtf
 sh_test_tools/pmacct_docker/output_schema_folder/*
 sh_test_tools/docker_tools/clear-topic.json
+report
+report.html
+assets/*
 

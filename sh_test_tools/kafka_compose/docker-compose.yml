@@ -19,7 +19,7 @@ services:
     image: remote-docker.artifactory.swisscom.com/confluentinc/cp-kafka:7.3.0
     container_name: broker
     ports:
-#      - "29092:29092" not required cause 29092 only gives out network-internal hostnames
+#      - "29092:29092" such mapping not required cause 29092 only gives out network-internal hostnames
       - "9092:9092"
     healthcheck:
       test: kafka-topics --bootstrap-server broker:9092 --list
@@ -56,7 +56,7 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:29092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
-# pmacct is deployed as a sepaarate container
+# pmacct is deployed as a separate container
 #  pmacct:
 #    image: remote-docker.artifactory.swisscom.com/pmacct/nfacctd:latest
 #    container_name: pmacct

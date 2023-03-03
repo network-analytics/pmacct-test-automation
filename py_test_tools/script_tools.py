@@ -6,9 +6,9 @@
 #
 ###################################################
 
-import subprocess
-import time
+import subprocess, time, logging
 from typing import List, Callable, Tuple
+logger = logging.getLogger(__name__)
 
 
 # Runs the command and returns a tuple of its result (success or not) and the message output
@@ -32,16 +32,16 @@ def run_script(command: List[str]) -> (bool, str):
 #    tuple of the form (bool, str) and returns True or False, in terms of the state having been reached or not
 def wait_for_container(command: List[str], name: str, checkfunc: Callable[[Tuple[bool, str]], bool], seconds: int, \
                        sec_update: int =1) -> bool:
-    print('Waiting for ' + name + ' to be functional')
+    logger.info('Waiting for ' + name + ' to be functional')
     out = run_script([command, name])
     while not checkfunc(out):
         seconds -= 1
         if seconds < 0:
-            print(name + ' check timed out')
+            logger.info(name + ' check timed out')
             return False
         time.sleep(1)
         if seconds % sec_update == 0:
-            print('Still waiting for ' + name + '...')
+            logger.debug('Still waiting for ' + name + '...')
         out = run_script([command, name])
-    print(name + ' is up and running')
+    logger.info(name + ' is up and running')
     return True

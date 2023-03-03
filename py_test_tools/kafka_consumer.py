@@ -8,8 +8,9 @@
 #from confluent_kafka.avro.serializer import SerializerError
 from confluent_kafka.avro import AvroConsumer
 from confluent_kafka import cimpl
-import time
+import time, logging
 from typing import List
+logger = logging.getLogger(__name__)
 
 # Reads all messages currently available in Kafka topic
 # topic: Kafka topic name to read messages from
@@ -32,19 +33,21 @@ def get_all_messages(topic: str, max_time_seconds: int, packets_expected: int) -
     while packets_expected>0 and time_now-time_start<max_time_seconds:
         msg = consumer.poll(5)
         if not msg or msg.error():
-            print('No msg or msg error, sleeping (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
+            logger.debug('No msg or msg error, sleeping (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
         else:
-            print('Received: ' + str(msg.value()))
+            packets_received = int(msg.value()["packets"])
+            logger.info('Received: ' + str(packets_received) + ' packets')
+            logger.debug('Received message: ' + str(msg.value()))
             messages.append(msg)
-            packets_expected -= int(msg.value()["packets"])
+            packets_expected -= packets_received
             if packets_expected>0:
-                print('Waiting for ' + str(packets_expected) + ' packets to be reported')
+                logger.info('Waiting for ' + str(packets_expected) + ' more packets to be reported')
         time_now = round(time.time())
     consumer.close()
     if packets_expected<1:
-        print('All sent packets reported')
+        logger.info('All sent packets reported')
     if len(messages)<1:
-        print('No messages read by kafka consumer in ' + str(max_time_seconds) + ' seconds - ', end='')
+        logger.info('No messages read by kafka consumer in ' + str(max_time_seconds) + ' seconds - ', end='')
         return None
     return messages
 
@@ -58,11 +61,11 @@ def check_packets_in_kafka_message(topic: str, packets_expected: int) -> (int, i
     tries = 20
     messages = get_all_messages(topic, 120, packets_expected)
     if not messages:
-        print('Kafka consumer timed out')
+        logger.info('Kafka consumer timed out')
         return None
     packet_count = 0
     for msg in messages:
         packet_count += int(msg.value()["packets"])
     message_timestamp = int(messages[0].timestamp()[1])
-    print('Pmacct processed ' + str(packet_count) + ' packets')
+    logger.info('Pmacct processed ' + str(packet_count) + ' packets')
     return (packet_count, message_timestamp)
