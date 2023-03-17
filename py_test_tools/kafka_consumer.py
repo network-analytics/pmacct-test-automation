@@ -47,7 +47,7 @@ def get_all_messages(topic: str, max_time_seconds: int, packets_expected: int) -
     if packets_expected<1:
         logger.info('All sent packets reported')
     if len(messages)<1:
-        logger.info('No messages read by kafka consumer in ' + str(max_time_seconds) + ' seconds - ', end='')
+        logger.info('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
         return None
     return messages
 
@@ -57,9 +57,10 @@ def get_all_messages(topic: str, max_time_seconds: int, packets_expected: int) -
 # topic: Kafka topic name to read messages from
 # packets_expected: number of packets expected to be reported by pmacct. If equal or more packets are reported,
 #    process stops. Also, if time exceeds 120 seconds, the process stops.
-def check_packets_in_kafka_message(topic: str, packets_expected: int) -> (int, int):
+# max_time: time to wait for messages to come
+def check_packets_in_kafka_message(topic: str, packets_expected: int, max_time: int =120) -> (int, int):
     tries = 20
-    messages = get_all_messages(topic, 120, packets_expected)
+    messages = get_all_messages(topic, max_time, packets_expected)
     if not messages:
         logger.info('Kafka consumer timed out')
         return None
