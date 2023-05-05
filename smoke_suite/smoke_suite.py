@@ -21,10 +21,11 @@ class Test_Smoke:
     def setup_class():
         pmacct_conf_file_fullpath = os.path.dirname(__file__) + '/pmacctd.conf'
         assert os.path.isfile(pmacct_conf_file_fullpath)
+        pmacct_mount_folder_fullpath = os.path.dirname(__file__) + '/pmacct_mount'
         Test_Smoke.kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
         assert Test_Smoke.kafka_topic_name!=None
         assert scripts.create_or_clear_kafka_topic(Test_Smoke.kafka_topic_name)
-        assert scripts.start_pmacct_container(pmacct_conf_file_fullpath)
+        assert scripts.start_pmacct_container(pmacct_conf_file_fullpath, pmacct_mount_folder_fullpath)
         assert scripts.wait_pmacct_running(5) # wait 5 seconds
 
     @log_message('Smoke test method setup (dummy)')

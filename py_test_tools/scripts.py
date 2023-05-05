@@ -18,9 +18,9 @@ def start_kafka_containers() -> bool:
 # Starts pmacct container using docker run and returns success or not
 # If the pmacct container exists, it removes it using docker rm (pmacct needs to have exited)
 # It gets as input the full-path filename of the pmacct configuration file
-def start_pmacct_container(pmacct_conf_file: str) -> bool:
+def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str) -> bool:
     logging.info("Starting pmacct container")
-    return run_script(['./sh_test_tools/pmacct_docker/start.sh', pmacct_conf_file])[0]
+    return run_script(['./sh_test_tools/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath])[0]
 
 # Stops Kafka containers using docker-compose and returns success or not
 def stop_and_remove_kafka_containers() -> bool:
