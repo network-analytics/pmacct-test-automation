@@ -22,6 +22,7 @@ class Test_Smoke:
         pmacct_conf_file_fullpath = os.path.dirname(__file__) + '/pmacctd.conf'
         assert os.path.isfile(pmacct_conf_file_fullpath)
         pmacct_mount_folder_fullpath = os.path.dirname(__file__) + '/pmacct_mount'
+        assert os.path.exists(pmacct_mount_folder_fullpath + '/pmacct_output')
         Test_Smoke.kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
         assert Test_Smoke.kafka_topic_name!=None
         assert scripts.create_or_clear_kafka_topic(Test_Smoke.kafka_topic_name)
