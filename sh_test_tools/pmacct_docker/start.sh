@@ -21,4 +21,3 @@ docker run -v "$PMACCT_CONF":/etc/pmacct/nfacctd.conf \
            -p 2929:8989/udp \
            --name pmacct \
            remote-docker.artifactory.swisscom.com/pmacct/nfacctd >/dev/null 2>&1 &
-

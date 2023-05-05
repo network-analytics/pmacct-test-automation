@@ -7,7 +7,7 @@
 ###################################################
 
 from py_test_tools.script_tools import *
-import re, logging
+import re, logging, os
 logger = logging.getLogger(__name__)
 
 # Starts Kafka containers using docker-compose and returns success or not
@@ -43,6 +43,11 @@ def wait_pmacct_running(seconds: int) -> bool:
 def check_broker_running() -> bool:
     logging.info("Checking if broker is running")
     return run_script(['./sh_test_tools/docker_tools/check-container-running.sh', 'broker'])[0]
+
+# Sends signal to container
+def send_signal_to_pmacct(sig: str) -> bool:
+    logging.info("Sending signal " + sig + " to pmacct")
+    return run_script(['./sh_test_tools/docker_tools/send-signal.sh', 'pmacct', sig])[0]
 
 # Waits for schema-registry container to be reported as healthy and return success or not
 # seconds: maximum time to wait for schema-registry
@@ -83,6 +88,7 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
     return retval
 
 # Sends IPFIX packets to pmacct for smoke test purposes. It returns the number of packets sent, or -1 upon failure
+# Sending lasts 10 seconds
 def send_smoketest_ipfix_packets() -> int:
     logging.info('Sending IPFIX packets for smoke test')
     [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', '10.1.1.1', \
@@ -97,3 +103,26 @@ def send_smoketest_ipfix_packets() -> int:
     logging.info('Sent ' + matches[0] + " IPFIX packets")
     return int(matches[0])
 
+# Sends IPFIX packets to pmacct for test purposes. It returns the number of packets sent, or -1 upon failure
+# Sending lasts 1 second
+def send_1sec_ipfix_packets() -> int:
+    logging.info('Sending IPFIX packets for 1 second')
+    [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', '10.1.1.1', \
+                                    '-D', '1', '-F', '15', '-C', '1', '-w', '10', '-p', '2929'])
+    if not success:
+        logging.info('Sending IPFIX packets failed')
+        return -1
+    matches = re.findall(r"(?<=Sent ).+(?= packets)", output)
+    if len(matches)<1:
+        logging.info('Could not determine how many IPFIX packets were sent')
+        return -1
+    logging.info('Sent ' + matches[0] + " IPFIX packets")
+    return int(matches[0])
+
+# Checks for text in pmacct logs
+def check_file_for_text(filename: str, txt: str) -> bool:
+    logging.info("Checking file " + os.path.basename(filename) + " for text \"" + txt + "\"")
+    retVal = run_script(['grep', txt, filename])[0]
+    if retVal:
+        logging.info("Text \"" + txt + "\" found!")
+    return run_script(['grep', txt, filename])[0]
