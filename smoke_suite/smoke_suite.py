@@ -6,22 +6,24 @@ import os, logging
 logger = logging.getLogger(__name__)
 
 
-pmacct_conf_file_fullpath = os.path.dirname(__file__) + '/pmacctd.conf'
-kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
-
 @log_message('Starting Kafka containers (zoekeeper, broker, schema-registry)')
 def setup_module():
     assert not scripts.check_broker_running()
-    assert kafka_topic_name!=None
     assert scripts.start_kafka_containers()
     assert scripts.wait_schemaregistry_healthy(120)
 
 
 class Test_Smoke:
 
+    kafka_topic_name = None
+
     @log_message('Creating daisy topic and starting pmacct container')
     def setup_class():
-        assert scripts.create_or_clear_kafka_topic(kafka_topic_name)
+        pmacct_conf_file_fullpath = os.path.dirname(__file__) + '/pmacctd.conf'
+        assert os.path.isfile(pmacct_conf_file_fullpath)
+        Test_Smoke.kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
+        assert Test_Smoke.kafka_topic_name!=None
+        assert scripts.create_or_clear_kafka_topic(Test_Smoke.kafka_topic_name)
         assert scripts.start_pmacct_container(pmacct_conf_file_fullpath)
         assert scripts.wait_pmacct_running(5) # wait 5 seconds
 
@@ -35,7 +37,7 @@ class Test_Smoke:
         packets_sent = scripts.send_smoketest_ipfix_packets()
         time_traffic_stopped = get_current_time_in_milliseconds()
         assert packets_sent>=0
-        packet_info = kafka_consumer.check_packets_in_kafka_message(kafka_topic_name, packets_sent)
+        packet_info = kafka_consumer.check_packets_in_kafka_message(Test_Smoke.kafka_topic_name, packets_sent)
         assert packet_info!=None
         assert packet_info[0]>=0 # verify that pmacct processed and reported at least 1 packet
         logger.info('Zero offset set as the time when traffic generation started')
@@ -50,7 +52,7 @@ class Test_Smoke:
         time_traffic_stopped = get_current_time_in_milliseconds()
         assert packets_sent >= 0
         # waiting for only 1 second below guarantees failure, cause no message is read from Kafka within that time
-        packet_info = kafka_consumer.check_packets_in_kafka_message(kafka_topic_name, packets_sent, 1)
+        packet_info = kafka_consumer.check_packets_in_kafka_message(Test_Smoke.kafka_topic_name, packets_sent, 1)
         assert packet_info != None
         assert packet_info[0] >= 0  # verify that pmacct processed and reported at least 1 packet
         logger.info('Zero offset set as the time when traffic generation started')
