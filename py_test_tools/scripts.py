@@ -87,28 +87,12 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
         logging.info('Failed to create topic')
     return retval
 
-# Sends IPFIX packets to pmacct for smoke test purposes. It returns the number of packets sent, or -1 upon failure
-# Sending lasts 10 seconds
-def send_smoketest_ipfix_packets() -> int:
+# Sends IPFIX packets to pmacct. It returns the number of packets sent, or -1 upon failure
+# Sending lasts as many seconds, as defined in "duration" (default 1 sec)
+def send_ipfix_packets(duration: int = 1) -> int:
     logging.info('Sending IPFIX packets for smoke test')
     [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', '10.1.1.1', \
-                                    '-D', '10', '-F', '15', '-C', '1', '-w', '10', '-p', '2929'])
-    if not success:
-        logging.info('Sending IPFIX packets failed')
-        return -1
-    matches = re.findall(r"(?<=Sent ).+(?= packets)", output)
-    if len(matches)<1:
-        logging.info('Could not determine how many IPFIX packets were sent')
-        return -1
-    logging.info('Sent ' + matches[0] + " IPFIX packets")
-    return int(matches[0])
-
-# Sends IPFIX packets to pmacct for test purposes. It returns the number of packets sent, or -1 upon failure
-# Sending lasts 1 second
-def send_1sec_ipfix_packets() -> int:
-    logging.info('Sending IPFIX packets for 1 second')
-    [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', '10.1.1.1', \
-                                    '-D', '1', '-F', '15', '-C', '1', '-w', '10', '-p', '2929'])
+                                    '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '2929'])
     if not success:
         logging.info('Sending IPFIX packets failed')
         return -1

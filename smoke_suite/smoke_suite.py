@@ -37,7 +37,7 @@ class Test_Smoke:
     @log_message('Running smoke test functionality')
     def test_smoketest(self):
         time_traffic_started = get_current_time_in_milliseconds()
-        packets_sent = scripts.send_smoketest_ipfix_packets()
+        packets_sent = scripts.send_ipfix_packets(5)
         time_traffic_stopped = get_current_time_in_milliseconds()
         assert packets_sent>=0
         packet_info = kafka_consumer.check_packets_in_kafka_message(Test_Smoke.kafka_topic_name, packets_sent)
@@ -51,7 +51,7 @@ class Test_Smoke:
     @log_message('Running failing smoke test functionality')
     def test_failingtest(self):
         time_traffic_started = get_current_time_in_milliseconds()
-        packets_sent = scripts.send_smoketest_ipfix_packets()
+        packets_sent = scripts.send_ipfix_packets(5)
         time_traffic_stopped = get_current_time_in_milliseconds()
         assert packets_sent >= 0
         # waiting for only 1 second below guarantees failure, cause no message is read from Kafka within that time

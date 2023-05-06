@@ -42,7 +42,7 @@ class Test_Signal:
 
     @log_message('Running Signal test functionality')
     def test_signaltest(self):
-        packets_sent = scripts.send_1sec_ipfix_packets()
+        packets_sent = scripts.send_ipfix_packets()
         assert packets_sent>=0
         packet_info = kafka_consumer.check_packets_and_get_IP(Test_Signal.kafka_topic_name, packets_sent)
         assert packet_info!=None
@@ -53,7 +53,7 @@ class Test_Signal:
         with open(Test_Signal.pmacct_mount_folder_fullpath + '/pretag.map', 'w') as f:
             f.write("set_label=nkey%node_test%pkey%platform_test ip="+peer_ip+"/32\nset_label=nkey%unknown%pkey%unknown")
         assert scripts.send_signal_to_pmacct('SIGUSR2')
-        packets_sent = scripts.send_1sec_ipfix_packets()
+        packets_sent = scripts.send_ipfix_packets()
         assert packets_sent >= 0
         packet_info = kafka_consumer.check_packets_in_kafka_message(Test_Signal.kafka_topic_name, packets_sent)
         assert packet_info != None
