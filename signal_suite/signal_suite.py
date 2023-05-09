@@ -1,5 +1,5 @@
 
-from py_test_tools.helpers import log_message, find_kafka_topic_name, get_current_time_in_milliseconds
+from py_test_tools.helpers import log_message, find_kafka_topic_name
 import py_test_tools.kafka_consumer as kafka_consumer
 import py_test_tools.scripts as scripts
 import os, logging

@@ -110,3 +110,23 @@ def check_file_for_text(filename: str, txt: str) -> bool:
     if retVal:
         logging.info("Text \"" + txt + "\" found!")
     return run_script(['grep', txt, filename])[0]
+
+#
+#
+def replay_pcap_file(config_file_name: str) -> bool:
+    logging.info('Replaying pcap file ' + os.path.basename(config_file_name))
+    [success, output] = run_script(['python3', './traffic_generators/reproduction/main.py', '-t', \
+                                    config_file_name]) #, '-v'])
+    if not success:
+        logging.info('Replaying failed')
+    else:
+        logging.info('Replaying succeeded')
+    return success
+
+#
+#
+def replace_in_file(filename: str, from_str: str, to_str: str) -> bool:
+    logging.info('Replacing ' + from_str + ' to ' + to_str)
+    [success, output] = run_script(['sed', '-i', '"s/' + from_str + '/' + to_str + '/g"', filename])
+    return success
+

@@ -7,14 +7,14 @@ logger = logging.getLogger(__name__)
 
 
 
-pmacct_conf_file_fullpath = os.path.dirname(__file__) + '/pmacctd.conf'
+pmacct_conf_file_fullpath = os.path.dirname(__file__) + '/pmacctd_001.conf'
 
 pmacct_mount_folder_fullpath = os.path.dirname(__file__) + '/pmacct_mount'
 
 kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
 print('Kafka topic name: ' + kafka_topic_name)
 
-messages = kafka_consumer.get_all_messages(kafka_topic_name, 30, 1)
+messages = kafka_consumer.get_all_messages(kafka_topic_name, 5, 1000000)
 
 if not messages or len(messages)<1:
     print('No messages read')

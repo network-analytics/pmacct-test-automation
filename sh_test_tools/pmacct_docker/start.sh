@@ -19,5 +19,8 @@ docker run -v "$PMACCT_CONF":/etc/pmacct/nfacctd.conf \
            -v "$PMACCT_MOUNT":/var/log/pmacct \
            --network pmacct_test_network \
            -p 2929:8989/udp \
+           -p 2929:8989/tcp \
            --name pmacct \
            remote-docker.artifactory.swisscom.com/pmacct/nfacctd >/dev/null 2>&1 &
+
+#            -p 3939:8989/tcp 
