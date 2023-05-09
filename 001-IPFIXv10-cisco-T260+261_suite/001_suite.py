@@ -1,5 +1,5 @@
 
-from py_test_tools.helpers import log_message, find_kafka_topic_name
+from py_test_tools.helpers import log_message, find_value_in_config_file
 import py_test_tools.kafka_consumer as kafka_consumer
 import py_test_tools.scripts as scripts
 import os, logging
@@ -26,13 +26,16 @@ class Test_001:
 
         Test_001.pcap_config_file = os.path.dirname(__file__) + '/traffic-reproducer-00.conf'
         assert os.path.isfile(Test_001.pcap_config_file)
-#        scripts.replace_in_file(Test_001.pcap_config_file, '<path_to>', os.path.dirname(__file__))
+
+        # pcap_filename = os.path.basename(find_value_in_config_file(Test_001.pcap_config_file, 'pcap'))
+        # scripts.replace_in_file(Test_001.pcap_config_file, 'pcap: ' + pcap_filename, 'pcap: ' + \
+        #                         os.path.dirname(__file__) + '/' + pcap_filename)
 
         Test_001.pmacct_mount_folder_fullpath = os.path.dirname(__file__) + '/pmacct_mount'
         assert os.path.exists(Test_001.pmacct_mount_folder_fullpath)
         Test_001.pmacct_mount_output_folder = Test_001.pmacct_mount_folder_fullpath + '/pmacct_output'
         assert os.path.exists(Test_001.pmacct_mount_output_folder)
-        Test_001.kafka_topic_name = find_kafka_topic_name(pmacct_conf_file_fullpath)
+        Test_001.kafka_topic_name = find_value_in_config_file(pmacct_conf_file_fullpath, 'kafka_topic')
         assert Test_001.kafka_topic_name!=None
         assert scripts.create_or_clear_kafka_topic(Test_001.kafka_topic_name)
         assert scripts.start_pmacct_container(pmacct_conf_file_fullpath, Test_001.pmacct_mount_folder_fullpath)
