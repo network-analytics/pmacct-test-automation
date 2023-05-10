@@ -35,3 +35,5 @@ Do:
 export PYTHONPATH=$(pwd); python3 ./smoke_suite/read_messages.py
 for reading available Kafka messages
 
+sudo python -m pytest -r tests/*/test.py --log-cli-level=DEBUG
+
