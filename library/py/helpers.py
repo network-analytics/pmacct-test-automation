@@ -18,24 +18,9 @@ def log_message(msg: str) -> str:
         return wrapper
     return decorator
 
-# TODO Replace with new function find_value_in_config_file
 # Gets a pmacct configuration filename as input and returns the name of the Kafka topic
 def find_kafka_topic_name(filename: str) -> str:
-    with open(filename) as f:
-        lines = f.readlines()
-        for line in lines:
-            if '#' in line:
-                line = line.split('#')[0].strip()
-                if len(line)<1:
-                    continue
-            if '!' in line:
-                line = line.split('!')[0].strip()
-                if len(line) < 1:
-                    continue
-            matches = re.findall(r"(?<=kafka_topic: ).+", line)
-            if len(matches) > 0:
-                return matches[0]
-    return None
+    return find_value_in_config_file(filename, 'kafka_topic')
 
 def find_value_in_config_file(filename: str, keyname: str) -> str:
     with open(filename) as f:

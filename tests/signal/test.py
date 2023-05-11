@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 testModuleParams = KModuleParams(sys.modules[__name__])
 
+
 @pytest.fixture(scope="module")
 def prepare_pretag(): # run before pmacct is set up
     logger.info('Creating initial pretag.map ' + testModuleParams.results_mount_folder + '/pretag.map')

@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 testModuleParams = KModuleParams(sys.modules[__name__])
 
+
 @pytest.fixture
 def prepare_pcap():
     test_config_file = testModuleParams.test_folder + '/traffic-reproducer-00.conf'
