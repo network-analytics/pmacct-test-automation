@@ -1,11 +1,10 @@
 **/.idea/
 **/venv/
 **/__pycache__/
-.DS_Store
+**/.DS_Store
 notes.rtf
-#sh_test_tools/pmacct_docker/output_schema_folder/*
 */pmacct_mount/pmacct_output/*
-sh_test_tools/docker_tools/clear-topic.json
+library/sh/docker_tools/clear-topic.json
 *.html
 assets/*
 
