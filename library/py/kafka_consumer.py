@@ -53,14 +53,13 @@ def get_all_messages(topic: str, max_time_seconds: int, packets_expected: int) -
 
 
 # Returns the total number of packets reported by pmacct in the queued Kafka messages, along
-# with the timestamp of the first message read
+# with the timestamp of the first message read and the whole last message
 # It uses get_all_messages function and a max waiting time of 120 seconds
 # topic: Kafka topic name to read messages from
 # packets_expected: number of packets expected to be reported by pmacct. If equal or more packets are reported,
 #    process stops. Also, if time exceeds 120 seconds, the process stops.
 # max_time: time to wait for messages to come (default 120)
 def check_packets_in_kafka_message(topic: str, packets_expected: int, max_time: int =120) -> (int, int):
-    tries = 20
     messages = get_all_messages(topic, max_time, packets_expected)
     if not messages:
         logger.info('Kafka consumer timed out')
@@ -70,7 +69,8 @@ def check_packets_in_kafka_message(topic: str, packets_expected: int, max_time: 
         packet_count += int(msg.value()["packets"])
     message_timestamp = int(messages[0].timestamp()[1])
     logger.info('Pmacct processed ' + str(packet_count) + ' packets')
-    return (packet_count, message_timestamp)
+    last_message = messages[-1].value()
+    return (packet_count, message_timestamp, last_message)
 
 # Returns the total number of packets reported by pmacct in the queued Kafka messages, along
 # with the value of the key peer_ip_src of the first message read
@@ -80,7 +80,6 @@ def check_packets_in_kafka_message(topic: str, packets_expected: int, max_time: 
 #    process stops. Also, if time exceeds 120 seconds, the process stops.
 # max_time: time to wait for messages to come (default 120)
 def check_packets_and_get_IP(topic: str, packets_expected: int, max_time: int =120) -> (int, int):
-    tries = 20
     messages = get_all_messages(topic, max_time, packets_expected)
     if not messages:
         logger.info('Kafka consumer timed out')
