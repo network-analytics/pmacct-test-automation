@@ -24,16 +24,33 @@ $ sudo python -m pytest smoke_suite/smoke_suite.py --log-cli-level=DEBUG --html=
 Local folder pmacct_mount is mounted on pmacct container's folder /var/log/pmacct
 
 
-## Debugging
-While at top directory:
+## Debugging and Developing
+
+While at net_ana root directory:
+
+Do:
+python -m pytest tests/test_skeleton/test.py -k 'test_start_kafka' --log-cli-level=DEBUG
+for starting kafka
+
+Do:
+python -m pytest tests/test_skeleton/test.py -k 'test_start_pmacct' --log-cli-level=DEBUG
+for starting pmacct
 
 Do:
 sudo python3 ./traffic_generators/ipfix/play_ipfix_packets.py -S 10.1.1.1 -D 1 -F 15 -C 1 -w 10 -p 2929
 for sending ipfix packets for 1 second
 
 Do:
-export PYTHONPATH=$(pwd); python3 ./smoke_suite/read_messages.py
+python -m pytest tests/test_skeleton/test.py -k 'read' --log-cli-level=DEBUG
 for reading available Kafka messages
+
+
+
+Finally:
+test_stop_pmacct
+test_stop_kafka
+
+
 
 sudo python -m pytest -r tests/*/test.py --log-cli-level=DEBUG
 
