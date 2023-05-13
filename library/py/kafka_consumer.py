@@ -91,3 +91,34 @@ def check_packets_and_get_IP(topic: str, packets_expected: int, max_time: int =1
     peer_ip = str(messages[0].value()["peer_ip_src"])
     logger.info('Peer src ip: ' + peer_ip)
     return (packet_count, peer_ip)
+
+def get_messages(topic: str, max_time_seconds: int, messages_expected: int) -> List[cimpl.Message]:
+    consumer = AvroConsumer({
+        'bootstrap.servers': 'localhost:9092',
+        'schema.registry.url': 'http://localhost:8081',
+        'security.protocol': 'PLAINTEXT',
+        'group.id': 'smoke_test',
+        'auto.offset.reset': 'earliest'
+    })
+    messages = []
+    consumer.subscribe([topic])
+    time_start = round(time.time())
+    time_now = round(time.time())
+    while messages_expected>0 and time_now-time_start<max_time_seconds:
+        msg = consumer.poll(5)
+        if not msg or msg.error():
+            logger.debug('No msg or msg error, sleeping (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
+        else:
+            logger.debug('Received message: ' + str(msg.value()))
+            messages.append(msg)
+            messages_expected -= 1
+            if messages_expected>0:
+                logger.info('Waiting for ' + str(messages_expected) + ' more messages')
+        time_now = round(time.time())
+    consumer.close()
+    if messages_expected<1:
+        logger.info('All expected messages received')
+    if len(messages)<1:
+        logger.info('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
+        return None
+    return messages

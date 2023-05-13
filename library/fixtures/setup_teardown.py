@@ -1,7 +1,6 @@
 
 import library.py.scripts as scripts
 import logging, pytest, os, shutil
-from library.py.helpers import find_kafka_topic_name
 logger = logging.getLogger(__name__)
 
 

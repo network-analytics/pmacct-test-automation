@@ -1,5 +1,4 @@
 
-from library.py.helpers import log_message, find_kafka_topic_name
 import library.py.kafka_consumer as kafka_consumer
 import library.py.scripts as scripts
 import os, logging, pytest, sys

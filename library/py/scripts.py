@@ -103,14 +103,6 @@ def send_ipfix_packets(duration: int = 1) -> int:
     logger.info('Sent ' + matches[0] + " IPFIX packets")
     return int(matches[0])
 
-# Checks for text in pmacct logs
-def check_file_for_text(filename: str, txt: str) -> bool:
-    logger.info("Checking file " + os.path.basename(filename) + " for text \"" + txt + "\"")
-    retVal = run_script(['grep', txt, filename])[0]
-    if retVal:
-        logger.info("Text \"" + txt + "\" found!")
-    return run_script(['grep', txt, filename])[0]
-
 #
 #
 def replay_pcap_file(config_file_name: str) -> bool:
@@ -121,15 +113,5 @@ def replay_pcap_file(config_file_name: str) -> bool:
         logger.info('Replaying failed')
     else:
         logger.info('Replaying succeeded')
-    return success
-
-# Replaces a string with another in a text file
-# TODO: account for simultaneous / and =
-def replace_in_file(filename: str, from_str: str, to_str: str) -> bool:
-    logger.info('Replacing ' + from_str + ' to ' + to_str + ' in file ' + filename)
-    if '/' in from_str or '/' in to_str:
-        [success, output] = run_script(['sed', '-i', '"s=' + from_str + '=' + to_str + '=g"', filename])
-    else:
-        [success, output] = run_script(['sed', '-i', '"s/' + from_str + '/' + to_str + '/g"', filename])
     return success
 

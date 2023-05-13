@@ -1,7 +1,7 @@
 
 import library.py.scripts as scripts
 import logging, pytest, os, shutil
-from library.py.helpers import find_kafka_topic_name
+from library.py.helpers import find_value_in_config_file, replace_in_file
 logger = logging.getLogger(__name__)
 
 
@@ -15,7 +15,11 @@ class KModuleParams:
         self.results_conf_file = self.results_folder + '/pmacctd.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
-        self.kafka_topic_name = find_kafka_topic_name(self.test_conf_file)
+        #self.kafka_topic_name = find_kafka_topic_name(self.test_conf_file)
+        self.kafka_topic_name = find_value_in_config_file(self.test_conf_file, 'kafka_topic')
+        self.original_log_file = find_value_in_config_file(self.test_conf_file, 'logfile')
+        self.pmacct_local_log_file = '/var/log/pmacct/pmacct_output/pmacctd.log'
+        self.results_log_file = self.results_output_folder + '/pmacctd.log'
 
 
 # Makes sure the framework is run from the right directory
@@ -48,9 +52,10 @@ def prepare_test(request):
 
     # Copy pmacct config file to results folder
     logger.info('Copying pmacct conf file to results folder')
-    logger.debug('From ' + params.test_conf_file)
+    logger.debug('From: ' + params.test_conf_file)
     logger.debug('To: ' + params.results_conf_file)
     shutil.copy(params.test_conf_file, params.results_conf_file)
+    replace_in_file(params.results_conf_file, params.original_log_file, params.pmacct_local_log_file)
 
     # Copy existing files in pmacct_mount to result mount folder
     if os.path.exists(params.test_mount_folder):
@@ -60,7 +65,7 @@ def prepare_test(request):
             full_file_name = os.path.join(params.test_mount_folder, file_name)
             if os.path.isfile(full_file_name) and not file_name.startswith('.'):
                 count += 1
-                logger.info('Copying: ' + full_file_name)
+                logger.debug('Copying: ' + full_file_name)
                 shutil.copy(full_file_name, params.results_mount_folder)
         logger.info('Copied ' + str(count) + ' files')
 
