@@ -1,6 +1,7 @@
 
 import library.py.scripts as scripts
-import logging, pytest, os, shutil
+import library.py.setup_tools as setup_tools
+import logging, pytest, os
 logger = logging.getLogger(__name__)
 
 
@@ -24,3 +25,13 @@ def pmacct_setup_teardown(request):
     yield
     scripts.stop_and_remove_pmacct_container()
 
+# Makes sure the framework is run from the right directory
+@pytest.fixture(scope="session")
+def check_root_dir():
+    logger.debug('Framework runs from directory: ' + os.getcwd())
+    assert os.path.basename(os.getcwd())=='net_ana'
+
+# Prepares results folder to receive logs and output from pmacct
+@pytest.fixture(scope="module")
+def prepare_test(request):
+    assert setup_tools.prepare_test_env(request.module)

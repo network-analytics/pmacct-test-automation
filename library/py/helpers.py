@@ -10,19 +10,9 @@ import shutil
 
 logger = logging.getLogger(__name__)
 
-# # Message printing decorator for the tests
-# def log_message(msg: str) -> str:
-#     def decorator(fun):
-#         def wrapper(*args, **kwargs):
-#             #print('\033[94m' + fun.__name__ + '\033[0m' + ': ' + msg)
-#             logger.info('\033[94m' + fun.__name__ + '\033[0m' + ': ' + msg)
-#             return fun(*args, **kwargs)
-#         return wrapper
-#     return decorator
-
 # Gets a pmacct configuration filename as input and returns the name of the Kafka topic
-def find_kafka_topic_name(filename: str) -> str:
-    return find_value_in_config_file(filename, 'kafka_topic')
+#def find_kafka_topic_name(filename: str) -> str:
+#    return find_value_in_config_file(filename, 'kafka_topic')
 
 def find_value_in_config_file(filename: str, keyname: str) -> str:
     with open(filename) as f:

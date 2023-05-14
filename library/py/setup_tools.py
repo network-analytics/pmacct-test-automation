@@ -1,6 +1,5 @@
 
-import library.py.scripts as scripts
-import logging, pytest, os, shutil
+import logging, os, shutil
 from library.py.helpers import find_value_in_config_file, replace_in_file
 logger = logging.getLogger(__name__)
 
@@ -15,28 +14,20 @@ class KModuleParams:
         self.results_conf_file = self.results_folder + '/pmacctd.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
-        #self.kafka_topic_name = find_kafka_topic_name(self.test_conf_file)
         self.kafka_topic_name = find_value_in_config_file(self.test_conf_file, 'kafka_topic')
         self.original_log_file = find_value_in_config_file(self.test_conf_file, 'logfile')
         self.pmacct_local_log_file = '/var/log/pmacct/pmacct_output/pmacctd.log'
         self.results_log_file = self.results_output_folder + '/pmacctd.log'
 
 
-# Makes sure the framework is run from the right directory
-@pytest.fixture(scope="session")
-def check_root_dir():
-    logger.debug('Framework runs from directory: ' + os.getcwd())
-    assert os.path.basename(os.getcwd())=='net_ana'
-
-
 # Prepares results folder to receive logs and output from pmacct
-@pytest.fixture(scope="module")
-def prepare_test(request):
-    params = request.module.testModuleParams
+def prepare_test_env(_module):
+    params = _module.testModuleParams
     logger.info('Test name: ' + params.test_name)
 
     # Make sure there's a pmacctd.conf file for pmacct configuration
-    assert os.path.isfile(params.test_conf_file)
+    if not os.path.isfile(params.test_conf_file):
+        return False
     logger.debug('Pmacct config file identified successfully')
 
     if os.path.exists(params.results_folder):
@@ -68,4 +59,4 @@ def prepare_test(request):
                 logger.debug('Copying: ' + full_file_name)
                 shutil.copy(full_file_name, params.results_mount_folder)
         logger.info('Copied ' + str(count) + ' files')
-
+    return True

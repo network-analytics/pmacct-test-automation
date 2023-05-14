@@ -1,10 +1,9 @@
 
+from library.py.setup_tools import KModuleParams
 from library.py.helpers import get_current_time_in_milliseconds
 import library.py.kafka_consumer as kafka_consumer
 import library.py.scripts as scripts
 import os, logging, pytest, sys, shutil
-from library.fixtures.prepare import check_root_dir, prepare_test, KModuleParams
-from library.fixtures.setup_teardown import kafka_infra_setup_teardown, pmacct_setup_teardown
 logger = logging.getLogger(__name__)
 
 testModuleParams = KModuleParams(sys.modules[__name__])
@@ -24,7 +23,7 @@ def test_smoketest(check_root_dir, kafka_infra_setup_teardown, prepare_test, pma
     assert packets_sent==packet_info[0]
 
 
-def test_failingtest(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown):
+def tes_t_failingtest(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown):
     time_traffic_started = get_current_time_in_milliseconds()
     packets_sent = scripts.send_ipfix_packets(5)
     time_traffic_stopped = get_current_time_in_milliseconds()
