@@ -1,9 +1,8 @@
 
+from library.py.setup_tools import KModuleParams
 import library.py.kafka_consumer as kafka_consumer
 import library.py.scripts as scripts
 import os, logging, pytest, sys
-from library.fixtures.prepare import check_root_dir, prepare_test, KModuleParams
-from library.fixtures.setup_teardown import kafka_infra_setup_teardown, pmacct_setup_teardown
 logger = logging.getLogger(__name__)
 
 testModuleParams = KModuleParams(sys.modules[__name__])
@@ -53,3 +52,6 @@ def test_read_messages():
         for msg in messages:
             print(msg.value())
 
+def test_prepare(prepare_test):
+    logger.info(vars(testModuleParams))
+    assert True

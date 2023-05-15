@@ -87,6 +87,12 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
         logger.info('Failed to create topic')
     return retval
 
+#
+# Not tested - may not work
+# def delete_registered_schemas():
+#     logger.info("Deleting schemas")
+#     return run_script(['./library/sh/docker_tools/delete-topic.sh', '_schemas'])[0]
+
 # Sends IPFIX packets to pmacct. It returns the number of packets sent, or -1 upon failure
 # Sending lasts as many seconds, as defined in "duration" (default 1 sec)
 def send_ipfix_packets(duration: int = 1) -> int:

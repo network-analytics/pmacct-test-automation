@@ -19,6 +19,7 @@ def pmacct_setup_teardown(request):
     params = request.module.testModuleParams
     assert os.path.isfile(params.results_conf_file)
     assert params.kafka_topic_name != None
+#    assert scripts.delete_registered_schemas()
     assert scripts.create_or_clear_kafka_topic(params.kafka_topic_name)
     assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds

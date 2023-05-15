@@ -5,30 +5,36 @@
 #
 ###################################################
 import os
-import re, time, logging, fileinput
-import shutil
+import re, time, logging
 
 logger = logging.getLogger(__name__)
 
-# Gets a pmacct configuration filename as input and returns the name of the Kafka topic
-#def find_kafka_topic_name(filename: str) -> str:
-#    return find_value_in_config_file(filename, 'kafka_topic')
-
+#
+#
 def find_value_in_config_file(filename: str, keyname: str) -> str:
+    relevant_lines = []
     with open(filename) as f:
         lines = f.readlines()
-        for line in lines:
-            if '#' in line:
-                line = line.split('#')[0].strip()
-                if len(line)<1:
-                    continue
-            if '!' in line:
-                line = line.split('!')[0].strip()
-                if len(line) < 1:
-                    continue
-            matches = re.findall(r"(?<=" + keyname + ": ).+", line)
-            if len(matches) > 0:
-                return matches[0]
+    for line in lines:
+        line = line.strip()
+        if '#' in line:
+            line = line.split('#')[0].strip()
+            if len(line)<1:
+                continue
+        if '!' in line:
+            line = line.split('!')[0].strip()
+            if len(line) < 1:
+                continue
+        matches = re.findall(r"(?<=" + keyname + ": ).+", line)
+        if len(matches) > 0:
+            return matches[0].strip()
+        # Handling plugins
+        if line.startswith(keyname):
+            parts = line.split('[')
+            if len(parts)>1 and parts[0]==keyname:
+                parts = line.split(':')
+                if len(parts)>1:
+                    return parts[1].strip()
     return None
 
 def get_current_time_in_milliseconds() -> int:

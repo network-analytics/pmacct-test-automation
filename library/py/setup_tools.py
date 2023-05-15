@@ -1,6 +1,6 @@
 
-import logging, os, shutil
-from library.py.helpers import find_value_in_config_file, replace_in_file
+import logging, os, shutil, secrets
+from library.py.helpers import *
 logger = logging.getLogger(__name__)
 
 
@@ -14,7 +14,8 @@ class KModuleParams:
         self.results_conf_file = self.results_folder + '/pmacctd.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
-        self.kafka_topic_name = find_value_in_config_file(self.test_conf_file, 'kafka_topic')
+        self.original_kafka_topic_name = find_value_in_config_file(self.test_conf_file, 'kafka_topic')
+        self.kafka_topic_name = self.original_kafka_topic_name + '.' + secrets.token_hex(4)[:8]
         self.original_log_file = find_value_in_config_file(self.test_conf_file, 'logfile')
         self.pmacct_local_log_file = '/var/log/pmacct/pmacct_output/pmacctd.log'
         self.results_log_file = self.results_output_folder + '/pmacctd.log'
@@ -47,6 +48,9 @@ def prepare_test_env(_module):
     logger.debug('To: ' + params.results_conf_file)
     shutil.copy(params.test_conf_file, params.results_conf_file)
     replace_in_file(params.results_conf_file, params.original_log_file, params.pmacct_local_log_file)
+    logger.info('Changed log file name to: ' + params.pmacct_local_log_file)
+    replace_in_file(params.results_conf_file, params.original_kafka_topic_name, params.kafka_topic_name)
+    logger.info('Changed kafka topic name to: ' + params.kafka_topic_name)
 
     # Copy existing files in pmacct_mount to result mount folder
     if os.path.exists(params.test_mount_folder):
