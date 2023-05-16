@@ -1,4 +1,5 @@
 
+from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
 import library.py.kafka_consumer as kafka_consumer
 import library.py.scripts as scripts
@@ -7,8 +8,9 @@ import library.py.json_tools as json_tools
 import os, logging, pytest, sys
 logger = logging.getLogger(__name__)
 
+# The below two variables are used by setup_tools.prepare_test_env
 testModuleParams = KModuleParams(sys.modules[__name__])
-
+confFile = KConfigurationFile(testModuleParams.test_conf_file)
 
 @pytest.fixture(scope="module")
 def prepare_pretag(): # run before pmacct is set up

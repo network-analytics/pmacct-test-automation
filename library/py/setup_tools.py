@@ -6,9 +6,9 @@ logger = logging.getLogger(__name__)
 
 class KModuleParams:
     def __init__(self, _module):
-        self.read_static_params(_module.__file__)
+        self.build_static_params(_module.__file__)
 
-    def read_static_params(self, filename):
+    def build_static_params(self, filename):
         self.test_folder = os.path.dirname(filename)
         self.test_name = os.path.basename(self.test_folder)
         self.test_mount_folder = self.test_folder + '/pmacct_mount'
@@ -18,7 +18,6 @@ class KModuleParams:
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
-        self.pmacct_local_log_file = '/var/log/pmacct/pmacct_output/pmacctd.log'
         self.results_log_file = self.results_output_folder + '/pmacctd.log'
 
 
@@ -45,11 +44,13 @@ def prepare_test_env(_module):
     logger.debug('Folders created')
 
     # Edit configuration
-    config.replace_value_of_key('logfile', params.pmacct_local_log_file)
+    config.replace_value_of_key('logfile', '/var/log/pmacct/pmacct_output/pmacctd.log')
+    config.replace_value_of_key('pidfile', '/var/log/pmacct/pmacct_output/pmacctd.pid')
     config.replace_value_of_key('kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('kafka_config_file', '/var/log/pmacct/librdkafka.conf')
     config.replace_value_of_key('kafka_avro_schema_registry', 'http://schema-registry:8081')
-    config.replace_value_of_key('avro_schema_file', 'http://schema-registry:8081')
+    # Later pmacct versions expect avro_schema_output_file instead of avro_schema_file
+    config.replace_value_of_key('avro_schema_file', '/var/log/pmacct/pmacct_output/flow_avroschema.avsc')
     config.replace_value_of_key('debug', 'true')
     config.replace_value_of_key('pre_tag_map', '/var/log/pmacct/pretag.map')
     config.replace_value_of_key('flow_to_rd_map', '/var/log/pmacct/f2rd-00.map')

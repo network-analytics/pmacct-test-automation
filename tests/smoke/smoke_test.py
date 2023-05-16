@@ -1,4 +1,5 @@
 
+from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
 from library.py.helpers import get_current_time_in_milliseconds
 import library.py.kafka_consumer as kafka_consumer
@@ -6,8 +7,9 @@ import library.py.scripts as scripts
 import os, logging, pytest, sys, shutil
 logger = logging.getLogger(__name__)
 
+# The below two variables are used by setup_tools.prepare_test_env
 testModuleParams = KModuleParams(sys.modules[__name__])
-
+confFile = KConfigurationFile(testModuleParams.test_conf_file)
 
 def test_smoketest(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown):
     time_traffic_started = get_current_time_in_milliseconds()
