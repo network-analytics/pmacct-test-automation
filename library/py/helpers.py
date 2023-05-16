@@ -60,3 +60,4 @@ def replace_in_file(filename, search_pattern, replace_pattern):
         for line in lines:
             f.write(line.replace(search_pattern, replace_pattern))
     os.rename(filename + '.bak', filename)
+

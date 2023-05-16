@@ -1,16 +1,16 @@
 
+from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
 import library.py.kafka_consumer as kafka_consumer
 import library.py.scripts as scripts
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
 import os, logging, pytest, sys, shutil, json
-#from library.fixtures.prepare import check_root_dir, prepare_test, KModuleParams
-#from library.fixtures.setup_teardown import kafka_infra_setup_teardown, pmacct_setup_teardown
 logger = logging.getLogger(__name__)
 
+# The below two variables are used by setup_tools.prepare_test_env
 testModuleParams = KModuleParams(sys.modules[__name__])
-
+confFile = KConfigurationFile(testModuleParams.test_conf_file)
 
 @pytest.fixture
 def prepare_pcap():
