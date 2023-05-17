@@ -12,6 +12,7 @@ class KModuleParams:
         self.test_folder = os.path.dirname(filename)
         self.test_name = os.path.basename(self.test_folder)
         self.test_mount_folder = self.test_folder + '/pmacct_mount'
+        self.pmacct_mount_folder = '/var/log/pmacct'
         self.test_conf_file = self.test_folder + '/pmacctd.conf'
         self.results_folder = os.getcwd() + '/results/' + self.test_name
         self.results_conf_file = self.results_folder + '/pmacctd.conf'

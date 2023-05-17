@@ -21,6 +21,4 @@ docker run -v "$PMACCT_CONF":/etc/pmacct/nfacctd.conf \
            -p 2929:8989/udp \
            -p 2929:8989/tcp \
            --name pmacct \
-           remote-docker.artifactory.swisscom.com/pmacct/nfacctd >/dev/null 2>&1 &
-
-#            -p 3939:8989/tcp 
+           remote-docker.artifactory.swisscom.com/pmacct/nfacctd:bleeding-edge >/dev/null 2>&1 &
