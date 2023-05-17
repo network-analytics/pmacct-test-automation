@@ -13,6 +13,7 @@ class KModuleParams:
         self.test_name = os.path.basename(self.test_folder)
         self.test_mount_folder = self.test_folder + '/pmacct_mount'
         self.pmacct_mount_folder = '/var/log/pmacct'
+        self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
         self.test_conf_file = self.test_folder + '/pmacctd.conf'
         self.results_folder = os.getcwd() + '/results/' + self.test_name
         self.results_conf_file = self.results_folder + '/pmacctd.conf'
@@ -20,6 +21,7 @@ class KModuleParams:
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
         self.results_log_file = self.results_output_folder + '/pmacctd.log'
+        self.results_msg_dump = self.results_folder + '/message_dump.json'
 
 
 # Prepares results folder to receive logs and output from pmacct
@@ -53,9 +55,9 @@ def prepare_test_env(_module):
     config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.lst')
 
     # Files in output folder, for pmacct to write
-    config.replace_value_of_key('logfile', params.results_output_folder + '/pmacctd.log')
-    config.replace_value_of_key('pidfile', params.results_output_folder + '/pmacctd.pid')
-    config.replace_value_of_key('avro_schema_output_file', params.results_output_folder + '/flow_avroschema.avsc')
+    config.replace_value_of_key('logfile', params.pmacct_output_folder + '/pmacctd.log')
+    config.replace_value_of_key('pidfile', params.pmacct_output_folder + '/pmacctd.pid')
+    config.replace_value_of_key('avro_schema_output_file', params.pmacct_output_folder + '/flow_avroschema.avsc')
 
     # Replace specific operational values
     config.replace_value_of_key('kafka_topic', params.kafka_topic_name)

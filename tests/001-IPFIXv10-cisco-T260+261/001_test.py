@@ -1,7 +1,8 @@
 
 from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
-import library.py.kafka_consumer as kafka_consumer
+#import library.py.kafka_consumer as kafka_consumer
+from library.py.kafka_consumer import KMessageReader
 import library.py.scripts as scripts
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
@@ -36,10 +37,11 @@ def prepare_pcap():
 
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_pcap, pmacct_setup_teardown):
+    consumer = KMessageReader(testModuleParams.kafka_topic_name, testModuleParams.results_msg_dump)
     pcap_config_file, output_file = prepare_pcap
     assert os.path.isfile(pcap_config_file)
     scripts.replay_pcap_file(pcap_config_file)
-    messages = kafka_consumer.get_messages(testModuleParams.kafka_topic_name, 120, 12)
+    messages = consumer.get_messages(120, 12)
 
     logger.info('Checking for ERROR or WARN')
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['(ERROR|WARN)'])

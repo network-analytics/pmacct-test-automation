@@ -1,7 +1,8 @@
 
 from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
-import library.py.kafka_consumer as kafka_consumer
+#import library.py.kafka_consumer as kafka_consumer
+from library.py.kafka_consumer import KMessageReader
 import library.py.scripts as scripts
 import library.py.helpers as helpers
 import library.py.json_tools as json_tools
@@ -21,9 +22,10 @@ def prepare_pretag(): # run before pmacct is set up
 
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_pretag, pmacct_setup_teardown):
+    consumer = KMessageReader(testModuleParams.kafka_topic_name, testModuleParams.results_msg_dump)
     packets_sent = scripts.send_ipfix_packets()
     assert packets_sent>=0
-    packet_info = kafka_consumer.check_packets_and_get_IP(testModuleParams.kafka_topic_name, packets_sent)
+    packet_info = consumer.check_packets_and_get_IP(packets_sent)
     assert packet_info!=None
     assert packet_info[0]>=0 # verify that pmacct processed and reported at least 1 packet
     assert packets_sent==packet_info[0]
@@ -35,12 +37,12 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_preta
     assert scripts.send_signal_to_pmacct('SIGUSR2')
     packets_sent = scripts.send_ipfix_packets(5)
     assert packets_sent >= 0
-    packet_info = kafka_consumer.check_packets_in_kafka_message(testModuleParams.kafka_topic_name, packets_sent)
+    packet_info = consumer.check_packets_in_kafka_message(packets_sent)
     assert packet_info != None
     assert packet_info[0] >= 0  # verify that pmacct processed and reported at least 1 packet
     assert packets_sent == packet_info[0]
 
-    assert helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, \
+    assert helpers.check_regex_sequence_in_file(testModuleParams.results_log_file,
                                                 ['destroying index', 'map successfully \(re\)loaded'])
     logger.info('Right pattern identified in pmacct log')
 

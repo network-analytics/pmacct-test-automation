@@ -1,4 +1,5 @@
 
+from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
 import library.py.kafka_consumer as kafka_consumer
 import library.py.scripts as scripts
@@ -6,6 +7,7 @@ import os, logging, pytest, sys
 logger = logging.getLogger(__name__)
 
 testModuleParams = KModuleParams(sys.modules[__name__])
+confFile = KConfigurationFile(testModuleParams.test_conf_file)
 
 @pytest.fixture(scope="session")
 def kafka_infra_setup():
@@ -45,7 +47,8 @@ def test_stop_pmacct(pmacct_teardown):
     assert True
 
 def test_read_messages():
-    messages = kafka_consumer.get_all_messages(testModuleParams.kafka_topic_name, 5, 1)
+    consumer = KMessageReader(testModuleParams.kafka_topic_name, testModuleParams.results_msg_dump)
+    messages = consumer.get_all_messages(5, 1)
     if not messages or len(messages) < 1:
         print('No messages read')
     else:
