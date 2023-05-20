@@ -23,6 +23,9 @@ def pmacct_setup_teardown(request):
     assert scripts.create_or_clear_kafka_topic(params.kafka_topic_name)
     assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
+    params.pmacct_ip = scripts.find_pmacct_ip()
+    logger.info('Pmacct IP: ' + params.pmacct_ip)
+    assert params.pmacct_ip!=None
     yield
     scripts.stop_and_remove_pmacct_container()
 

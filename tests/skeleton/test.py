@@ -1,7 +1,7 @@
 
 from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
-import library.py.kafka_consumer as kafka_consumer
+from library.py.kafka_consumer import KMessageReader
 import library.py.scripts as scripts
 import os, logging, pytest, sys
 logger = logging.getLogger(__name__)

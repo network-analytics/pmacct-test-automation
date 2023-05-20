@@ -1,7 +1,6 @@
 
 from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
-#import library.py.kafka_consumer as kafka_consumer
 from library.py.kafka_consumer import KMessageReader
 import library.py.scripts as scripts
 import library.py.helpers as helpers
@@ -23,7 +22,7 @@ def prepare_pretag(): # run before pmacct is set up
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_pretag, pmacct_setup_teardown):
     consumer = KMessageReader(testModuleParams.kafka_topic_name, testModuleParams.results_msg_dump)
-    packets_sent = scripts.send_ipfix_packets()
+    packets_sent = scripts.send_ipfix_packets(testModuleParams.pmacct_ip)
     assert packets_sent>=0
     packet_info = consumer.check_packets_and_get_IP(packets_sent)
     assert packet_info!=None
@@ -35,7 +34,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_preta
         f.write("set_label=nkey%node_test%pkey%platform_test ip="+peer_ip+"/32\nset_label=nkey%unknown%pkey%unknown")
 
     assert scripts.send_signal_to_pmacct('SIGUSR2')
-    packets_sent = scripts.send_ipfix_packets(5)
+    packets_sent = scripts.send_ipfix_packets(testModuleParams.pmacct_ip, 5)
     assert packets_sent >= 0
     packet_info = consumer.check_packets_in_kafka_message(packets_sent)
     assert packet_info != None

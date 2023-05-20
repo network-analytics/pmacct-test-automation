@@ -46,7 +46,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_pcap,
     logger.info('Checking for ERROR or WARN')
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['(ERROR|WARN)'])
 
-    assert len(messages) > 0
+    assert messages!=None and len(messages) > 0
     with open(output_file) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg.value()) for msg in messages]

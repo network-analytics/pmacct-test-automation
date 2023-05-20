@@ -22,6 +22,7 @@ class KModuleParams:
         self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
         self.results_log_file = self.results_output_folder + '/pmacctd.log'
         self.results_msg_dump = self.results_folder + '/message_dump.json'
+        self.pmacct_ip = None
 
 
 # Prepares results folder to receive logs and output from pmacct

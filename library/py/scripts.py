@@ -44,6 +44,11 @@ def check_broker_running() -> bool:
     logger.info("Checking if broker is running")
     return run_script(['./library/sh/docker_tools/check-container-running.sh', 'broker'])[0]
 
+# Find pmacct IP
+def find_pmacct_ip() -> str:                                                                                    
+    logger.info("Finding pmacct IP address")
+    return run_script(['./library/sh/docker_tools/find-container-ip.sh', 'pmacct'])[1]
+
 # Sends signal to container
 def send_signal_to_pmacct(sig: str) -> bool:
     logger.info("Sending signal " + sig + " to pmacct")
@@ -95,10 +100,15 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
 
 # Sends IPFIX packets to pmacct. It returns the number of packets sent, or -1 upon failure
 # Sending lasts as many seconds, as defined in "duration" (default 1 sec)
-def send_ipfix_packets(duration: int = 1) -> int:
+def send_ipfix_packets(pmacct_ip, duration: int = 1) -> int:
     logger.info('Sending IPFIX packets for smoke test')
-    [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', '10.1.1.1', \
-                                    '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '2929'])
+    if os.path.isfile('/.dockerenv'):
+        [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
+            '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-c', pmacct_ip, '-p', '8989'])
+    else:
+        [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
+            '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '2929'])
+
     if not success:
         logger.info('Sending IPFIX packets failed')
         return -1
@@ -110,7 +120,7 @@ def send_ipfix_packets(duration: int = 1) -> int:
     return int(matches[0])
 
 #
-#
+# Replays cap file as per configuration file passed as parameter
 def replay_pcap_file(config_file_name: str) -> bool:
     logger.info('Replaying pcap file ' + os.path.basename(config_file_name))
     [success, output] = run_script(['python3', './traffic_generators/reproduction/main.py', '-t', \
