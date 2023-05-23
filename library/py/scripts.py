@@ -103,11 +103,14 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
 def send_ipfix_packets(pmacct_ip, duration: int = 1) -> int:
     logger.info('Sending IPFIX packets for smoke test')
     if os.path.isfile('/.dockerenv'):
+        # In a dind environment, the local ip address of pmacct is used and its local port (local == the ones
+        # corresponding by pmacct_test_network network)
         [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
             '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-c', pmacct_ip, '-p', '8989'])
     else:
+        # In a host environment, the host ip address is used and the exposed port (as opposed to the local)
         [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
-            '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '2929'])
+            '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '-c', '127.0.0.1', '2929'])
 
     if not success:
         logger.info('Sending IPFIX packets failed')
