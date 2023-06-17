@@ -39,3 +39,9 @@ def check_root_dir():
 @pytest.fixture(scope="module")
 def prepare_test(request):
     assert setup_tools.prepare_test_env(request.module)
+
+# Prepares
+@pytest.fixture(scope="module")
+def prepare_pcap(request):
+    yield setup_tools.prepare_pcap(request.module)
+

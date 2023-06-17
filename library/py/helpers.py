@@ -61,3 +61,14 @@ def replace_in_file(filename, search_pattern, replace_pattern):
             f.write(line.replace(search_pattern, replace_pattern))
     os.rename(filename + '.bak', filename)
 
+# Given a folder, returns a list of files matching a regular expression
+def select_files(folder_path, regex_pattern):
+    regex = re.compile(regex_pattern)
+    files = os.listdir(folder_path)
+    # Select matching files
+    selected_files = []
+    for file_name in files:
+        if regex.match(file_name):
+            selected_files.append(file_name)
+    return selected_files
+

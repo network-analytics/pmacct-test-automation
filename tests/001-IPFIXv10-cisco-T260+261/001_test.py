@@ -13,32 +13,12 @@ logger = logging.getLogger(__name__)
 testModuleParams = KModuleParams(sys.modules[__name__])
 confFile = KConfigurationFile(testModuleParams.test_conf_file)
 
-@pytest.fixture
-def prepare_pcap():
-    test_config_file = testModuleParams.test_folder + '/traffic-reproducer-00.conf'
-    test_pcap_file = testModuleParams.test_folder + '/traffic-00.pcap'
-    test_output_file = testModuleParams.test_folder + '/output-00.json'
-    assert os.path.isfile(test_pcap_file)
-    results_config_file = testModuleParams.results_folder + '/traffic-reproducer-00.conf'
-    results_pcap_file = testModuleParams.results_folder + '/traffic-00.pcap'
-    results_output_file = testModuleParams.results_folder + '/output-00.json'
-    shutil.copy(test_config_file, results_config_file)
-    shutil.copy(test_pcap_file, results_pcap_file)
-    shutil.copy(test_output_file, results_output_file)
-
-    # fix pcap filename absolute path
-    with open(results_config_file) as f:
-        lines = f.readlines()
-    lines[0] = 'pcap: ' + results_pcap_file + '\n'
-    with open(results_config_file, "w") as f:
-        f.writelines(lines)
-
-    yield (results_config_file, results_output_file)
-
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_pcap, pmacct_setup_teardown):
     consumer = KMessageReader(testModuleParams.kafka_topic_name, testModuleParams.results_msg_dump)
-    pcap_config_file, output_file = prepare_pcap
+    pcap_config_files, output_files, log_files = prepare_pcap
+    pcap_config_file = pcap_config_files[0]
+    output_file = output_files[0]
     assert os.path.isfile(pcap_config_file)
     scripts.replay_pcap_file(pcap_config_file)
     messages = consumer.get_messages(120, 12)

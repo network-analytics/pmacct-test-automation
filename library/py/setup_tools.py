@@ -15,6 +15,10 @@ class KModuleParams:
         self.pmacct_mount_folder = '/var/log/pmacct'
         self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
         self.test_conf_file = self.test_folder + '/pmacctd.conf'
+        if not os.path.isfile(self.test_conf_file):
+            fnames = select_files(self.test_folder, 'nfacctd.+conf')
+            assert len(fnames)==1
+            self.test_conf_file = self.test_folder + '/' + fnames[0]
         self.results_folder = os.getcwd() + '/results/' + self.test_name
         self.results_conf_file = self.results_folder + '/pmacctd.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
@@ -31,11 +35,6 @@ def prepare_test_env(_module):
     config = _module.confFile
     logger.info('Test name: ' + params.test_name)
 
-    # Make sure there's a pmacctd.conf file for pmacct configuration
-    if not os.path.isfile(params.test_conf_file):
-        return False
-    logger.debug('Pmacct config file identified successfully')
-
     if os.path.exists(params.results_folder):
         logger.debug('Results folder exists, deleting')
         shutil.rmtree(params.results_folder)
@@ -51,7 +50,7 @@ def prepare_test_env(_module):
 
     # Files in mounted folder, for pmacct to read
     config.replace_value_of_key('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
-    config.replace_value_of_key('pre_tag_map', params.pmacct_mount_folder + '/pretag.map')
+    config.replace_value_of_key('pre_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key('flow_to_rd_map', params.pmacct_mount_folder + '/f2rd-00.map')
     config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.lst')
 
@@ -82,3 +81,37 @@ def prepare_test_env(_module):
                 shutil.copy(full_file_name, params.results_mount_folder)
         logger.info('Copied ' + str(count) + ' files')
     return True
+
+# Prepares json output, log, pcap and pcap-config files
+def prepare_pcap(_module):
+    params = _module.testModuleParams
+    test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\d+.conf')
+    test_pcap_files = select_files(params.test_folder, 'traffic.*-\d+.pcap')
+    test_output_files = select_files(params.test_folder, 'output.*-\d+.json')
+    test_log_files = select_files(params.test_folder, 'output.*-\d+.log')
+
+    assert len(test_pcap_files)>0
+    assert len(test_pcap_files)==len(test_config_files)
+    assert len(test_output_files)>0
+
+    def copyList(filelist):
+        retVal = []
+        for filename in filelist:
+            retVal.append(params.results_folder + '/' + filename)
+            shutil.copy(params.test_folder + '/' + filename, params.results_folder + '/' + filename)
+        return retVal
+
+    results_config_files = copyList(test_config_files)
+    results_pcap_files = copyList(test_pcap_files)
+    results_output_files = copyList(test_output_files)
+    results_log_files = copyList(test_log_files)
+
+    # Fix absolute path of pcap files in config files
+    for i in range(len(results_config_files)):
+        with open(results_config_files[i]) as f:
+            lines = f.readlines()
+        lines[0] = 'pcap: ' + results_pcap_files[i] + '\n'
+        with open(results_config_files[i], "w") as f:
+            f.writelines(lines)
+
+    return (results_config_files, results_output_files, results_log_files)
