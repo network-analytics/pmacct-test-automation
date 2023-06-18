@@ -1,9 +1,9 @@
 from scapy.all import TCP, raw
 
 import ipaddress
-from bgp import is_bgp_open_messae
+from bgp import is_bgp_open_message
 
-def is_bmp_open_messae(payload, original_bgp_id):
+def is_bmp_open_message(payload, original_bgp_id):
     if len(payload) <= 68:
         # packet too short
         return False
@@ -16,4 +16,4 @@ def is_bmp_open_messae(payload, original_bgp_id):
     # BMP Peer UP has first the sent PDU, then the received
     two_bgp_open = payload[68:]
 
-    return is_bgp_open_messae(two_bgp_open, original_bgp_id)
+    return is_bgp_open_message(two_bgp_open, original_bgp_id)

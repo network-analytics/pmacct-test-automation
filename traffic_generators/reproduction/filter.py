@@ -1,4 +1,4 @@
-from scapy.all import TCP, IP, UDP
+from scapy.all import IP, IPv6, TCP, UDP
 
 
 def filter_generator(flt):
@@ -7,11 +7,16 @@ def filter_generator(flt):
 
     def F(pkt):
         if 'ip' in flt:
-            if IP not in pkt:
+            if IP or IPv6 not in pkt:
                 return False
-            for f in flt['ip']:
-                if not getattr(pkt[IP], f) == flt['ip'][f]:
-                    return False
+            elif IP in pkt:
+              for f in flt['ip']:
+                  if not getattr(pkt[IP], f) == flt['ip'][f]:
+                      return False
+            elif IPv6 in pkt:
+              for f in flt['ip']:
+                  if not getattr(pkt[IPv6], f) == flt['ip'][f]:
+                      return False
 
         if 'tcp' in flt:
             if TCP not in pkt:

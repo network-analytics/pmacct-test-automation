@@ -2,25 +2,34 @@
 import re, logging
 logger = logging.getLogger(__name__)
 
+def count_spaces(line):
+    count = 0
+    while line.startswith(' '):
+        count += 1
+        line = line[1:]
+    return count
+
 class KConfigurationFile:
     def __init__(self, filename):
         self.data = {}
         self.read_conf_file(filename)
 
+    # Changed all strips to right-only strips, to keep indentation (important in traffic-repro.conf)
     def read_conf_file(self, filename):
         self.data = {}
         with open(filename, 'r') as file:
             for line in file:
-                line = line.strip()
+                indent = count_spaces(line)
+                line = line.rstrip()
                 if '#' in line:
-                    line = line.split('#')[0].strip()
+                    line = line.split('#')[0].rstrip()
                 if '!' in line:
-                    line = line.split('!')[0].strip()
+                    line = line.split('!')[0].rstrip()
                 if len(line) < 1:
                     continue
                 if ':' in line:
                     key_value = line.split(':', 1)
-                    key = key_value[0].strip()
+                    key = key_value[0].rstrip()
                     value = key_value[1].strip()
                     match = re.match(r'^([^\[]+)\[([^\]]+)\]', key)
                     if match:

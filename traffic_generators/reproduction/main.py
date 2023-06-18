@@ -1,5 +1,5 @@
 from ast import arg
-from scapy.all import IP, TCP, UDP, raw, Raw
+from scapy.all import IP, IPv6, TCP, UDP, raw, Raw
 
 import argparse
 import yaml
@@ -25,7 +25,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Reproduce BGP, BMP and IPFIX traffic from pcap with minimal changes")
 
     parser.add_argument(
-        "-t"
+        "-t",
         "--test",
         type=str,
         dest='test_path',
@@ -34,7 +34,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-w"
+        "-w",
         "--write",
         type=str,
         dest='write',
@@ -63,6 +63,15 @@ def parse_args():
         help="Disable initial IPFIX sync",
         action="store_const",
         dest="nosync",
+        const=True,
+        default=False,
+    )
+
+    parser.add_argument(
+        '--keep-open',
+        help="Do not close connection when finished replaying pcap [default=False]",
+        action="store_const",
+        dest="keep_open",
         const=True,
         default=False,
     )
@@ -186,7 +195,10 @@ def main():
         try:
             logging.debug(f"[{i}] start packet analysis")
 
-            ip_src = packet[IP].src
+            if IP in packet:
+                ip_src = packet[IP].src
+            elif IPv6 in packet:
+                ip_src = packet[IPv6].src
             logging.debug(f"[{i}] has ip_src: {ip_src}")
 
             if ip_src not in ip_map:
@@ -258,7 +270,9 @@ def main():
             logging.critical(f"Error! Stopping application on packet [{i}]: {e}")
             break
 
-    stop_application()
+    if not (args.keep_open or test_conf['keep_open']):
+        print('Closing sockets and stopping application...')
+        stop_application()
 
 
 

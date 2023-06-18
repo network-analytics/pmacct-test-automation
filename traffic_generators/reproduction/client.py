@@ -55,8 +55,8 @@ class Client:
         client_bmp = BMPPClient(
             self.collectors[Proto.bmp.value],
             self,
-            self.network_map['bgp_id'],
-            self.network_map['original_bgp_id'],
+            #self.network_map['bgp_id'],
+            #self.network_map['original_bgp_id'],
         )
         self.pclients[Proto.bmp.value] = client_bmp
 

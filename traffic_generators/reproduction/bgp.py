@@ -2,7 +2,7 @@ from scapy.all import TCP, raw
 
 import ipaddress
 
-def is_bgp_open_messae(payload, original_bgp_id):
+def is_bgp_open_message(payload, original_bgp_id):
     if len(payload) <= 28:
         # packet too short
         return False

@@ -1,2 +1,0 @@
-proto_clent.py and main.py have been replaced with corresponding versions from:
-https://git.swisscom.com/projects/DAISY/repos/daisy/pull-requests/191/diff#traffic-generator/reproduction/proto_client.py
