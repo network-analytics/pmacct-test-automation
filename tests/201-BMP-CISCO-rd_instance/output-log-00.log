@@ -1,0 +1,3 @@
+INFO \( nfacctd_core/core/BMP \): .+ BMP peers usage: 1/600
+INFO \( nfacctd_core/core/BMP \): .+ BMP connection reset by peer \(0\).
+WARNING \( nfacctd_core/core/BMP \): Unable to get kafka_host
