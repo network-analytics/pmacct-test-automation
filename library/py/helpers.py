@@ -46,9 +46,12 @@ def check_regex_sequence_in_file(file_path, regexes):
         text = file.read()
         start = 0
         for pattern in regexes:
+            logger.debug('Checking regex: ' + pattern)
             match = re.search(pattern, text[start:])
             if not match:
+                logger.debug('No match')
                 return False
+            logger.debug('Matched')
             start = match.end()
         return True
 

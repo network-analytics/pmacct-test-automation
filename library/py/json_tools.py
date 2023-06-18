@@ -14,6 +14,7 @@ def compare_json_files(file1_path, file2_path):
         json2 = json.load(file2)
     return compare_json_objects(json1, json2)
 
+# Compares json messages received (json1) with json lines expected (json2)
 def compare_json_objects(json1, json2):
     if isinstance(json1, dict) and isinstance(json2, dict):
         keys1 = set(json1.keys())
@@ -27,13 +28,13 @@ def compare_json_objects(json1, json2):
             if nested_diff:
                 differences[key] = nested_diff
         for key in added_keys:
-            differences[key] = {'added': json2[key]}
+            differences[key] = {'missing': json2[key]}
         for key in removed_keys:
-            differences[key] = {'removed': json1[key]}
+            differences[key] = {'got unknown': json1[key]}
         return differences if differences else None
     elif isinstance(json1, list) and isinstance(json2, list):
         if len(json1) != len(json2):
-            return {'length': {'before': len(json1), 'after': len(json2)}}
+            return {'length': {'got': len(json1), 'expected': len(json2)}}
         differences = []
         for i in range(len(json1)):
             nested_diff = compare_json_objects(json1[i], json2[i])
