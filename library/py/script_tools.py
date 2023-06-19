@@ -6,7 +6,7 @@
 #
 ###################################################
 
-import subprocess, time, logging
+import subprocess, time, logging, os, signal
 from typing import List, Callable, Tuple
 logger = logging.getLogger(__name__)
 
@@ -15,13 +15,31 @@ logger = logging.getLogger(__name__)
 # command: a list of strings, first of which is the called script, the rest being the arguments
 def run_script(command: List[str]) -> (bool, str):
     try:
-        result = subprocess.run(command, stdout=subprocess.PIPE)
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = result.stdout.decode('utf-8').strip()
+        error = result.stderr.decode('utf-8').strip()
         success = result.returncode==0
     except Exception as e:
         output = 'Exception thrown' + str(e)
+        error = ''
         success = False
-    return (success, output)
+    return (success, output, error)
+
+
+# Runs the command in the background and returns the pid of the process
+def run_script_in_the_background(command: List[str]) -> (bool, int):
+    try:
+        pid = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).pid
+        success = pid>1
+    except Exception as e:
+        output = 'Exception thrown' + str(e)
+        success = False
+    return (success, pid)
+
+
+# Runs the command in the background and returns the pid of the process
+def stop_process_with_pid(pid: int):
+    os.kill(pid, signal.SIGTERM)
 
 
 # Runs a script, which waits for a container to reach a certain state, for a maximum of time

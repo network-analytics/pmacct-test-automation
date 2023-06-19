@@ -105,11 +105,11 @@ def send_ipfix_packets(pmacct_ip, duration: int = 1) -> int:
     if os.path.isfile('/.dockerenv'):
         # In a dind environment, the local ip address of pmacct is used and its local port (local == the ones
         # corresponding by pmacct_test_network network)
-        [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
+        success, _, _ = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
             '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-c', pmacct_ip, '-p', '8989'])
     else:
         # In a host environment, the host ip address is used and the exposed port (as opposed to the local)
-        [success, output] = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
+        success, _, _ = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
             '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '-c', '127.0.0.1', '2929'])
 
     if not success:
@@ -126,8 +126,9 @@ def send_ipfix_packets(pmacct_ip, duration: int = 1) -> int:
 # Replays cap file as per configuration file passed as parameter
 def replay_pcap_file(config_file_name: str) -> bool:
     logger.info('Replaying pcap file ' + os.path.basename(config_file_name))
-    [success, output] = run_script(['python3', './traffic_generators/reproduction/main.py', '-t', \
+    success, _, _ = run_script(['python3', './traffic_generators/reproduction/main.py', '-t', \
                                     config_file_name]) #, '-v'])
+
     if not success:
         logger.info('Replaying failed')
     else:
