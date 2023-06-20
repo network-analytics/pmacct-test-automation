@@ -5,7 +5,7 @@ from library.py.kafka_consumer import KMessageReader
 import library.py.scripts as scripts
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
-import os, logging, pytest, sys, shutil, json
+import os, logging, pytest, sys, shutil, json, time
 logger = logging.getLogger(__name__)
 
 # The below two variables are used by setup_tools.prepare_test_env
@@ -59,8 +59,8 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_confi
     scripts.replay_pcap_file(pcap_config_file)
     messages = consumer.get_messages(120, 670)
 
-    import time
-    time.sleep(60) # needed for the last regex (WARNIN) to be found in the logs!
+    logger.info('Waiting 30 seconds')
+    time.sleep(30) # needed for the last regex (WARNING) to be found in the logs!
 
     with open(log_files[0]) as f:
         regexes = f.read().split('\n')
