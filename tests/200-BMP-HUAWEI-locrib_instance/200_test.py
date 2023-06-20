@@ -38,23 +38,6 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_confi
     pcap_config_file = pcap_config_files[0]
     output_file = output_files[0]
 
-    # following didn't work (possibly because the order is changed when dumped back?)
-    # import yaml
-    # with open(pcap_config_file) as f:
-    #     data = yaml.load(f, Loader=yaml.FullLoader)
-    # data['network']['map'][0]['repro_ip'] = '127.0.0.1'
-    # data['bmp']['collector']['ip'] = '127.0.0.1'
-    # data['bmp']['collector']['port'] = '2929'
-    # with open(pcap_config_file, 'w') as f:
-    #     data = yaml.dump(data, f)
-
-    # Important to keep the indenting due to yaml notation
-    confPcap = KConfigurationFile(pcap_config_file)
-    confPcap.replace_value_of_key('    repro_ip', '127.0.0.1')
-    confPcap.replace_value_of_key('    ip', '127.0.0.1')
-    confPcap.replace_value_of_key('    port', '2929')
-    confPcap.print_to_file(pcap_config_file)
-
     assert os.path.isfile(pcap_config_file)
     scripts.replay_pcap_file(pcap_config_file)
     messages = consumer.get_messages(120, 132)

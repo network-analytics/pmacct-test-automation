@@ -1,6 +1,7 @@
 
 import logging, os, shutil, secrets
 from library.py.helpers import *
+from library.py.configuration_file import KConfigurationFile
 logger = logging.getLogger(__name__)
 
 
@@ -106,12 +107,23 @@ def prepare_pcap(_module):
     results_output_files = copyList(test_output_files)
     results_log_files = copyList(test_log_files)
 
-    # Fix absolute path of pcap files in config files
+    # Important to keep the indenting due to yaml notation
     for i in range(len(results_config_files)):
-        with open(results_config_files[i]) as f:
-            lines = f.readlines()
-        lines[0] = 'pcap: ' + results_pcap_files[i] + '\n'
-        with open(results_config_files[i], "w") as f:
-            f.writelines(lines)
+        confPcap = KConfigurationFile(results_config_files[i])
+        confPcap.replace_value_of_key('pcap', results_pcap_files[i])
+        confPcap.replace_value_of_key('    repro_ip', '127.0.0.1')
+        confPcap.replace_value_of_key('    ip', '127.0.0.1')
+        confPcap.replace_value_of_key('    port', '2929')
+        confPcap.print_to_file(results_config_files[i])
+
+    # following didn't work (possibly because the order is changed when dumped back?)
+    # import yaml
+    # with open(pcap_config_file) as f:
+    #     data = yaml.load(f, Loader=yaml.FullLoader)
+    # data['network']['map'][0]['repro_ip'] = '127.0.0.1'
+    # data['bmp']['collector']['ip'] = '127.0.0.1'
+    # data['bmp']['collector']['port'] = '2929'
+    # with open(pcap_config_file, 'w') as f:
+    #     data = yaml.dump(data, f)
 
     return (results_config_files, results_output_files, results_log_files)
