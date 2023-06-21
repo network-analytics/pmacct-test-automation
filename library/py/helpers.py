@@ -73,5 +73,5 @@ def select_files(folder_path, regex_pattern):
     for file_name in files:
         if regex.match(file_name):
             selected_files.append(file_name)
-    return selected_files
+    return sorted(selected_files)
 

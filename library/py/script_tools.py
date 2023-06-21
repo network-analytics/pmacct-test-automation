@@ -29,17 +29,39 @@ def run_script(command: List[str]) -> (bool, str):
 # Runs the command in the background and returns the pid of the process
 def run_script_in_the_background(command: List[str]) -> (bool, int):
     try:
-        pid = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).pid
-        success = pid>1
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        success = process.pid>0
     except Exception as e:
-        output = 'Exception thrown' + str(e)
         success = False
-    return (success, pid)
+    return process if success else None
+
+
+# Checks if process with specific pid is running
+def is_process_running(pid):
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    else:
+        return True
 
 
 # Runs the command in the background and returns the pid of the process
 def stop_process_with_pid(pid: int):
-    os.kill(pid, signal.SIGTERM)
+    if not is_process_running(pid):
+        logger.error('No process running with pid ' + str(pid))
+        return false
+    os.kill(pid, signal.SIGKILL)
+    seconds = 10
+    while is_process_running(pid) and seconds>0:
+        logger.debug('Process with id ' + str(pid) + ' still running')
+        seconds -= 2
+        time.sleep(2)
+    if is_process_running(pid):
+        logger.error('Could not terminate process with id ' + str(pid))
+        return False
+    logger.info('Process with pid ' + str(pid) + ' terminated')
+    return True
 
 
 # Runs a script, which waits for a container to reach a certain state, for a maximum of time

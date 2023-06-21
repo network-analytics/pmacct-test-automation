@@ -6,7 +6,8 @@ logger = logging.getLogger(__name__)
 
 
 class KModuleParams:
-    def __init__(self, _module):
+    def __init__(self, _module, pmacct_config_filename=''):
+        self.pmacct_config_filename = pmacct_config_filename
         self.build_static_params(_module.__file__)
 
     def build_static_params(self, filename):
@@ -15,11 +16,14 @@ class KModuleParams:
         self.test_mount_folder = self.test_folder + '/pmacct_mount'
         self.pmacct_mount_folder = '/var/log/pmacct'
         self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
-        self.test_conf_file = self.test_folder + '/pmacctd.conf'
-        if not os.path.isfile(self.test_conf_file):
-            fnames = select_files(self.test_folder, 'nfacctd.+conf')
-            assert len(fnames)==1
-            self.test_conf_file = self.test_folder + '/' + fnames[0]
+        if self.pmacct_config_filename!='':
+            self.test_conf_file = self.test_folder + '/' + self.pmacct_config_filename
+        else:
+            self.test_conf_file = self.test_folder + '/pmacctd.conf'
+            if not os.path.isfile(self.test_conf_file):
+                fnames = select_files(self.test_folder, 'nfacctd.+conf')
+                assert len(fnames)==1
+                self.test_conf_file = self.test_folder + '/' + fnames[0]
         self.results_folder = os.getcwd() + '/results/' + self.test_name
         self.results_conf_file = self.results_folder + '/pmacctd.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
@@ -111,7 +115,7 @@ def prepare_pcap(_module):
     for i in range(len(results_config_files)):
         confPcap = KConfigurationFile(results_config_files[i])
         confPcap.replace_value_of_key('pcap', results_pcap_files[i])
-        confPcap.replace_value_of_key('    repro_ip', '127.0.0.1')
+        confPcap.replace_value_of_key('    repro_ip', '127.0.0.1') # + str(i+1))
         confPcap.replace_value_of_key('    ip', '127.0.0.1')
         confPcap.replace_value_of_key('    port', '2929')
         confPcap.print_to_file(results_config_files[i])

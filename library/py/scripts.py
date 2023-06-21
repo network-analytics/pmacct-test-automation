@@ -135,3 +135,10 @@ def replay_pcap_file(config_file_name: str) -> bool:
         logger.info('Replaying succeeded')
     return success
 
+
+#
+# Replays cap file in the background as per configuration file passed as parameter
+def replay_pcap_file_bg(config_file_name: str) -> bool:
+    logger.info('Replaying pcap file ' + os.path.basename(config_file_name) + ' in the background')
+    return run_script_in_the_background(['python3', './traffic_generators/reproduction/main.py', '-t', \
+                                         config_file_name])
