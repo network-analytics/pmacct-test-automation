@@ -40,7 +40,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_confi
 
     assert os.path.isfile(pcap_config_file)
     scripts.replay_pcap_file(pcap_config_file)
-    messages = consumer.get_messages(120, 132)
+    messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_file)) # 132 lines
 
     logger.info('Waiting 30 seconds')
     time.sleep(30) # needed for the last regex (WARNIN) to be found in the logs!

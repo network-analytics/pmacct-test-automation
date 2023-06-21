@@ -75,3 +75,11 @@ def select_files(folder_path, regex_pattern):
             selected_files.append(file_name)
     return sorted(selected_files)
 
+# Counts non-empty lines in a file
+def count_non_empty_lines(file_path):
+    count = 0
+    with open(file_path, 'r') as file:
+        for line in file:
+            if len(line.strip()):
+                count += 1
+    return count
