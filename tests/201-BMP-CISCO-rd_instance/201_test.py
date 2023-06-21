@@ -1,11 +1,10 @@
 
 from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
-from library.py.kafka_consumer import KMessageReader
 import library.py.scripts as scripts
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
-import os, logging, pytest, sys, shutil, json, time
+import os, logging, pytest, sys, json, time
 logger = logging.getLogger(__name__)
 
 # The below two variables are used by setup_tools.prepare_test_env
@@ -32,8 +31,8 @@ def prepare_config_local(request):
 # prepare_config_local: edits pmacct config file with test-case-specific things (not covered in prepare_test)
 # prepare_pcap: edits pcap configuration file with framework-specific IPs and hostnames
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
-def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup_teardown):
-    consumer = KMessageReader(testModuleParams.kafka_topic_name, testModuleParams.results_msg_dump)
+def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup_teardown, consumer_setup_teardown):
+    consumer = consumer_setup_teardown
     pcap_config_files, output_files, log_files = prepare_pcap
     pcap_config_file = pcap_config_files[0]
     output_file = output_files[0]

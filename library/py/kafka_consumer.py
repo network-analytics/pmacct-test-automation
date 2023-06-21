@@ -12,7 +12,24 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 class KMessageReader:
+    # def __init__(self, topic, dump_to_file=None):
+    #     self.consumer = AvroConsumer({
+    #         'bootstrap.servers': 'localhost:9092',
+    #         'schema.registry.url': 'http://localhost:8081',
+    #         'security.protocol': 'PLAINTEXT',
+    #         'group.id': 'smoke_test',
+    #         'auto.offset.reset': 'earliest'
+    #     })
+    #     self.topic = topic
+    #     self.consumer.subscribe([self.topic])
+    #     self.dumpfile = dump_to_file
+
     def __init__(self, topic, dump_to_file=None):
+        self.topic = topic
+        self.dumpfile = dump_to_file
+        self.consumer = None
+
+    def connect(self):
         self.consumer = AvroConsumer({
             'bootstrap.servers': 'localhost:9092',
             'schema.registry.url': 'http://localhost:8081',
@@ -20,12 +37,22 @@ class KMessageReader:
             'group.id': 'smoke_test',
             'auto.offset.reset': 'earliest'
         })
-        self.topic = topic
         self.consumer.subscribe([self.topic])
-        self.dumpfile = dump_to_file
+
+    def disconnect(self):
+        logger.debug('Message reader disconnect called')
+        if self.consumer:
+            logger.debug('Consumer exists')
+            self.consumer.close()
+            logger.debug('Consumer closed')
 
     def __del__(self):
-        self.consumer.close()
+        logger.debug('Message reader destructor called')
+        if self.consumer:
+            logger.debug('Consumer exists')
+            self.consumer.close()
+            logger.debug('Consumer closed')
+
 
     def dump_if_needed(self, msg):
         if not self.dumpfile:
@@ -107,6 +134,7 @@ class KMessageReader:
 
     def get_messages(self, max_time_seconds: int, messages_expected: int) -> List[cimpl.Message]:
         messages = []
+        message_count = messages_expected
         time_start = round(time.time())
         time_now = round(time.time())
         while messages_expected>0 and time_now-time_start<max_time_seconds:
@@ -122,7 +150,7 @@ class KMessageReader:
                     logger.info('Waiting for ' + str(messages_expected) + ' more messages')
             time_now = round(time.time())
         if messages_expected<1:
-            logger.info('All expected messages received')
+            logger.info('Received the expected number of messages (' + str(message_count) + ')')
         if len(messages)<1:
             logger.info('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
             return None

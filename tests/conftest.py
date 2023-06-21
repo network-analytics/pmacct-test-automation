@@ -2,6 +2,7 @@
 import library.py.scripts as scripts
 import library.py.setup_tools as setup_tools
 import logging, pytest, os
+from library.py.kafka_consumer import KMessageReader
 logger = logging.getLogger(__name__)
 
 
@@ -57,6 +58,19 @@ def pmacct_setup(request):
 def check_root_dir():
     logger.debug('Framework runs from directory: ' + os.getcwd())
     assert os.path.basename(os.getcwd())=='net_ana'
+
+
+@pytest.fixture(scope="module")
+def consumer_setup_teardown(request):
+    params = request.module.testModuleParams
+    consumer = KMessageReader(params.kafka_topic_name, params.results_msg_dump)
+    consumer.connect()
+    logger.debug('Local setup Consumer ' + str(consumer))
+    yield consumer
+    logger.debug('Local teardown Consumer ' + str(consumer))
+    if consumer:
+        consumer.disconnect()
+
 
 # Prepares results folder to receive logs and output from pmacct
 @pytest.fixture(scope="module")
