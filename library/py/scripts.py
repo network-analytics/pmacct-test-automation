@@ -49,6 +49,11 @@ def find_pmacct_ip() -> str:
     logger.info("Finding pmacct IP address")
     return run_script(['./library/sh/docker_tools/find-container-ip.sh', 'pmacct'])[1]
 
+# Find host (Gateway) IP
+def find_host_ip() -> str:
+    logger.info("Finding host IP address")
+    return run_script(['./library/sh/docker_tools/find-gateway-ip.sh'])[1]
+
 # Sends signal to container
 def send_signal_to_pmacct(sig: str) -> bool:
     logger.info("Sending signal " + sig + " to pmacct")

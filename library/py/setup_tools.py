@@ -1,5 +1,6 @@
 
-import logging, os, shutil, secrets
+import library.py.scripts as scripts
+import shutil, secrets
 from library.py.helpers import *
 from library.py.configuration_file import KConfigurationFile
 logger = logging.getLogger(__name__)
@@ -32,6 +33,7 @@ class KModuleParams:
         self.results_log_file = self.results_output_folder + '/pmacctd.log'
         self.results_msg_dump = self.results_folder + '/message_dump.json'
         self.pmacct_ip = None
+        self.host_ip = None
 
 
 # Prepares results folder to receive logs and output from pmacct
@@ -111,14 +113,26 @@ def prepare_pcap(_module):
     results_output_files = copyList(test_output_files)
     results_log_files = copyList(test_log_files)
 
+    params.host_ip = scripts.find_host_ip()
+    logger.info('Host pmacct_test_network IP: ' + params.host_ip)
+    assert params.host_ip != None
+
     # Important to keep the indenting due to yaml notation
     for i in range(len(results_config_files)):
         confPcap = KConfigurationFile(results_config_files[i])
         confPcap.replace_value_of_key('pcap', results_pcap_files[i])
-        confPcap.replace_value_of_key('    repro_ip', '127.0.0.1') # + str(i+1))
+        #confPcap.replace_value_of_key('    repro_ip', params.host_ip) #'127.0.0.1')
+        #confPcap.replace_value_of_key('    bgp_id', params.host_ip) #'127.0.0.1')
+        #confPcap.replace_value_of_key('    ip', params.host_ip) #'127.0.0.1')
+        confPcap.replace_value_of_key('    repro_ip', '127.0.0.1') # needs to be a valid IP of the host (127.0.0.1 or 192.168.x.x)
+        confPcap.replace_value_of_key('    bgp_id', '1.1.1.' + str(i))
         confPcap.replace_value_of_key('    ip', '127.0.0.1')
         confPcap.replace_value_of_key('    port', '2929')
         confPcap.print_to_file(results_config_files[i])
+    # repro_ip, bgp_id and ip work with both 127.0.0.1 and host ifconfig IP (e.g., 192.168.1.111)
+
+    with open(params.results_mount_folder + '/pretag-00.map', 'w') as f:
+        f.write("set_label=nkey%100.1%pkey%testing       ip="+params.host_ip+"/32\nset_label=nkey%unknown%pkey%unknown")
 
     # following didn't work (possibly because the order is changed when dumped back?)
     # import yaml

@@ -1,0 +1,10 @@
+INFO \( pmbgpd_core/core.+ BGP peers usage: 1/600
+INFO \( pmbgpd_core/core.+ Capability: MultiProtocol \[1\] AFI \[1\] SAFI \[128\]
+INFO \( pmbgpd_core/core.+ Capability: Route Refresh \[2\]
+INFO \( pmbgpd_core/core.+ Capability: 4-bytes AS \[65\] ASN \[12429\]
+INFO \( pmbgpd_core/core.+ Capability: Extended Next Hop Encoding \[5\] AFI \[1\] SAFI \[1\] Next Hop AFI \[2\]
+INFO \( pmbgpd_core/core.+ Capability: Extended Next Hop Encoding \[5\] AFI \[1\] SAFI \[2\] Next Hop AFI \[2\]
+INFO \( pmbgpd_core/core.+ Capability: Extended Next Hop Encoding \[5\] AFI \[1\] SAFI \[128\] Next Hop AFI \[2\]
+INFO \( pmbgpd_core/core.+ BGP_OPEN: Local AS: 65543 Remote AS: 12429 HoldTime: 180
+INFO \( pmbgpd_core/core.+ BGP connection reset by peer \(2\).
+WARNING \( pmbgpd_core/core.+ Unable to get kafka_host:
