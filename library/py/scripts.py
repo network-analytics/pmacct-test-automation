@@ -10,27 +10,50 @@ from library.py.script_tools import *
 import re, logging, os
 logger = logging.getLogger(__name__)
 
+
+def create_test_network() -> bool:
+    logger.info("Creating test network (pmacct_test_network)")
+    #ret = run_script(['./library/sh/test_network/create.sh'])
+    #print(str(ret))
+    #return False
+    return run_script(['./library/sh/test_network/create.sh'])[0]
+
 # Starts Kafka containers using docker-compose and returns success or not
 def start_kafka_containers() -> bool:
     logger.info("Starting Kafka containers")
-    return run_script('./library/sh/kafka_compose/start.sh')[0]
+    return run_script(['./library/sh/kafka_compose/start.sh'])[0]
 
 # Starts pmacct container using docker run and returns success or not
 # If the pmacct container exists, it removes it using docker rm (pmacct needs to have exited)
 # It gets as input the full-path filename of the pmacct configuration file
-def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str) -> bool:
-    logger.info("Starting pmacct container")
-    return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath])[0]
+def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str, pmacct_ip: str) -> bool:
+    logger.info("Starting pmacct container with IP: " + pmacct_ip)
+    return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath, pmacct_ip])[0]
+
+# Deletes pmacct_test_network while tearing-down
+def delete_test_network() -> bool:
+    logger.info("Deleting test network (pmacct_test_network)")
+    return run_script(['./library/sh/test_network/delete.sh'])[0]
 
 # Stops Kafka containers using docker-compose and returns success or not
 def stop_and_remove_kafka_containers() -> bool:
     logger.info("Stopping Kafka containers")
-    return run_script('./library/sh/kafka_compose/stop.sh')[0]
+    return run_script(['./library/sh/kafka_compose/stop.sh'])[0]
 
 # Stops pmacct container using docker stop and docker rm and returns success or not
 def stop_and_remove_pmacct_container() -> bool:
     logger.info("Stopping and removing pmacct container")
-    return run_script('./library/sh/pmacct_docker/stop.sh')[0]
+    return run_script(['./library/sh/pmacct_docker/stop.sh'])[0]
+
+# Stops traffic-reproducer container using docker stop and docker rm and returns success or not
+def stop_and_remove_traffic_container(traffic_id: int) -> bool:
+    logger.info("Stopping and removing traffic container with ID: " + str(traffic_id))
+    return run_script(['./library/sh/traffic_docker/stop.sh', str(traffic_id)])[0]
+
+# Stops ALL traffic-reproducer containers using docker stop and docker rm and returns success or not
+def stop_and_remove_all_traffic_containers() -> bool:
+    logger.info("Stopping and removing all traffic containers")
+    return run_script(['./library/sh/traffic_docker/stop_all.sh'])[0]
 
 # Waits for pmacct container to be reported as running and return success or not
 # seconds: maximum time to wait for pmacct
@@ -45,14 +68,14 @@ def check_broker_running() -> bool:
     return run_script(['./library/sh/docker_tools/check-container-running.sh', 'broker'])[0]
 
 # Find pmacct IP
-def find_pmacct_ip() -> str:                                                                                    
-    logger.info("Finding pmacct IP address")
-    return run_script(['./library/sh/docker_tools/find-container-ip.sh', 'pmacct'])[1]
+# def find_pmacct_ip() -> str:
+#     logger.info("Finding pmacct IP address")
+#     return run_script(['./library/sh/docker_tools/find-container-ip.sh', 'pmacct'])[1]
 
 # Find host (Gateway) IP
-def find_host_ip() -> str:
-    logger.info("Finding host IP address")
-    return run_script(['./library/sh/docker_tools/find-gateway-ip.sh'])[1]
+# def find_host_ip() -> str:
+#     logger.info("Finding host IP address")
+#     return run_script(['./library/sh/docker_tools/find-gateway-ip.sh'])[1]
 
 # Sends signal to container
 def send_signal_to_pmacct(sig: str) -> bool:
@@ -105,45 +128,45 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
 
 # Sends IPFIX packets to pmacct. It returns the number of packets sent, or -1 upon failure
 # Sending lasts as many seconds, as defined in "duration" (default 1 sec)
-def send_ipfix_packets(pmacct_ip, duration: int = 1) -> int:
-    logger.info('Sending IPFIX packets for smoke test')
-    if os.path.isfile('/.dockerenv'):
-        # In a dind environment, the local ip address of pmacct is used and its local port (local == the ones
-        # corresponding by pmacct_test_network network)
-        success, _, _ = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
-            '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-c', pmacct_ip, '-p', '8989'])
-    else:
-        # In a host environment, the host ip address is used and the exposed port (as opposed to the local)
-        success, _, _ = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
-            '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '-c', '127.0.0.1', '2929'])
-
-    if not success:
-        logger.info('Sending IPFIX packets failed')
-        return -1
-    matches = re.findall(r"(?<=Sent ).+(?= packets)", output)
-    if len(matches)<1:
-        logger.info('Could not determine how many IPFIX packets were sent')
-        return -1
-    logger.info('Sent ' + matches[0] + " IPFIX packets")
-    return int(matches[0])
-
+# def send_ipfix_packets(pmacct_ip, duration: int = 1) -> int:
+#     logger.info('Sending IPFIX packets for smoke test')
+#     if os.path.isfile('/.dockerenv'):
+#         # In a dind environment, the local ip address of pmacct is used and its local port (local == the ones
+#         # corresponding by pmacct_test_network network)
+#         success, _, _ = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
+#             '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-c', pmacct_ip, '-p', '8989'])
+#     else:
+#         # In a host environment, the host ip address is used and the exposed port (as opposed to the local)
+#         success, _, _ = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
+#             '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '-c', '127.0.0.1', '2929'])
 #
-# Replays cap file as per configuration file passed as parameter
-def replay_pcap_file(config_file_name: str) -> bool:
-    logger.info('Replaying pcap file ' + os.path.basename(config_file_name))
-    success, _, _ = run_script(['python3', './traffic_generators/reproduction/main.py', '-t', \
-                                    config_file_name]) #, '-v'])
+#     if not success:
+#         logger.info('Sending IPFIX packets failed')
+#         return -1
+#     matches = re.findall(r"(?<=Sent ).+(?= packets)", output)
+#     if len(matches)<1:
+#         logger.info('Could not determine how many IPFIX packets were sent')
+#         return -1
+#     logger.info('Sent ' + matches[0] + " IPFIX packets")
+#     return int(matches[0])
 
+
+def replay_pcap_with_docker(pcap_mount_folder: str, ip_address: str) -> bool:
+    logger.info('Replaying pcap file from ' + pcap_mount_folder + ' with docker container (IP: ' + ip_address + ')')
+    success, output, error = run_script(['./library/sh/traffic_docker/start.sh', pcap_mount_folder, ip_address])
     if not success:
-        logger.info('Replaying failed')
-    else:
-        logger.info('Replaying succeeded')
+        logger.debug('Success: ' + str(success))
+        logger.debug('Output: ' + str(output))
+        logger.debug('Error: ' + str(error))
     return success
 
 
-#
-# Replays cap file in the background as per configuration file passed as parameter
-def replay_pcap_file_bg(config_file_name: str) -> bool:
-    logger.info('Replaying pcap file ' + os.path.basename(config_file_name) + ' in the background')
-    return run_script_in_the_background(['python3', './traffic_generators/reproduction/main.py', '-t', \
-                                         config_file_name])
+def replay_pcap_with_detached_docker(pcap_mount_folder: str, player_id: int, container_ip: str) -> bool:
+    logger.info('Replaying pcap file from ' + pcap_mount_folder + ' with detached docker container')
+    logger.debug('Folder: ' + pcap_mount_folder + ' Player ID: ' + str(player_id) + ' Container IP: ' + container_ip)
+    success, output, error = run_script(['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id), container_ip])
+    if not success:
+        logger.debug('Success: ' + str(success))
+        logger.debug('Output: ' + str(output))
+        logger.debug('Error: ' + str(error))
+    return success

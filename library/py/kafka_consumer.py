@@ -12,17 +12,6 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 class KMessageReader:
-    # def __init__(self, topic, dump_to_file=None):
-    #     self.consumer = AvroConsumer({
-    #         'bootstrap.servers': 'localhost:9092',
-    #         'schema.registry.url': 'http://localhost:8081',
-    #         'security.protocol': 'PLAINTEXT',
-    #         'group.id': 'smoke_test',
-    #         'auto.offset.reset': 'earliest'
-    #     })
-    #     self.topic = topic
-    #     self.consumer.subscribe([self.topic])
-    #     self.dumpfile = dump_to_file
 
     def __init__(self, topic, dump_to_file=None):
         self.topic = topic

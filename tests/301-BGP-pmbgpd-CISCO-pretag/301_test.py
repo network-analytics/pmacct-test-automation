@@ -34,7 +34,7 @@ def prepare_config_local(request):
 # prepare_config_local: edits pmacct config file with test-case-specific things (not covered in prepare_test)
 # prepare_pcap: edits pcap configuration file with framework-specific IPs and hostnames
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
-def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup_teardown, consumer_setup_teardown):
+def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     consumer = consumer_setup_teardown
     consumer.connect()
     pcap_config_files, output_files, log_files = prepare_pcap
@@ -45,14 +45,13 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_confi
     #     host_ip = testModuleParams.host_ip
     #     f.write("set_label=nkey%100.1%pkey%testing ip="+host_ip+"/32\nset_label=nkey%unknown%pkey%unknown")
 
-    assert os.path.isfile(pcap_config_file)
-    scripts.replay_pcap_file(pcap_config_file)
-    messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_file))
-    #messages = consumer.get_messages(120, 39)
+    assert scripts.replay_pcap_with_docker(testModuleParams.results_pcap_folders[0], '172.111.1.101')
+    logger.info('Pcap file played with container')
+    messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_file)) # 39
     assert messages != None and len(messages) > 0
 
-    logger.info('Waiting 30 seconds')
-    time.sleep(30) # needed for the last regex (WARNING) to be found in the logs!
+    logger.info('Waiting 15 seconds')
+    time.sleep(15) # needed for the last regex (WARNING) to be found in the logs!
 
     with open(log_files[0]) as f:
         regexes = f.read().split('\n')
@@ -62,7 +61,6 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_confi
 
     # Check for ERRORs or WARNINGs (but not the warning we want)
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
-
 
     with open(output_file) as f:
         lines = f.readlines()

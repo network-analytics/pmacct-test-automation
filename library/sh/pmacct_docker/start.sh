@@ -1,12 +1,11 @@
 #!/bin/sh
 
 PMACCT_CONF="$1"
-
 PMACCT_MOUNT="$2"
+PMACCT_IP="$3"
 
 # find directory, where this script resides
-#SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
+#SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 
 # docker inspect will return 1 if pmacct container already exists
 # if so, the pmacct container is removed (before it is deployed next)
@@ -19,7 +18,13 @@ fi
 docker run -v "$PMACCT_CONF":/etc/pmacct/nfacctd.conf \
            -v "$PMACCT_MOUNT":/var/log/pmacct \
            --network pmacct_test_network \
-           -p 2929:8989/udp \
-           -p 2929:8989/tcp \
+           --ip "$PMACCT_IP" \
            --name pmacct \
            remote-docker.artifactory.swisscom.com/pmacct/nfacctd:bleeding-edge >/dev/null 2>&1 &
+
+           # port publishing not needed anymore, since traffic reproducers are running in a container in the
+           # same network now
+           #-p 2929:8989/udp \
+           #-p 2929:8989/tcp \
+           #--name pmacct \
+           #remote-docker.artifactory.swisscom.com/pmacct/nfacctd:bleeding-edge >/dev/null 2>&1 &

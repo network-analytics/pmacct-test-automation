@@ -1,9 +1,13 @@
 ---
 version: '3'
 
+#networks:
+#  default:
+#    name: pmacct_test_network
+
 networks:
-  default:
-    name: pmacct_test_network
+  pmacct_test_network:
+    external: true
 
 services:
   zookeeper:
@@ -12,6 +16,9 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      pmacct_test_network:
+        ipv4_address: 172.111.1.10
 #    ports:
 #      - "2181:2181" not required cause we don't use zookeeper from outside the docker-compose network
     
@@ -36,6 +43,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    networks:
+      pmacct_test_network:
+        ipv4_address: 172.111.1.11
       
   schema-registry:
     image: remote-docker.artifactory.swisscom.com/confluentinc/cp-schema-registry:7.3.0
@@ -55,19 +65,6 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:29092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-
-# pmacct is deployed as a separate container
-#  pmacct:
-#    image: remote-docker.artifactory.swisscom.com/pmacct/nfacctd:latest
-#    container_name: pmacct
-#    depends_on:
-#      broker:
-#        condition: service_healthy
-#      schema-registry:
-#        condition: service_healthy
-#    ports:
-#      - "2929:8989/udp"
-#    volumes:
-#      - ${PMACCTD_CONF}:/etc/pmacct/nfacctd.conf
-#      - ${LIBRDKAFKA_CONF}:/etc/pmacct/maps_dev/librdkafka.conf
-#      - ${OUT_AVRO_SCHEMA_CONF}:/var/log/pmacct/avsc/output_schema.avsc
+    networks:
+      pmacct_test_network:
+        ipv4_address: 172.111.1.12

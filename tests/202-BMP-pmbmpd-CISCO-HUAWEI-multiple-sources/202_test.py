@@ -31,28 +31,25 @@ def prepare_config_local(request):
 # prepare_config_local: edits pmacct config file with test-case-specific things (not covered in prepare_test)
 # prepare_pcap: edits pcap configuration file with framework-specific IPs and hostnames
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
-def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup_teardown, consumer_setup_teardown):
+def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     consumer = consumer_setup_teardown
     pcap_config_files, output_files, log_files = prepare_pcap
-    pcap_config_file = pcap_config_files[0]
     output_file = output_files[0]
 
-    process_list = []
-    for pcap_config_file in pcap_config_files:
-        assert os.path.isfile(pcap_config_file)
-        process = scripts.replay_pcap_file_bg(pcap_config_file)
-        assert process!=None
-        process_list.append(process)
-        logger.info('Pcap player started in the background')
+    for i in range(len(testModuleParams.results_pcap_folders)):
+        assert scripts.replay_pcap_with_detached_docker(testModuleParams.results_pcap_folders[i], i, '172.111.1.' + str(100+i+1))
     messages = consumer.get_messages(120, 280)
     assert messages!=None and len(messages) > 0
 
-    logger.debug('Waiting 30 sec')
-    time.sleep(30) # needed for the last regex (WARNING) to be found in the logs!
+    logger.debug('Waiting 10 sec')
+    time.sleep(10) # needed for the last regex (WARNING) to be found in the logs!
 
-    for process in process_list:
-        logger.debug('Terminating process with pid ' + str(process.pid))
-        process.terminate()
+    with open(output_file) as f:
+        lines = f.readlines()
+    jsons = [json.dumps(msg.value()) for msg in messages]
+    ignore_fields = ['timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip', \
+                     'local_ip', 'bgp_nexthop']
+    assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
 
     with open(log_files[0]) as f:
         regexes = f.read().split('\n')
@@ -61,14 +58,19 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_confi
     logger.info('All regexes found!')
 
     # Check for ERRORs or WARNINGs (but not the warning we want)
-    assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+    assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING'])
 
-    with open(output_file) as f:
-        lines = f.readlines()
-    jsons = [json.dumps(msg.value()) for msg in messages]
-    ignore_fields = ['timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip', \
-                     'local_ip', 'bgp_nexthop']
-    assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
+    for i in range(len(testModuleParams.results_pcap_folders)):
+        scripts.stop_and_remove_traffic_container(i)
+
+    with open(log_files[1]) as f:
+        regexes = f.read().split('\n')
+    logger.info('Checking for ' + str(len(regexes)) + ' regexes')
+    assert helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, regexes)
+    logger.info('All regexes found!')
+
+    # Check for ERRORs or WARNINGs (but not the warning we want)
+    assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
 
 def t_est_start_pmacct(check_root_dir, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup):
