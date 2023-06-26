@@ -11,27 +11,14 @@ logger = logging.getLogger(__name__)
 testModuleParams = KModuleParams(sys.modules[__name__])
 confFile = KConfigurationFile(testModuleParams.test_conf_file)
 
-# Changes in pmacctd.conf (or nfaccctd.conf), which are test case specific
-@pytest.fixture(scope="module")
-def prepare_config_local(request):
-    confFile.replace_value_of_key('bgp_daemon_tag_map', testModuleParams.pmacct_mount_folder + '/pretag-00.map')
-    confFile.replace_value_of_key('bmp_daemon_ip', '0.0.0.0')
-    confFile.replace_value_of_key('bmp_daemon_port', '8989')
-    confFile.replace_value_of_key('bmp_daemon_msglog_kafka_topic', testModuleParams.kafka_topic_name)
-    confFile.replace_value_of_key('bmp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
-    confFile.replace_value_of_key('bmp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
-    confFile.replace_value_of_key('bmp_daemon_msglog_avro_schema_output_file', testModuleParams.pmacct_output_folder) # + '/flow_avroschema.avsc')
-    confFile.print_to_file(testModuleParams.results_conf_file)
-
 # Fixtures explained
 # check_root_dir: makes sure pytest is run from the top level directory of the framework
 # kafka_infra_setup_teardown: setup (and teardown) of kafka infrastructure
 # prepare_test: creates results folder, pmacct_mount, etc. and copies all needed files there
 #               edits pmacct config file with framework-specific details (IPs, ports, paths, etc.)
-# prepare_config_local: edits pmacct config file with test-case-specific things (not covered in prepare_test)
 # prepare_pcap: edits pcap configuration file with framework-specific IPs and hostnames
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
-def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
+def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     consumer = consumer_setup_teardown
     pcap_config_files, output_files, log_files = prepare_pcap
     output_file = output_files[0]

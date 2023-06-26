@@ -11,18 +11,6 @@ logger = logging.getLogger(__name__)
 testModuleParams = KModuleParams(sys.modules[__name__], 'pmbmpd-00.conf')
 confFile = KConfigurationFile(testModuleParams.test_conf_file)
 
-# Changes in pmacctd.conf (or nfaccctd.conf), which are test case specific
-@pytest.fixture(scope="module")
-def prepare_config_local(request):
-    confFile.replace_value_of_key('bmp_daemon_tag_map', testModuleParams.pmacct_mount_folder + '/pretag-00.map')
-    confFile.replace_value_of_key('bmp_daemon_ip', '0.0.0.0')
-    confFile.replace_value_of_key('bmp_daemon_port', '8989')
-    confFile.replace_value_of_key('bmp_daemon_msglog_kafka_topic', testModuleParams.kafka_topic_name)
-    confFile.replace_value_of_key('bmp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
-    confFile.replace_value_of_key('bmp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
-    confFile.replace_value_of_key('bmp_daemon_msglog_avro_schema_output_file', testModuleParams.pmacct_output_folder) # + '/flow_avroschema.avsc')
-    confFile.print_to_file(testModuleParams.results_conf_file)
-
 # Fixtures explained
 # check_root_dir: makes sure pytest is run from the top level directory of the framework
 # kafka_infra_setup_teardown: setup (and teardown) of kafka infrastructure
@@ -31,7 +19,7 @@ def prepare_config_local(request):
 # prepare_config_local: edits pmacct config file with test-case-specific things (not covered in prepare_test)
 # prepare_pcap: edits pcap configuration file with framework-specific IPs and hostnames
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
-def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
+def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     consumer = consumer_setup_teardown
     pcap_config_files, output_files, log_files = prepare_pcap
     output_file = output_files[0]
@@ -47,7 +35,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_confi
     with open(output_file) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg.value()) for msg in messages]
-    ignore_fields = ['timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip', \
+    ignore_fields = ['seq', 'timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip', \
                      'local_ip', 'bgp_nexthop']
     assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
 

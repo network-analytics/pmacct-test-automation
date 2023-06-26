@@ -10,21 +10,6 @@ logger = logging.getLogger(__name__)
 # The below variables are used by the fixtures and by the test
 testModuleParams = KModuleParams(sys.modules[__name__], 'pmbgpd-00.conf')
 confFile = KConfigurationFile(testModuleParams.test_conf_file)
-#consumer = KMessageReader(testModuleParams.kafka_topic_name, testModuleParams.results_msg_dump)
-
-
-# Changes in pmacctd.conf (or nfaccctd.conf), which are test case specific
-@pytest.fixture(scope="module")
-def prepare_config_local(request):
-    confFile.replace_value_of_key('bgp_daemon_tag_map', testModuleParams.pmacct_mount_folder + '/pretag-00.map')
-    #confFile.replace_value_of_key('bmp_daemon_ip', '0.0.0.0')
-    confFile.replace_value_of_key('bgp_daemon_port', '8989')
-    confFile.replace_value_of_key('bgp_daemon_msglog_kafka_topic', testModuleParams.kafka_topic_name)
-    confFile.replace_value_of_key('bgp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
-    confFile.replace_value_of_key('bgp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
-    confFile.replace_value_of_key('bgp_daemon_msglog_avro_schema_output_file', testModuleParams.pmacct_output_folder) # + '/flow_avroschema.avsc')
-    confFile.print_to_file(testModuleParams.results_conf_file)
-
 
 # Fixtures explained
 # check_root_dir: makes sure pytest is run from the top level directory of the framework
@@ -34,16 +19,10 @@ def prepare_config_local(request):
 # prepare_config_local: edits pmacct config file with test-case-specific things (not covered in prepare_test)
 # prepare_pcap: edits pcap configuration file with framework-specific IPs and hostnames
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
-def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, prepare_config_local, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
+def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     consumer = consumer_setup_teardown
-    consumer.connect()
     pcap_config_files, output_files, log_files = prepare_pcap
-    pcap_config_file = pcap_config_files[0]
     output_file = output_files[0]
-
-    # with open(testModuleParams.results_mount_folder + '/pretag-00.map', 'w') as f:
-    #     host_ip = testModuleParams.host_ip
-    #     f.write("set_label=nkey%100.1%pkey%testing ip="+host_ip+"/32\nset_label=nkey%unknown%pkey%unknown")
 
     assert scripts.replay_pcap_with_docker(testModuleParams.results_pcap_folders[0], '172.111.1.101')
     logger.info('Pcap file played with container')
