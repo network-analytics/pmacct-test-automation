@@ -147,10 +147,6 @@ def prepare_pcap(_module):
     results_output_files = copyList(test_output_files)
     results_log_files = copyList(test_log_files)
 
-    # params.host_ip = scripts.find_host_ip()
-    # logger.info('Host pmacct_test_network IP: ' + params.host_ip)
-    # assert params.host_ip != None
-
     for i in range(len(test_config_files)):
         results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
         os.makedirs(results_pcap_folder)

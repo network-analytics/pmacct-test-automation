@@ -23,6 +23,10 @@ def run_script(command: List[str]) -> (bool, str):
         output = 'Exception thrown' + str(e)
         error = ''
         success = False
+    if not success:
+        logger.debug('Success: ' + str(success))
+        logger.debug('Output: ' + str(output))
+        logger.debug('Error: ' + str(error))
     return (success, output, error)
 
 

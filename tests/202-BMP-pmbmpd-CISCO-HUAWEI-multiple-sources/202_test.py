@@ -16,7 +16,6 @@ confFile = KConfigurationFile(testModuleParams.test_conf_file)
 # kafka_infra_setup_teardown: setup (and teardown) of kafka infrastructure
 # prepare_test: creates results folder, pmacct_mount, etc. and copies all needed files there
 #               edits pmacct config file with framework-specific details (IPs, ports, paths, etc.)
-# prepare_config_local: edits pmacct config file with test-case-specific things (not covered in prepare_test)
 # prepare_pcap: edits pcap configuration file with framework-specific IPs and hostnames
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
@@ -26,7 +25,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
 
     for i in range(len(testModuleParams.results_pcap_folders)):
         assert scripts.replay_pcap_with_detached_docker(testModuleParams.results_pcap_folders[i], i, '172.111.1.' + str(100+i+1))
-    messages = consumer.get_messages(120, 280)
+    messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_file)) # 280 lines
     assert messages!=None and len(messages) > 0
 
     logger.debug('Waiting 10 sec')
@@ -39,11 +38,8 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
                      'local_ip', 'bgp_nexthop']
     assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
 
-    with open(log_files[0]) as f:
-        regexes = f.read().split('\n')
-    logger.info('Checking for ' + str(len(regexes)) + ' regexes')
-    assert helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, regexes)
-    logger.info('All regexes found!')
+    # Make sure the expected logs exist in pmacct log
+    assert helpers.check_file_regex_sequence_in_file(testModuleParams.results_log_file, log_files[0])
 
     # Check for ERRORs or WARNINGs (but not the warning we want)
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING'])
@@ -51,11 +47,8 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     for i in range(len(testModuleParams.results_pcap_folders)):
         scripts.stop_and_remove_traffic_container(i)
 
-    with open(log_files[1]) as f:
-        regexes = f.read().split('\n')
-    logger.info('Checking for ' + str(len(regexes)) + ' regexes')
-    assert helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, regexes)
-    logger.info('All regexes found!')
+    # Make sure the expected logs exist in pmacct log
+    assert helpers.check_file_regex_sequence_in_file(testModuleParams.results_log_file, log_files[1])
 
     # Check for ERRORs or WARNINGs (but not the warning we want)
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])

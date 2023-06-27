@@ -16,7 +16,6 @@ confFile = KConfigurationFile(testModuleParams.test_conf_file)
 # kafka_infra_setup_teardown: setup (and teardown) of kafka infrastructure
 # prepare_test: creates results folder, pmacct_mount, etc. and copies all needed files there
 #               edits pmacct config file with framework-specific details (IPs, ports, paths, etc.)
-# prepare_config_local: edits pmacct config file with test-case-specific things (not covered in prepare_test)
 # prepare_pcap: edits pcap configuration file with framework-specific IPs and hostnames
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):

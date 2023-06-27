@@ -55,6 +55,15 @@ def check_regex_sequence_in_file(file_path, regexes):
             start = match.end()
         return True
 
+def check_file_regex_sequence_in_file(file_path, file_regexes):
+    with open(file_regexes) as f:
+        regexes = f.read().split('\n')
+    logger.info('Checking for ' + str(len(regexes)) + ' regexes')
+    retval = check_regex_sequence_in_file(file_path, regexes)
+    if retval:
+        logger.info('All regexes found!')
+    return retval
+
 def replace_in_file(filename, search_pattern, replace_pattern):
     logger.debug('Replacing ' + search_pattern + ' with ' + replace_pattern + ' in file ' + filename)
     with open(filename) as f:

@@ -13,9 +13,6 @@ logger = logging.getLogger(__name__)
 
 def create_test_network() -> bool:
     logger.info("Creating test network (pmacct_test_network)")
-    #ret = run_script(['./library/sh/test_network/create.sh'])
-    #print(str(ret))
-    #return False
     return run_script(['./library/sh/test_network/create.sh'])[0]
 
 # Starts Kafka containers using docker-compose and returns success or not
@@ -120,53 +117,11 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
         logger.info('Failed to create topic')
     return retval
 
-#
-# Not tested - may not work
-# def delete_registered_schemas():
-#     logger.info("Deleting schemas")
-#     return run_script(['./library/sh/docker_tools/delete-topic.sh', '_schemas'])[0]
-
-# Sends IPFIX packets to pmacct. It returns the number of packets sent, or -1 upon failure
-# Sending lasts as many seconds, as defined in "duration" (default 1 sec)
-# def send_ipfix_packets(pmacct_ip, duration: int = 1) -> int:
-#     logger.info('Sending IPFIX packets for smoke test')
-#     if os.path.isfile('/.dockerenv'):
-#         # In a dind environment, the local ip address of pmacct is used and its local port (local == the ones
-#         # corresponding by pmacct_test_network network)
-#         success, _, _ = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
-#             '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-c', pmacct_ip, '-p', '8989'])
-#     else:
-#         # In a host environment, the host ip address is used and the exposed port (as opposed to the local)
-#         success, _, _ = run_script(['python3', './traffic_generators/ipfix/play_ipfix_packets.py', '-S', \
-#             '10.1.1.1', '-D', str(duration), '-F', '15', '-C', '1', '-w', '10', '-p', '-c', '127.0.0.1', '2929'])
-#
-#     if not success:
-#         logger.info('Sending IPFIX packets failed')
-#         return -1
-#     matches = re.findall(r"(?<=Sent ).+(?= packets)", output)
-#     if len(matches)<1:
-#         logger.info('Could not determine how many IPFIX packets were sent')
-#         return -1
-#     logger.info('Sent ' + matches[0] + " IPFIX packets")
-#     return int(matches[0])
-
-
 def replay_pcap_with_docker(pcap_mount_folder: str, ip_address: str) -> bool:
     logger.info('Replaying pcap file from ' + pcap_mount_folder + ' with docker container (IP: ' + ip_address + ')')
-    success, output, error = run_script(['./library/sh/traffic_docker/start.sh', pcap_mount_folder, ip_address])
-    if not success:
-        logger.debug('Success: ' + str(success))
-        logger.debug('Output: ' + str(output))
-        logger.debug('Error: ' + str(error))
-    return success
-
+    return run_script(['./library/sh/traffic_docker/start.sh', pcap_mount_folder, ip_address])[0]
 
 def replay_pcap_with_detached_docker(pcap_mount_folder: str, player_id: int, container_ip: str) -> bool:
     logger.info('Replaying pcap file from ' + pcap_mount_folder + ' with detached docker container')
     logger.debug('Folder: ' + pcap_mount_folder + ' Player ID: ' + str(player_id) + ' Container IP: ' + container_ip)
-    success, output, error = run_script(['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id), container_ip])
-    if not success:
-        logger.debug('Success: ' + str(success))
-        logger.debug('Output: ' + str(output))
-        logger.debug('Error: ' + str(error))
-    return success
+    return run_script(['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id), container_ip])[0]
