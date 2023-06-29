@@ -20,13 +20,16 @@ confFile = KConfigurationFile(testModuleParams.test_conf_file)
 # pmacct_setup_teardown: setup (and teardown) of pmacct container itself
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     consumer = consumer_setup_teardown
-    pcap_config_files, output_files, _ = prepare_pcap
-    assert len(pcap_config_files)>0 and len(output_files)>0
+    pcap_config_files, output_files, log_files = prepare_pcap
+    assert len(pcap_config_files)>0 and len(output_files)>0 and len(log_files) > 0
 
     assert scripts.replay_pcap_with_docker(testModuleParams.results_pcap_folders[0], '172.111.1.101')
     logger.info('Pcap file replayed successfully')
     messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_files[0])) # 51 lines
     assert messages != None and len(messages) > 0
+
+    logger.info('Waiting 15 seconds')
+    time.sleep(15)  # needed for the last message ('Purging cache - END (PID: xx, QN: 51/51, ET: 0)') to exist in logs
 
     # Check for ERRORs or WARNINGs
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING'])
@@ -37,3 +40,6 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     ignore_fields = ['peer_ip_src', 'timestamp_start', 'timestamp_end', 'timestamp_arrival', 'timestamp_min', \
                      'timestamp_max', 'stamp_inserted', 'stamp_updated']
     assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
+
+    # Make sure the expected logs exist in pmacct log
+    assert helpers.check_file_regex_sequence_in_file(testModuleParams.results_log_file, log_files[0])
