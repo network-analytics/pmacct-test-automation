@@ -125,6 +125,13 @@ def prepare_test_env(_module):
     config.print_to_file(params.results_conf_file)
 
     copy_files_in_mount_folder(params)
+
+    results_pretag_files = select_files(params.results_mount_folder, 'pretag-\d+.map')
+    for results_pretag_file in results_pretag_files:
+        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.1', '172.111.1.101')
+        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.2', '172.111.1.102')
+        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.3', '172.111.1.103')
+
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
 
@@ -165,11 +172,6 @@ def prepare_pcap(_module):
         confPcap.replace_value_of_key('    ip', params.pmacct_ip)
         confPcap.replace_value_of_key('    port', '8989')
         confPcap.print_to_file(results_pcap_folder + '/traffic-reproducer.conf')
-
-    if os.path.isfile(params.results_mount_folder + '/pretag-00.map'):
-        replace_in_file(params.results_mount_folder + '/pretag-00.map', '192.168.100.1', '172.111.1.101')
-        replace_in_file(params.results_mount_folder + '/pretag-00.map', '192.168.100.2', '172.111.1.102')
-        replace_in_file(params.results_mount_folder + '/pretag-00.map', '192.168.100.3', '172.111.1.103')
 
     return (results_config_files, results_output_files, results_log_files)
 
