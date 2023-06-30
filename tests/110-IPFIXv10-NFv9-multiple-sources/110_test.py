@@ -31,18 +31,17 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     logger.debug('Waiting 10 sec')
     time.sleep(10) # needed for the last regex (WARNING) to be found in the logs!
 
+    # No IP substitution in json file, since we don't know which IP (of the three) will yield which message
     with open(output_file) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg.value()) for msg in messages]
-    ignore_fields = ['timestamp_max', 'peer_ip_src', 'timestamp_arrival', 'stamp_inserted', 'timestamp_min', \
-                     'stamp_updated', 'timestamp_start', 'timestamp_end']
+    ignore_fields = ['timestamp_max', 'timestamp_arrival', 'stamp_inserted', 'timestamp_min', 'stamp_updated',
+                     'timestamp_start', 'timestamp_end',
+                     'peer_ip_src'] # Needed since we didn't substitute the IPs
     assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
 
     # Check for ERRORs or WARNINGs (but not the warning we want)
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING'])
-
-#    for i in range(len(testModuleParams.results_pcap_folders)):
-#        scripts.stop_and_remove_traffic_container(i)
 
 
 def t_est_start_pmacct(check_root_dir, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup):

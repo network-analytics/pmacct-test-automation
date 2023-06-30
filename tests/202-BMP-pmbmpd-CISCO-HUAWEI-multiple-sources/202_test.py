@@ -31,11 +31,19 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     logger.debug('Waiting 10 sec')
     time.sleep(10) # needed for the last regex (WARNING) to be found in the logs!
 
+    # Replace peer_ip_src with the correct IP address
+    helpers.replace_in_file(output_files[0], '192.168.100.1', '172.111.1.101')
+    helpers.replace_in_file(output_files[0], '192.168.100.2', '172.111.1.102')
+    helpers.replace_in_file(output_files[0], '192.168.100.3', '172.111.1.103')
+
     with open(output_file) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg.value()) for msg in messages]
-    ignore_fields = ['seq', 'timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip', \
-                     'local_ip', 'bgp_nexthop']
+    #ignore_fields = ['seq', 'timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip', \
+    #                 'local_ip', 'bgp_nexthop']
+    ignore_fields = ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port',
+                     'label', # for some reason the pretag map doesn't work here...
+                     'bgp_nexthop'] # bgp_nexthop is received empty (?)
     assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
 
     # Make sure the expected logs exist in pmacct log

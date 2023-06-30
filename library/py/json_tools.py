@@ -124,7 +124,7 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None, ignore_jsonpa
                 return False
             json2 = json_list2[index]
             diff = compare_json_ignore(json1, json2, ignore_fields, ignore_jsonpaths)
-        logger.info('Json matched')
+        logger.debug('Json matched')
         json_list2.pop(index)
     logger.info('All json matched')
     return True

@@ -25,8 +25,10 @@ def run_script(command: List[str]) -> (bool, str):
         success = False
     if not success:
         logger.debug('Success: ' + str(success))
-        logger.debug('Output: ' + str(output))
-        logger.debug('Error: ' + str(error))
+        if len(output)>0:
+            logger.debug('Output: ' + output)
+        if len(error):
+            logger.debug('Error: ' + error)
     return (success, output, error)
 
 

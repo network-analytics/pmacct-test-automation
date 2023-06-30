@@ -21,7 +21,6 @@ testdir=${files[0]}
 
 python -m pytest tests/${1}* --log-cli-level=DEBUG --html=results/report${1}.html
 
+echo "Moving report to the test case specific folder"
 mv results/report${1}.html ${testdir/tests/results}/
 mv results/assets ${testdir/tests/results}/
-
-

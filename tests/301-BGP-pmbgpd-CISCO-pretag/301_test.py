@@ -24,7 +24,6 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     output_file = output_files[0]
 
     assert scripts.replay_pcap_with_docker(testModuleParams.results_pcap_folders[0], '172.111.1.101')
-    logger.info('Pcap file played with container')
     messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_file)) # 39
     assert messages != None and len(messages) > 0
 
@@ -43,6 +42,6 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     with open(output_file) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg.value()) for msg in messages]
-    ignore_fields = ['timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip', \
+    ignore_fields = ['timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip',
                      'local_ip', 'bgp_nexthop']
     assert jsontools.compare_json_lists(jsons, lines, ignore_fields)

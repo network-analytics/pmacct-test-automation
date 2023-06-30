@@ -13,6 +13,8 @@ class KModuleParams:
 
     def build_static_params(self, filename):
         self.test_folder = os.path.dirname(filename)
+        self.tests_folder = os.path.dirname(self.test_folder)
+        self.root_folder = os.path.dirname(self.tests_folder)
         self.test_name = os.path.basename(self.test_folder)
         self.test_mount_folder = self.test_folder + '/pmacct_mount'
         self.pmacct_mount_folder = '/var/log/pmacct'
@@ -108,8 +110,9 @@ def prepare_test_env(_module):
     logger.info('Test name: ' + params.test_name)
 
     if os.path.exists(params.results_folder):
-        logger.debug('Results folder exists, deleting')
+        logger.debug('Results folder exists, deleting folder ' + params.results_folder)
         shutil.rmtree(params.results_folder)
+        assert not os.path.exists(params.results_folder)
     create_mount_and_output_folders(params)
 
     edit_conf_mount_folder(config, params)
@@ -122,6 +125,7 @@ def prepare_test_env(_module):
     config.print_to_file(params.results_conf_file)
 
     copy_files_in_mount_folder(params)
+    shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
 
 # Prepares json output, log, pcap and pcap-config files
@@ -162,8 +166,10 @@ def prepare_pcap(_module):
         confPcap.replace_value_of_key('    port', '8989')
         confPcap.print_to_file(results_pcap_folder + '/traffic-reproducer.conf')
 
-    with open(params.results_mount_folder + '/pretag-00.map', 'w') as f:
-        f.write("set_label=nkey%100.1%pkey%testing       ip=172.111.1.101/32\nset_label=nkey%unknown%pkey%unknown")
+    if os.path.isfile(params.results_mount_folder + '/pretag-00.map'):
+        replace_in_file(params.results_mount_folder + '/pretag-00.map', '192.168.100.1', '172.111.1.101')
+        replace_in_file(params.results_mount_folder + '/pretag-00.map', '192.168.100.2', '172.111.1.102')
+        replace_in_file(params.results_mount_folder + '/pretag-00.map', '192.168.100.3', '172.111.1.103')
 
     return (results_config_files, results_output_files, results_log_files)
 

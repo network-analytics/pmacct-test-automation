@@ -141,6 +141,9 @@ class KMessageReader:
         if messages_expected<1:
             logger.info('Received the expected number of messages (' + str(message_count) + ')')
         if len(messages)<1:
-            logger.info('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
+            logger.warning('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
+            return None
+        if len(messages)<message_count:
+            logger.warning('Received ' + str(len(messages)) + ' messages instead of ' + str(message_count))
             return None
         return messages

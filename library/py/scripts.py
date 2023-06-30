@@ -118,10 +118,18 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
     return retval
 
 def replay_pcap_with_docker(pcap_mount_folder: str, ip_address: str) -> bool:
-    logger.info('Replaying pcap file from ' + pcap_mount_folder + ' with docker container (IP: ' + ip_address + ')')
-    return run_script(['./library/sh/traffic_docker/start.sh', pcap_mount_folder, ip_address])[0]
+    logger.info('Replaying pcap file from ' + pcap_mount_folder + ' (container IP: ' + ip_address + ')')
+    success, output, error = run_script(['./library/sh/traffic_docker/start.sh', pcap_mount_folder, ip_address])
+    if success:
+        logger.info('Pcap file replayed successfully')
+    # logger.debug('Success: ' + str(success))
+    # if len(output)>0:
+    #     logger.debug('Output: ' + output)
+    # if len(error):
+    #     logger.debug('Error: ' + error)
+    return success
 
 def replay_pcap_with_detached_docker(pcap_mount_folder: str, player_id: int, container_ip: str) -> bool:
-    logger.info('Replaying pcap file from ' + pcap_mount_folder + ' with detached docker container')
-    logger.debug('Folder: ' + pcap_mount_folder + ' Player ID: ' + str(player_id) + ' Container IP: ' + container_ip)
+    logger.info('Replaying pcap file from ' + pcap_mount_folder + ' with DETACHED docker container')
+    logger.debug('Folder: ' + pcap_mount_folder + ' Pcap Player ID: ' + str(player_id) + ' Container IP: ' + container_ip)
     return run_script(['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id), container_ip])[0]

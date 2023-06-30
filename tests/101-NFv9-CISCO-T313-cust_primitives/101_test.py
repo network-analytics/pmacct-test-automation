@@ -24,7 +24,6 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     assert len(pcap_config_files)>0 and len(output_files)>0 and len(log_files) > 0
 
     assert scripts.replay_pcap_with_docker(testModuleParams.results_pcap_folders[0], '172.111.1.101')
-    logger.info('Pcap file replayed successfully')
     messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_files[0])) # 51 lines
     assert messages != None and len(messages) > 0
 
@@ -34,10 +33,14 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     # Check for ERRORs or WARNINGs
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING'])
 
+    # Replace peer_ip_src with the correct IP address
+    helpers.replace_in_file(output_files[0], '192.168.100.1', '172.111.1.101')
+
     with open(output_files[0]) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg.value()) for msg in messages]
-    ignore_fields = ['peer_ip_src', 'timestamp_start', 'timestamp_end', 'timestamp_arrival', 'timestamp_min', \
+    #ignore_fields = ['timestamp_max', 'timestamp_arrival', 'stamp_inserted', 'timestamp_min', 'stamp_updated']
+    ignore_fields = ['timestamp_start', 'timestamp_end', 'timestamp_arrival', 'timestamp_min', \
                      'timestamp_max', 'stamp_inserted', 'stamp_updated']
     assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
 
