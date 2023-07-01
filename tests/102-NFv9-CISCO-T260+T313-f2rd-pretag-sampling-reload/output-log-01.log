@@ -1,0 +1,12 @@
+INFO \( nfacctd_core/core \): \[/etc/pmacct/f2rd-00\.map] \(re\)loading map\.
+INFO \( nfacctd_core/core \): \[/etc/pmacct/f2rd-00\.map] maps_index: destroying index
+INFO \( nfacctd_core/core \): \[/etc/pmacct/f2rd-00\.map] maps_index: creating index
+INFO \( nfacctd_core/core \): \[/etc/pmacct/f2rd-00\.map] pretag_index_report\(\):
+INFO \( nfacctd_core/core \): \[/etc/pmacct/f2rd-00\.map] map successfully \(re\)loaded\.
+INFO \( nfacctd_core/core \): \[/etc/pmacct/sampling-00\.map] \(re\)loading map\.
+INFO \( nfacctd_core/core \): \[/etc/pmacct/sampling-00\.map] map successfully \(re\)loaded\.
+INFO \( nfacctd_core/core \): \[/etc/pmacct/pretag-00\.map] \(re\)loading map\.
+INFO \( nfacctd_core/core \): \[/etc/pmacct/pretag-00\.map] maps_index: destroying index
+INFO \( nfacctd_core/core \): \[/etc/pmacct/pretag-00\.map] maps_index: creating index
+INFO \( nfacctd_core/core \): \[/etc/pmacct/pretag-00\.map] pretag_index_report\(\):
+INFO \( nfacctd_core/core \): \[/etc/pmacct/pretag-00\.map] map successfully \(re\)loaded\.

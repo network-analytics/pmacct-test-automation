@@ -24,7 +24,7 @@ class KModuleParams:
         else:
             self.test_conf_file = self.test_folder + '/pmacctd.conf'
             if not os.path.isfile(self.test_conf_file):
-                fnames = select_files(self.test_folder, 'nfacctd.+conf')
+                fnames = select_files(self.test_folder, 'nfacctd.+conf$')
                 assert len(fnames)==1
                 self.test_conf_file = self.test_folder + '/' + fnames[0]
         self.results_folder = os.getcwd() + '/results/' + self.test_name
@@ -53,6 +53,7 @@ def edit_conf_mount_folder(config, params):
     config.replace_value_of_key('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
     config.replace_value_of_key('pre_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key('flow_to_rd_map', params.pmacct_mount_folder + '/f2rd-00.map')
+    config.replace_value_of_key('sampling_map', params.pmacct_mount_folder + '/sampling-00.map')
     config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.lst')
 
 # Files in output folder, for pmacct to write
@@ -71,7 +72,6 @@ def edit_conf_operational(config, params):
 
 # Replace specific BMP values
 def edit_conf_bmp(config, params):
-    #config.replace_value_of_key('bgp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key('bmp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key('bmp_daemon_ip', '0.0.0.0')
     config.replace_value_of_key('bmp_daemon_port', '8989')
@@ -103,6 +103,7 @@ def copy_files_in_mount_folder(params):
         logger.info('Copied ' + str(count) + ' files')
 
 
+# RUNS BEFORE PMACCT IS RUN
 # Prepares results folder to receive logs and output from pmacct
 def prepare_test_env(_module):
     params = _module.testModuleParams
@@ -126,7 +127,7 @@ def prepare_test_env(_module):
 
     copy_files_in_mount_folder(params)
 
-    results_pretag_files = select_files(params.results_mount_folder, 'pretag-\d+.map')
+    results_pretag_files = select_files(params.results_mount_folder, '.+\.map$')
     for results_pretag_file in results_pretag_files:
         replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.1', '172.111.1.101')
         replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.2', '172.111.1.102')
@@ -135,13 +136,14 @@ def prepare_test_env(_module):
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
 
+# RUNS AFTER PMACCT IS RUN
 # Prepares json output, log, pcap and pcap-config files
 def prepare_pcap(_module):
     params = _module.testModuleParams
-    test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\d+.conf')
-    test_pcap_files = select_files(params.test_folder, 'traffic.*-\d+.pcap')
-    test_output_files = select_files(params.test_folder, 'output.*-\d+.json')
-    test_log_files = select_files(params.test_folder, 'output.*-\d+.log')
+    test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\d+.conf$')
+    test_pcap_files = select_files(params.test_folder, 'traffic.*-\d+.pcap$')
+    test_output_files = select_files(params.test_folder, 'output.*-\d+.json$')
+    test_log_files = select_files(params.test_folder, 'output.*-\d+.log$')
 
     assert len(test_pcap_files)>0
     assert len(test_pcap_files)==len(test_config_files)

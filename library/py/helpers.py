@@ -65,13 +65,16 @@ def check_file_regex_sequence_in_file(file_path, file_regexes):
         logger.info('All regexes found!')
     return retval
 
-def replace_in_file(filename, search_pattern, replace_pattern):
+def replace_in_file(filename, search_pattern, replace_pattern, exclude_if_line_contains = None):
     logger.debug('Replacing ' + search_pattern + ' with ' + replace_pattern + ' in file ' + filename)
     with open(filename) as f:
         lines = f.readlines()
     with open(filename + '.bak', 'w') as f:
         for line in lines:
-            f.write(line.replace(search_pattern, replace_pattern))
+            if exclude_if_line_contains and exclude_if_line_contains in line:
+                f.write(line)
+            else:
+                f.write(line.replace(search_pattern, replace_pattern))
     os.rename(filename + '.bak', filename)
 
 # Given a folder, returns a list of files matching a regular expression
