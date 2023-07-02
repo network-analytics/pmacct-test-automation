@@ -36,13 +36,10 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     # Replace peer_ip_src with the correct IP address
     helpers.replace_in_file(output_files[0], '192.168.100.1', '172.111.1.101')
 
-    with open(output_files[0]) as f:
-        lines = f.readlines()
-    jsons = [json.dumps(msg.value()) for msg in messages]
-    #ignore_fields = ['timestamp_max', 'timestamp_arrival', 'stamp_inserted', 'timestamp_min', 'stamp_updated']
+    # Comparing received json messages to output-flow-00.json
     ignore_fields = ['timestamp_start', 'timestamp_end', 'timestamp_arrival', 'timestamp_min', \
                      'timestamp_max', 'stamp_inserted', 'stamp_updated']
-    assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
+    assert jsontools.compare_messages_to_json_file(messages, output_files[0], ignore_fields)
 
     # Make sure the expected logs exist in pmacct log
     assert helpers.check_file_regex_sequence_in_file(testModuleParams.results_log_file, log_files[0])

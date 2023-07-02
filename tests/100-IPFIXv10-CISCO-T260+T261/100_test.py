@@ -24,7 +24,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     assert len(pcap_config_files)>0 and len(output_files)>0
 
     assert scripts.replay_pcap_with_docker(testModuleParams.results_pcap_folders[0], '172.111.1.101')
-    messages = consumer.get_messages(180, helpers.count_non_empty_lines(output_files[0])) # 12 lines
+    messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_files[0])) # 12 lines
     assert messages != None and len(messages) > 0
 
     # Check for ERRORs or WARNINGs
@@ -33,8 +33,5 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     # Replace peer_ip_src with the correct IP address
     helpers.replace_in_file(output_files[0], '192.168.100.1', '172.111.1.101')
 
-    with open(output_files[0]) as f:
-        lines = f.readlines()
-    jsons = [json.dumps(msg.value()) for msg in messages]
     ignore_fields = ['timestamp_max', 'timestamp_arrival', 'stamp_inserted', 'timestamp_min', 'stamp_updated']
-    assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
+    assert jsontools.compare_messages_to_json_file(messages, output_files[0], ignore_fields)

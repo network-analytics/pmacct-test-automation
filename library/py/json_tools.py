@@ -128,3 +128,9 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None, ignore_jsonpa
         json_list2.pop(index)
     logger.info('All json matched')
     return True
+
+def compare_messages_to_json_file(message_dicts, jsonfile, ignore_fields=None, ignore_jsonpaths=None):
+    with open(jsonfile) as f:
+        lines = f.readlines()
+    jsons = [json.dumps(msg) for msg in message_dicts]
+    return compare_json_lists(jsons, lines, ignore_fields, ignore_jsonpaths)

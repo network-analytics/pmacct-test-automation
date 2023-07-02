@@ -36,12 +36,12 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     # Check for ERRORs or WARNINGs (but not the warning we want)
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
-    with open(output_files[0]) as f:
-        lines = f.readlines()
-    jsons = [json.dumps(msg.value()) for msg in messages]
-    ignore_fields = ['timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip',
-                     'local_ip', 'bgp_nexthop']
-    assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
+    # Replace peer_ip_src with the correct IP address
+    helpers.replace_in_file(output_files[0], '192.168.100.1', '172.111.1.101')
+
+    ignore_fields = ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port',
+                     'bgp_nexthop']  # bgp_nexthop ?
+    assert jsontools.compare_messages_to_json_file(messages, output_files[0], ignore_fields)
 
 # Underscore prevents the test from being run by pytest
 # For troubleshooting: sets up kafka infra and pmacct

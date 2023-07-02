@@ -21,27 +21,29 @@ confFile = KConfigurationFile(testModuleParams.test_conf_file)
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     consumer = consumer_setup_teardown
     pcap_config_files, output_files, log_files = prepare_pcap
-    output_file = output_files[0]
 
     assert scripts.replay_pcap_with_docker(testModuleParams.results_pcap_folders[0], '172.111.1.101')
-    messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_file)) # 39
+    messages = consumer.get_messages(120, helpers.count_non_empty_lines(output_files[0])) # 39
     assert messages != None and len(messages) > 0
 
     logger.info('Waiting 15 seconds')
     time.sleep(15) # needed for the last regex (WARNING) to be found in the logs!
 
-    with open(log_files[0]) as f:
-        regexes = f.read().split('\n')
-    logger.info('Checking for ' + str(len(regexes)) + ' regexes')
-    assert helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, regexes)
-    logger.info('All regexes found!')
+    # Make sure the expected logs exist in pmacct log
+    assert helpers.check_file_regex_sequence_in_file(testModuleParams.results_log_file, log_files[0])
+
+    # with open(log_files[0]) as f:
+    #     regexes = f.read().split('\n')
+    # logger.info('Checking for ' + str(len(regexes)) + ' regexes')
+    # assert helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, regexes)
+    # logger.info('All regexes found!')
 
     # Check for ERRORs or WARNINGs (but not the warning we want)
     assert not helpers.check_regex_sequence_in_file(testModuleParams.results_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
-    with open(output_file) as f:
-        lines = f.readlines()
-    jsons = [json.dumps(msg.value()) for msg in messages]
+    # Replace peer_ip_src with the correct IP address
+    helpers.replace_in_file(output_files[0], '192.168.100.1', '172.111.1.101')
+
     ignore_fields = ['timestamp', 'bmp_router', 'bmp_router_port', 'timestamp_arrival', 'peer_ip',
                      'local_ip', 'bgp_nexthop']
-    assert jsontools.compare_json_lists(jsons, lines, ignore_fields)
+    assert jsontools.compare_messages_to_json_file(messages, output_files[0], ignore_fields)

@@ -22,6 +22,8 @@ if [ "$#" -gt 1 ]; then
   for arg in "$@"; do
     args="$args tests/${arg}*"
   done
+  rm -rf results/assets
+  rm -f results/report.html
   python -m pytest $args --log-cli-level=DEBUG --html=results/report.html
 else
   python -m pytest tests/${1}* --log-cli-level=DEBUG --html=results/report${1}.html

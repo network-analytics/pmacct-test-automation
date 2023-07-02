@@ -58,7 +58,7 @@ def check_regex_sequence_in_file(file_path, regexes):
 def check_file_regex_sequence_in_file(file_path, file_regexes):
     with open(file_regexes) as f:
         regexes = f.read().split('\n')
-    regexes = [regex for regex in regexes if len(regex)>0]
+    regexes = [regex for regex in regexes if len(regex)>0 and not regex.startswith('#')]
     logger.info('Checking for ' + str(len(regexes)) + ' regexes')
     retval = check_regex_sequence_in_file(file_path, regexes)
     if retval:

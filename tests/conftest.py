@@ -69,6 +69,17 @@ def consumer_setup_teardown(request):
     if consumer:
         consumer.disconnect()
 
+@pytest.fixture(scope="module")
+def consumerJson_setup_teardown(request):
+    params = request.module.testModuleParams
+    consumer = KMessageReader(params.kafka_topic_name, params.results_msg_dump, True)
+    consumer.connect()
+    logger.debug('Local setup Consumer ' + str(consumer))
+    yield consumer
+    logger.debug('Local teardown Consumer ' + str(consumer))
+    if consumer:
+        consumer.disconnect()
+
 
 # Prepares results folder to receive logs and output from pmacct
 @pytest.fixture(scope="module")
