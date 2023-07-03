@@ -16,30 +16,30 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
 def main(consumer):
     for i in range(len(testParams.results_pcap_folders)):
         assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[i], i, '172.111.1.' + str(100+i+1))
-    messages = consumer.get_messages(180, helpers.count_non_empty_lines(testParams.results_output_files[0])) # 280 lines
+    messages = consumer.get_messages(180, helpers.count_non_empty_lines(testParams.output_files[0])) # 280 lines
     assert messages!=None and len(messages) > 0
 
     logger.debug('Waiting 10 sec')
     time.sleep(10) # needed for the last regex (WARNING) to be found in the logs!
 
     # Replace peer_ip_src with the correct IP address
-    helpers.replace_in_file(testParams.results_output_files[0], '192.168.100.1', '172.111.1.101')
-    helpers.replace_in_file(testParams.results_output_files[0], '192.168.100.2', '172.111.1.102')
-    helpers.replace_in_file(testParams.results_output_files[0], '192.168.100.3', '172.111.1.103')
+    helpers.replace_in_file(testParams.output_files[0], '192.168.100.1', '172.111.1.101')
+    helpers.replace_in_file(testParams.output_files[0], '192.168.100.2', '172.111.1.102')
+    helpers.replace_in_file(testParams.output_files[0], '192.168.100.3', '172.111.1.103')
 
     ignore_fields = ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port',
                      'bgp_nexthop']  # bgp_nexthop is received empty (?)
-    assert jsontools.compare_messages_to_json_file(messages, testParams.results_output_files[0], ignore_fields)
+    assert jsontools.compare_messages_to_json_file(messages, testParams.output_files[0], ignore_fields)
 
     # Make sure the expected logs exist in pmacct log
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.results_log_files[0])
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.log_files[0])
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
     for i in range(len(testParams.results_pcap_folders)):
         scripts.stop_and_remove_traffic_container(i)
 
     # Make sure the expected logs exist in pmacct log
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.results_log_files[1])
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.log_files[1])
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
 

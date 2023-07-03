@@ -16,7 +16,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
 def main(consumer):
     for i in range(len(testParams.results_pcap_folders)):
         assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[i], i, '172.111.1.' + str(100+i+1))
-    messages = consumer.get_messages(120, helpers.count_non_empty_lines(testParams.results_output_files[0])) # 98 lines
+    messages = consumer.get_messages(120, helpers.count_non_empty_lines(testParams.output_files[0])) # 98 lines
     assert messages!=None and len(messages) > 0
 
     logger.debug('Waiting 10 sec')
@@ -27,7 +27,7 @@ def main(consumer):
     ignore_fields = ['timestamp_max', 'timestamp_arrival', 'stamp_inserted', 'timestamp_min', 'stamp_updated',
                      'timestamp_start', 'timestamp_end',
                      'peer_ip_src']  # Needed since we didn't substitute the IPs
-    assert jsontools.compare_messages_to_json_file(messages, testParams.results_output_files[0], ignore_fields)
+    assert jsontools.compare_messages_to_json_file(messages, testParams.output_files[0], ignore_fields)
 
     # Check for ERRORs or WARNINGs (but not the warning we want)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])

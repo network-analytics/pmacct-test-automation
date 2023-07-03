@@ -36,9 +36,8 @@ class KModuleParams:
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
         self.results_msg_dump = self.results_folder + '/message_dump.json'
         self.pmacct_ip = '172.111.1.13'
-        self.host_ip = None
-        self.results_output_files = []
-        self.results_log_files = []
+        self.output_files = []
+        self.log_files = []
 
 
 def create_mount_and_output_folders(params):
@@ -158,8 +157,8 @@ def prepare_pcap(_module):
             shutil.copy(params.test_folder + '/' + filename, params.results_folder + '/' + filename)
         return retVal
 
-    params.results_output_files = copyList(test_output_files)
-    params.results_log_files = copyList(test_log_files)
+    params.output_files = copyList(test_output_files)
+    params.log_files = copyList(test_log_files)
 
     for i in range(len(test_config_files)):
         results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
