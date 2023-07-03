@@ -30,8 +30,4 @@ def main(consumer):
     assert jsontools.compare_messages_to_json_file(messages, testParams.results_output_files[0], ignore_fields)
 
     # Check for ERRORs or WARNINGs (but not the warning we want)
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING'])
-
-
-def t_est_start_pmacct(check_root_dir, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup):
-    assert True
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])

@@ -22,10 +22,8 @@ def main(consumer):
     time.sleep(15) # needed for the last regex (WARNING) to be found in the logs!
 
     # Make sure the expected logs exist in pmacct log
-    assert helpers.check_file_regex_sequence_in_file(testParams.results_log_file, testParams.results_log_files[0])
-
-    # Check for ERRORs or WARNINGs (but not the warning we want)
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.results_log_files[0])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
     # Replace peer_ip_src with the correct IP address
     helpers.replace_in_file(testParams.results_output_files[0], '192.168.100.1', '172.111.1.101')

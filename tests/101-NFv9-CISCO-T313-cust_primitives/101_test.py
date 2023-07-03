@@ -21,7 +21,7 @@ def main(consumer):
     logger.info('Waiting 15 seconds')
     time.sleep(15)  # needed for the last message ('Purging cache - END (PID: xx, QN: 51/51, ET: 0)') to exist in logs
 
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
     # Replace peer_ip_src with the actual IP address in output-xyz.json
     helpers.replace_in_file(testParams.results_output_files[0], '192.168.100.1', '172.111.1.101')
@@ -32,4 +32,4 @@ def main(consumer):
     assert jsontools.compare_messages_to_json_file(messages, testParams.results_output_files[0], ignore_fields)
 
     # Make sure the expected logs exist in pmacct log
-    assert helpers.check_file_regex_sequence_in_file(testParams.results_log_file, testParams.results_log_files[0])
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.results_log_files[0])

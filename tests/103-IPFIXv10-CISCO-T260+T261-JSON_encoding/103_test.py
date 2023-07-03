@@ -19,7 +19,7 @@ def main(consumer):
     assert messages != None and len(messages) > 0
 
     # Check for ERRORs or WARNINGs
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
     # Replace peer_ip_src with the correct IP address
     helpers.replace_in_file(testParams.results_output_files[0], '192.168.100.1', '172.111.1.101')

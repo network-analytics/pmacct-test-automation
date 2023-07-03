@@ -18,7 +18,7 @@ def main(consumer):
     messages = consumer.get_messages(120, helpers.count_non_empty_lines(testParams.results_output_files[0])) # 12 lines
     assert messages != None and len(messages) > 0
 
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
     # Replace peer_ip_src with the actual IP address in output-xyz.json
     helpers.replace_in_file(testParams.results_output_files[0], '192.168.100.1', '172.111.1.101')

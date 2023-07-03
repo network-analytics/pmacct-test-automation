@@ -32,19 +32,15 @@ def main(consumer):
     assert jsontools.compare_messages_to_json_file(messages, testParams.results_output_files[0], ignore_fields)
 
     # Make sure the expected logs exist in pmacct log
-    assert helpers.check_file_regex_sequence_in_file(testParams.results_log_file, testParams.results_log_files[0])
-
-    # Check for ERRORs or WARNINGs (but not the warning we want)
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING'])
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.results_log_files[0])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
     for i in range(len(testParams.results_pcap_folders)):
         scripts.stop_and_remove_traffic_container(i)
 
     # Make sure the expected logs exist in pmacct log
-    assert helpers.check_file_regex_sequence_in_file(testParams.results_log_file, testParams.results_log_files[1])
-
-    # Check for ERRORs or WARNINGs (but not the warning we want)
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.results_log_files[1])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
 
 def t_est_start_pmacct(check_root_dir, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup):

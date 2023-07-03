@@ -33,7 +33,7 @@ class KModuleParams:
         self.results_pcap_folders = []
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
-        self.results_log_file = self.results_output_folder + '/pmacctd.log'
+        self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
         self.results_msg_dump = self.results_folder + '/message_dump.json'
         self.pmacct_ip = '172.111.1.13'
         self.host_ip = None
@@ -129,7 +129,7 @@ def prepare_test_env(_module):
 
     copy_files_in_mount_folder(params)
 
-    results_pretag_files = select_files(params.results_mount_folder, '.+\.map$')
+    results_pretag_files = select_files(params.results_mount_folder, '.+\\.map$')
     for results_pretag_file in results_pretag_files:
         replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.1', '172.111.1.101')
         replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.2', '172.111.1.102')
@@ -142,10 +142,10 @@ def prepare_test_env(_module):
 # Prepares json output, log, pcap and pcap-config files
 def prepare_pcap(_module):
     params = _module.testParams
-    test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\d+.conf$')
-    test_pcap_files = select_files(params.test_folder, 'traffic.*-\d+.pcap$')
-    test_output_files = select_files(params.test_folder, 'output.*-\d+.json$')
-    test_log_files = select_files(params.test_folder, 'output.*-\d+.log$')
+    test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\\d+.conf$')
+    test_pcap_files = select_files(params.test_folder, 'traffic.*-\\d+.pcap$')
+    test_output_files = select_files(params.test_folder, 'output.*-\\d+.json$')
+    test_log_files = select_files(params.test_folder, 'output.*-\\d+.log$')
 
     assert len(test_pcap_files)>0
     assert len(test_pcap_files)==len(test_config_files)
@@ -158,7 +158,6 @@ def prepare_pcap(_module):
             shutil.copy(params.test_folder + '/' + filename, params.results_folder + '/' + filename)
         return retVal
 
-    #results_config_files = copyList(test_config_files)
     params.results_output_files = copyList(test_output_files)
     params.results_log_files = copyList(test_log_files)
 
@@ -177,7 +176,6 @@ def prepare_pcap(_module):
         confPcap.replace_value_of_key('    port', '8989')
         confPcap.print_to_file(results_pcap_folder + '/traffic-reproducer.conf')
 
-    #return (results_output_files, results_log_files)
 
 
 

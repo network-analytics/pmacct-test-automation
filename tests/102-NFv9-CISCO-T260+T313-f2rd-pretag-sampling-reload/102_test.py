@@ -34,9 +34,8 @@ def main(consumer):
     assert jsontools.compare_messages_to_json_file(messages, testParams.results_output_files[0], ignore_fields)
 
     # Make sure the expected logs (in output-log-00.log) exist in pmacct log
-    assert helpers.check_file_regex_sequence_in_file(testParams.results_log_file, testParams.results_log_files[0])
-    # Check for ERRORs or WARNINGs
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING'])
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.results_log_files[0])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
     # Replace -00 maps with -01 maps
     for filename in [testParams.results_mount_folder + '/' + mf for mf in ['f2rd', 'pretag', 'sampling']]:
@@ -57,6 +56,5 @@ def main(consumer):
     assert jsontools.compare_messages_to_json_file(messages, testParams.results_output_files[1], ignore_fields)
 
     # Make sure the expected logs (in output-log-01.log) exist in pmacct log
-    assert helpers.check_file_regex_sequence_in_file(testParams.results_log_file, testParams.results_log_files[1])
-    # Check for ERRORs or WARNINGs
-    assert not helpers.check_regex_sequence_in_file(testParams.results_log_file, ['ERROR|WARNING'])
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.results_log_files[1])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
