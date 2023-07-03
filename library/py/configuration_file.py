@@ -2,7 +2,7 @@
 import re, logging
 logger = logging.getLogger(__name__)
 
-def count_spaces(line):
+def count_spaces(line: str) -> int:
     count = 0
     while line.startswith(' '):
         count += 1
@@ -10,12 +10,12 @@ def count_spaces(line):
     return count
 
 class KConfigurationFile:
-    def __init__(self, filename):
+    def __init__(self, filename: str):
         self.data = {}
         self.read_conf_file(filename)
 
     # Changed all strips to right-only strips, to keep indentation (important in traffic-repro.conf)
-    def read_conf_file(self, filename):
+    def read_conf_file(self, filename: str):
         self.data = {}
         with open(filename, 'r') as file:
             for line in file:

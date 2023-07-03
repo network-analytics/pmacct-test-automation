@@ -7,7 +7,7 @@ import library.py.helpers as helpers
 import os, logging, pytest, sys, json, time
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], 'pmbgpd-00.conf')
+testParams = KModuleParams(sys.modules[__name__], pmacct_config_filename='pmbgpd-00.conf')
 confFile = KConfigurationFile(testParams.test_conf_file)
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):

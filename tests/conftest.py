@@ -33,7 +33,7 @@ def setup_pmacct(request):
     assert params.kafka_topic_name != None
     #    assert scripts.delete_registered_schemas()
     assert scripts.create_or_clear_kafka_topic(params.kafka_topic_name)
-    assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder, params.pmacct_ip)
+    assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder) #, params.pmacct_ip)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
 
 

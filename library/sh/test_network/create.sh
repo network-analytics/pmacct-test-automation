@@ -5,4 +5,4 @@
 # 172.111.1.13: pmacct
 # 172.111.1.101, 102, 103, ...: traffic reproducers
 
-docker network create --subnet=172.111.1.0/24 pmacct_test_network
+docker network create --subnet=172.111.1.0/24 --subnet=fd25::/64 --ipv6 pmacct_test_network

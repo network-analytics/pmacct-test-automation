@@ -7,7 +7,7 @@ import library.py.helpers as helpers
 import os, logging, pytest, sys, json, time
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], 'pmbmpd-00.conf')
+testParams = KModuleParams(sys.modules[__name__], pmacct_config_filename='pmbmpd-00.conf')
 confFile = KConfigurationFile(testParams.test_conf_file)
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
@@ -28,7 +28,7 @@ def main(consumer):
     helpers.replace_in_file(testParams.output_files[0], '192.168.100.3', '172.111.1.103')
 
     ignore_fields = ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port',
-                     'bgp_nexthop']  # bgp_nexthop is received empty (?)
+                     'bgp_nexthop']  # bgp_nexthop is wrong (?)
     assert jsontools.compare_messages_to_json_file(messages, testParams.output_files[0], ignore_fields)
 
     # Make sure the expected logs exist in pmacct log

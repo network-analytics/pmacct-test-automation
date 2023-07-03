@@ -7,9 +7,10 @@ logger = logging.getLogger(__name__)
 
 
 class KModuleParams:
-    def __init__(self, _module, pmacct_config_filename=''):
+    def __init__(self, _module, pmacct_config_filename='', ipv6=False):
         self.pmacct_config_filename = pmacct_config_filename
         self.build_static_params(_module.__file__)
+        self.useIPv6 = ipv6
 
     def build_static_params(self, filename):
         self.test_folder = os.path.dirname(filename)
@@ -35,7 +36,7 @@ class KModuleParams:
         self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
         self.results_msg_dump = self.results_folder + '/message_dump.json'
-        self.pmacct_ip = '172.111.1.13'
+        self.useIPv6 = False
         self.output_files = []
         self.log_files = []
 
@@ -68,13 +69,12 @@ def edit_conf_operational(config, params):
     config.replace_value_of_key('kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('kafka_avro_schema_registry', 'http://schema-registry:8081')
     config.replace_value_of_key('debug', 'true')
-    config.replace_value_of_key('nfacctd_ip', '0.0.0.0')
     config.replace_value_of_key('nfacctd_port', '8989')
 
 # Replace specific BMP values
 def edit_conf_bmp(config, params):
     config.replace_value_of_key('bmp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
-    config.replace_value_of_key('bmp_daemon_ip', '0.0.0.0')
+    #config.replace_value_of_key('bmp_daemon_ip', '0.0.0.0')
     config.replace_value_of_key('bmp_daemon_port', '8989')
     config.replace_value_of_key('bmp_daemon_msglog_kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('bmp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
@@ -109,7 +109,9 @@ def copy_files_in_mount_folder(params):
 def prepare_test_env(_module):
     params = _module.testParams
     config = _module.confFile
+
     logger.info('Test name: ' + params.test_name)
+    logger.info('Use IPv6: ' + str(params.useIPv6))
 
     if os.path.exists(params.results_folder):
         logger.debug('Results folder exists, deleting folder ' + params.results_folder)
@@ -133,6 +135,9 @@ def prepare_test_env(_module):
         replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.1', '172.111.1.101')
         replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.2', '172.111.1.102')
         replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.3', '172.111.1.103')
+        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, 'cafe::1', 'fd25::101')
+        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, 'cafe::2', 'fd25::102')
+        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, 'cafe::3', 'fd25::103')
 
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
@@ -168,10 +173,9 @@ def prepare_pcap(_module):
         shutil.copy(params.test_folder + '/' + test_pcap_files[i], results_pcap_folder + '/traffic.pcap')
         confPcap = KConfigurationFile(results_pcap_folder + '/traffic-reproducer.conf')
         confPcap.replace_value_of_key('pcap', '/pcap/traffic.pcap')
-        # REPRO_IP_VALUE will be replaced by container IP as soon as the traffic-repro container is deployed
-        confPcap.replace_value_of_key('    repro_ip', 'REPRO_IP_VALUE')
-        confPcap.replace_value_of_key('    bgp_id', 'REPRO_IP_VALUE')
-        confPcap.replace_value_of_key('    ip', params.pmacct_ip)
+        confPcap.replace_value_of_key('    repro_ip', ('fd25::' if params.useIPv6 else '172.111.1.') + str(100 + i + 1))
+        confPcap.replace_value_of_key('    bgp_id', ('fd25::' if params.useIPv6 else '172.111.1.') + str(100 + i + 1))
+        confPcap.replace_value_of_key('    ip', 'fd25::13' if params.useIPv6 else '172.111.1.13')
         confPcap.replace_value_of_key('    port', '8989')
         confPcap.print_to_file(results_pcap_folder + '/traffic-reproducer.conf')
 

@@ -23,9 +23,9 @@ def start_kafka_containers() -> bool:
 # Starts pmacct container using docker run and returns success or not
 # If the pmacct container exists, it removes it using docker rm (pmacct needs to have exited)
 # It gets as input the full-path filename of the pmacct configuration file
-def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str, pmacct_ip: str) -> bool:
-    logger.info("Starting pmacct container with IP: " + pmacct_ip)
-    return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath, pmacct_ip])[0]
+def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str) -> bool: #, pmacct_ip: str) -> bool:
+    logger.info("Starting pmacct container")
+    return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath])[0]
 
 # Deletes pmacct_test_network while tearing-down
 def delete_test_network() -> bool:
@@ -63,16 +63,6 @@ def wait_pmacct_running(seconds: int) -> bool:
 def check_broker_running() -> bool:
     logger.info("Checking if broker is running")
     return run_script(['./library/sh/docker_tools/check-container-running.sh', 'broker'])[0]
-
-# Find pmacct IP
-# def find_pmacct_ip() -> str:
-#     logger.info("Finding pmacct IP address")
-#     return run_script(['./library/sh/docker_tools/find-container-ip.sh', 'pmacct'])[1]
-
-# Find host (Gateway) IP
-# def find_host_ip() -> str:
-#     logger.info("Finding host IP address")
-#     return run_script(['./library/sh/docker_tools/find-gateway-ip.sh'])[1]
 
 # Sends signal to container
 def send_signal_to_pmacct(sig: str) -> bool:
@@ -117,16 +107,22 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
         logger.info('Failed to create topic')
     return retval
 
-def replay_pcap_with_docker(pcap_mount_folder: str, ip_address: str) -> bool:
-    logger.info('Replaying pcap file from ' + pcap_mount_folder + ' (container IP: ' + ip_address + ')')
-    success, output, error = run_script(['./library/sh/traffic_docker/start.sh', pcap_mount_folder, ip_address])
-    if success:
-        logger.info('Pcap file replayed successfully')
-    # logger.debug('Success: ' + str(success))
-    # if len(output)>0:
-    #     logger.debug('Output: ' + output)
-    # if len(error):
-    #     logger.debug('Error: ' + error)
+def replay_pcap_with_docker(pcap_mount_folder: str, ip_address: str, ipv6_address: str = None) -> bool:
+    logger.info('Replaying pcap file from ' + pcap_mount_folder)
+    logger.info('Container IP: ' + ip_address + ', IPv6: ' + str(ipv6_address))
+    args = ['./library/sh/traffic_docker/start.sh', pcap_mount_folder, ip_address]
+    if ipv6_address!=None:
+        args.append(ipv6_address)
+    success, output, error = run_script(args)
+    logger.debug('Success: ' + str(success))
+    if len(output)>0:
+        lines = output.split('\n')
+        for line in lines:
+            logger.debug('Output: ' + line)
+    if len(error):
+        lines = error.split('\n')
+        for line in lines:
+            logger.debug('Error: ' + line)
     return success
 
 def replay_pcap_with_detached_docker(pcap_mount_folder: str, player_id: int, container_ip: str) -> bool:

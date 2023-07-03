@@ -19,6 +19,7 @@ services:
     networks:
       pmacct_test_network:
         ipv4_address: 172.111.1.10
+        ipv6_address: fd25::10
 #    ports:
 #      - "2181:2181" not required cause we don't use zookeeper from outside the docker-compose network
     
@@ -46,6 +47,7 @@ services:
     networks:
       pmacct_test_network:
         ipv4_address: 172.111.1.11
+        ipv6_address: fd25::11
       
   schema-registry:
     image: remote-docker.artifactory.swisscom.com/confluentinc/cp-schema-registry:7.3.0
@@ -68,3 +70,4 @@ services:
     networks:
       pmacct_test_network:
         ipv4_address: 172.111.1.12
+        ipv6_address: fd25::12
