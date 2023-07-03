@@ -29,22 +29,9 @@ class KMessageReader:
             }
         if self.plainJson:
             self.consumer = Consumer(prop_dict)
-            # self.consumer = Consumer({
-            #     'bootstrap.servers': 'localhost:9092',
-            #     'security.protocol': 'PLAINTEXT',
-            #     'group.id': 'smoke_test',
-            #     'auto.offset.reset': 'earliest'
-            # })
         else:
             prop_dict['schema.registry.url'] = 'http://localhost:8081'
             self.consumer = AvroConsumer(prop_dict)
-            # self.consumer = AvroConsumer({
-            #     'bootstrap.servers': 'localhost:9092',
-            #     'schema.registry.url': 'http://localhost:8081',
-            #     'security.protocol': 'PLAINTEXT',
-            #     'group.id': 'smoke_test',
-            #     'auto.offset.reset': 'earliest'
-            # })
         self.consumer.subscribe([self.topic])
 
     def disconnect(self):
@@ -77,7 +64,7 @@ class KMessageReader:
         while messages_expected>0 and time_now-time_start<max_time_seconds:
             msg = self.consumer.poll(5)
             if not msg or msg.error():
-                logger.debug('No msg or msg error, sleeping (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
+                logger.debug('No msg or msg error, waiting (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
             else:
                 # If avro, message value arrives as json and needs dumping; if not, it's in byte format
                 msgval = msg.value().decode('utf-8') if self.plainJson else json.dumps(msg.value())

@@ -15,45 +15,84 @@ $ pip install -r requirements.txt
 
 ## How To Run
 
-To run unit tests (root privileges are sometimes required by scapy library to send packets out):
+To run on or more test cases:
 ```shell
-$ sudo python -m pytest tests/smoke --log-cli-level=DEBUG --html=smokereport.html
-OR
+$ ./runtest.sh <test case number> [<test case number> ...]
+e.g.
+$ ./runtest.sh 101
+$ ./runtest.sh 200 201 202
+
+```
+
+To run test cases with python and pytest:
+```shell
+$ python -m pytest tests/<test case name> --log-cli-level=<log level> --html=<report html file>
+e.g.
 $ python -m pytest tests/001-IPFIXv10-cisco-T260+261 --log-cli-level=DEBUG --html=smokereport.html
 
 ```
 
 
-Local folder pmacct_mount is mounted on pmacct container's folder /var/log/pmacct
+Local folder results/<test case>/pmacct_mount is mounted on pmacct container's folder /var/log/pmacct
+
+Local folder(s) results/<test case>/pcap_mount_n are mounted on traffic reproducer container's folder /pcap
 
 
 ## Debugging and Developing
 
-While at net_ana root directory:
+While at net_ana root directory,
 
-Do:
-python -m pytest tests/skeleton/test.py -k 'test_start_kafka' --log-cli-level=DEBUG
-for starting kafka
+To create the pmacct test network:
+```shell
+library/sh/test_network/create.sh
+```
 
-Do:
-python -m pytest tests/skeleton/test.py -k 'test_start_pmacct' --log-cli-level=DEBUG
-for starting pmacct
+To start Kafka infrastructure (pmacct test network required):
+```shell
+library/sh/kafka_compose/start.sh
+```
 
-Do:
+To send ipfix packets for 1 second
+```shell
 sudo python3 ./traffic_generators/ipfix/play_ipfix_packets.py -S 10.1.1.1 -D 1 -F 15 -C 1 -w 10 -p 2929
-for sending ipfix packets for 1 second
+```
 
 Do:
 python -m pytest tests/skeleton/test.py -k 'read' --log-cli-level=DEBUG
 for reading available Kafka messages
 
+To stop pmacct:
+```shell
+library/sh/pmacct_docker/stop.sh
+```
 
+To stop Kafka infrastructure:
+```shell
+library/sh/kafka_compose/stop.sh
+```
 
-Finally:
-test_stop_pmacct
-test_stop_kafka
+To delete pmacct_test_network:
+```shell
+library/sh/test_network/delete.sh
+```
 
+To run all tests (make sure to first delete existing results/assets and results/report.html):
+```shell
+python -m pytest -r tests/*/test.py --log-cli-level=INFO --html=results/report.html
+```
 
-For running all tests:
-sudo python -m pytest -r tests/*/test.py --log-cli-level=DEBUG
+## Fixtures explained
 
+**check_root_dir** makes sure pytest is run from the top level directory of the framework
+
+**kafka_infra_setup_teardown** sets up (and tears down) kafka infrastructure
+
+**prepare_test** creates results folder, pmacct_mount, etc. and copies all needed files there 
+    edits pmacct config file with framework-specific details (IPs, ports, paths, etc.)
+
+**pmacct_setup_teardown** sets up (and tears down) pmacct container itself
+
+**prepare_pcap** edits pcap configuration file with framework-specific IPs and hostnames
+              creates pcap_mount_n folders and copies traffic pcap and reproducer conf
+
+**consumer_setup_teardown** creates and tears down the Kafka consumer (message reader)

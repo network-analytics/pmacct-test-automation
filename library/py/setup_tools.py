@@ -37,6 +37,8 @@ class KModuleParams:
         self.results_msg_dump = self.results_folder + '/message_dump.json'
         self.pmacct_ip = '172.111.1.13'
         self.host_ip = None
+        self.results_output_files = []
+        self.results_log_files = []
 
 
 def create_mount_and_output_folders(params):
@@ -106,7 +108,7 @@ def copy_files_in_mount_folder(params):
 # RUNS BEFORE PMACCT IS RUN
 # Prepares results folder to receive logs and output from pmacct
 def prepare_test_env(_module):
-    params = _module.testModuleParams
+    params = _module.testParams
     config = _module.confFile
     logger.info('Test name: ' + params.test_name)
 
@@ -139,7 +141,7 @@ def prepare_test_env(_module):
 # RUNS AFTER PMACCT IS RUN
 # Prepares json output, log, pcap and pcap-config files
 def prepare_pcap(_module):
-    params = _module.testModuleParams
+    params = _module.testParams
     test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\d+.conf$')
     test_pcap_files = select_files(params.test_folder, 'traffic.*-\d+.pcap$')
     test_output_files = select_files(params.test_folder, 'output.*-\d+.json$')
@@ -156,9 +158,9 @@ def prepare_pcap(_module):
             shutil.copy(params.test_folder + '/' + filename, params.results_folder + '/' + filename)
         return retVal
 
-    results_config_files = copyList(test_config_files)
-    results_output_files = copyList(test_output_files)
-    results_log_files = copyList(test_log_files)
+    #results_config_files = copyList(test_config_files)
+    params.results_output_files = copyList(test_output_files)
+    params.results_log_files = copyList(test_log_files)
 
     for i in range(len(test_config_files)):
         results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
@@ -175,7 +177,7 @@ def prepare_pcap(_module):
         confPcap.replace_value_of_key('    port', '8989')
         confPcap.print_to_file(results_pcap_folder + '/traffic-reproducer.conf')
 
-    return (results_config_files, results_output_files, results_log_files)
+    #return (results_output_files, results_log_files)
 
 
 

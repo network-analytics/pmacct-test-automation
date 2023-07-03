@@ -28,7 +28,7 @@ def kafka_infra_setup():
 
 
 def setup_pmacct(request):
-    params = request.module.testModuleParams
+    params = request.module.testParams
     assert os.path.isfile(params.results_conf_file)
     assert params.kafka_topic_name != None
     #    assert scripts.delete_registered_schemas()
@@ -60,7 +60,7 @@ def check_root_dir():
 
 @pytest.fixture(scope="module")
 def consumer_setup_teardown(request):
-    params = request.module.testModuleParams
+    params = request.module.testParams
     consumer = KMessageReader(params.kafka_topic_name, params.results_msg_dump)
     consumer.connect()
     logger.debug('Local setup Consumer ' + str(consumer))
@@ -71,7 +71,7 @@ def consumer_setup_teardown(request):
 
 @pytest.fixture(scope="module")
 def consumerJson_setup_teardown(request):
-    params = request.module.testModuleParams
+    params = request.module.testParams
     consumer = KMessageReader(params.kafka_topic_name, params.results_msg_dump, True)
     consumer.connect()
     logger.debug('Local setup Consumer ' + str(consumer))
