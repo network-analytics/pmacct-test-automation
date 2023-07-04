@@ -7,10 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 class KModuleParams:
-    def __init__(self, _module, pmacct_config_filename='', ipv6=False):
+    def __init__(self, _module, pmacct_config_filename=''):
         self.pmacct_config_filename = pmacct_config_filename
         self.build_static_params(_module.__file__)
-        self.useIPv6 = ipv6
 
     def build_static_params(self, filename):
         self.test_folder = os.path.dirname(filename)
@@ -36,15 +35,14 @@ class KModuleParams:
         self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
         self.results_msg_dump = self.results_folder + '/message_dump.json'
-        self.useIPv6 = False
         self.output_files = []
         self.log_files = []
 
 
 def create_mount_and_output_folders(params):
-    logger.info('Creating test mount folder: ' + params.results_mount_folder)
+    logger.info('Creating test mount folder: ' + short_name(params.results_mount_folder))
     os.makedirs(params.results_mount_folder)
-    logger.info('Creating test output folder: ' + params.results_output_folder)
+    logger.info('Creating test output folder: ' + short_name(params.results_output_folder))
     _mask = os.umask(0)
     os.makedirs(params.results_output_folder, 0o777)
     os.umask(_mask)
@@ -69,13 +67,10 @@ def edit_conf_operational(config, params):
     config.replace_value_of_key('kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('kafka_avro_schema_registry', 'http://schema-registry:8081')
     config.replace_value_of_key('debug', 'true')
-    config.replace_value_of_key('nfacctd_port', '8989')
 
 # Replace specific BMP values
 def edit_conf_bmp(config, params):
     config.replace_value_of_key('bmp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
-    #config.replace_value_of_key('bmp_daemon_ip', '0.0.0.0')
-    config.replace_value_of_key('bmp_daemon_port', '8989')
     config.replace_value_of_key('bmp_daemon_msglog_kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('bmp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
     config.replace_value_of_key('bmp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
@@ -84,7 +79,6 @@ def edit_conf_bmp(config, params):
 # Replace specific BGP values
 def edit_conf_bgp(config, params):
     config.replace_value_of_key('bgp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
-    config.replace_value_of_key('bgp_daemon_port', '8989')
     config.replace_value_of_key('bgp_daemon_msglog_kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('bgp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
     config.replace_value_of_key('bgp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
@@ -99,9 +93,18 @@ def copy_files_in_mount_folder(params):
             full_file_name = os.path.join(params.test_mount_folder, file_name)
             if os.path.isfile(full_file_name) and not file_name.startswith('.'):
                 count += 1
-                logger.debug('Copying: ' + full_file_name)
+                logger.debug('Copying: ' + short_name(full_file_name))
                 shutil.copy(full_file_name, params.results_mount_folder)
         logger.info('Copied ' + str(count) + ' files')
+
+
+def replace_IPs(filename):
+    replace_in_file(filename, '192.168.100.1', '172.111.1.101')
+    replace_in_file(filename, '192.168.100.2', '172.111.1.102')
+    replace_in_file(filename, '192.168.100.3', '172.111.1.103')
+    replace_in_file(filename, 'cafe::1', 'fd25::101')
+    replace_in_file(filename, 'cafe::2', 'fd25::102')
+    replace_in_file(filename, 'cafe::3', 'fd25::103')
 
 
 # RUNS BEFORE PMACCT IS RUN
@@ -111,10 +114,9 @@ def prepare_test_env(_module):
     config = _module.confFile
 
     logger.info('Test name: ' + params.test_name)
-    logger.info('Use IPv6: ' + str(params.useIPv6))
 
     if os.path.exists(params.results_folder):
-        logger.debug('Results folder exists, deleting folder ' + params.results_folder)
+        logger.debug('Results folder exists, deleting folder ' + short_name(params.results_folder))
         shutil.rmtree(params.results_folder)
         assert not os.path.exists(params.results_folder)
     create_mount_and_output_folders(params)
@@ -132,12 +134,7 @@ def prepare_test_env(_module):
 
     results_pretag_files = select_files(params.results_mount_folder, '.+\\.map$')
     for results_pretag_file in results_pretag_files:
-        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.1', '172.111.1.101')
-        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.2', '172.111.1.102')
-        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, '192.168.100.3', '172.111.1.103')
-        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, 'cafe::1', 'fd25::101')
-        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, 'cafe::2', 'fd25::102')
-        replace_in_file(params.results_mount_folder + '/' + results_pretag_file, 'cafe::3', 'fd25::103')
+        replace_IPs(params.results_mount_folder + '/' + results_pretag_file)
 
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
@@ -168,19 +165,20 @@ def prepare_pcap(_module):
     for i in range(len(test_config_files)):
         results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
         os.makedirs(results_pcap_folder)
+        logger.debug('Created folder ' + short_name(results_pcap_folder))
         params.results_pcap_folders.append(results_pcap_folder)
         shutil.copy(params.test_folder + '/' + test_config_files[i], results_pcap_folder + '/traffic-reproducer.conf')
         shutil.copy(params.test_folder + '/' + test_pcap_files[i], results_pcap_folder + '/traffic.pcap')
         confPcap = KConfigurationFile(results_pcap_folder + '/traffic-reproducer.conf')
         confPcap.replace_value_of_key('pcap', '/pcap/traffic.pcap')
-        confPcap.replace_value_of_key('    repro_ip', ('fd25::' if params.useIPv6 else '172.111.1.') + str(100 + i + 1))
-        confPcap.replace_value_of_key('    bgp_id', ('fd25::' if params.useIPv6 else '172.111.1.') + str(100 + i + 1))
-        confPcap.replace_value_of_key('    ip', 'fd25::13' if params.useIPv6 else '172.111.1.13')
-        confPcap.replace_value_of_key('    port', '8989')
+        if confPcap.uses_ipv6():
+            logger.debug('Traffic uses IPv6')
+            confPcap.replace_value_of_key('    ip', 'fd25::13')
+        else:
+            logger.debug('Traffic uses IPv4')
+            confPcap.replace_value_of_key('    ip', '172.111.1.13')
         confPcap.print_to_file(results_pcap_folder + '/traffic-reproducer.conf')
-
-
-
+        replace_IPs(results_pcap_folder + '/traffic-reproducer.conf')
 
 
 

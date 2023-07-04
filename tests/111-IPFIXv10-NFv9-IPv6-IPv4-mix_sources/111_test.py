@@ -14,14 +14,17 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     main(consumer_setup_teardown) # Plain Json consumer used here
 
 def main(consumer):
-    assert scripts.replay_pcap_with_docker(testParams.results_pcap_folders[0], '172.111.1.101', 'fd25::101')
-    messages = consumer.get_messages(120, helpers.count_non_empty_lines(testParams.output_files[0])) # 3 lines
+    assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[0], 0, '172.111.1.101')
+    assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[1], 1, '172.111.1.102', 'fd25::101')
+    messages = consumer.get_messages(120, helpers.count_non_empty_lines(testParams.output_files[0])) # 24 lines
     assert messages != None and len(messages) > 0
 
     # Replace peer_ip_src with the correct IP address
     helpers.replace_in_file(testParams.output_files[0], 'cafe::1', 'fd25::101')
+    helpers.replace_in_file(testParams.output_files[0], '192.168.100.1', '172.111.1.101')
 
-    ignore_fields = ['timestamp_max', 'timestamp_arrival', 'stamp_inserted', 'timestamp_min', 'stamp_updated']
+    ignore_fields = ['timestamp_start', 'timestamp_end', 'timestamp_max', 'timestamp_arrival', 'stamp_inserted',
+                     'timestamp_min', 'stamp_updated']
     assert jsontools.compare_messages_to_json_file(messages, testParams.output_files[0], ignore_fields)
 
     # Check for ERRORs or WARNINGs

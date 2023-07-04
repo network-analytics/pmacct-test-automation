@@ -75,33 +75,6 @@ def compare_json_ignore(json1, json2, ignore_fields=None, ignore_jsonpaths=None)
             temp_json2.pop(keys[-1], None)
     return compare_json_objects(json1, json2)
 
-# def compare_json_lists3(json_list1, json_list2, ignore_fields=None, ignore_jsonpaths=None):
-#     json_list1 = [json.loads(x.strip()) for x in json_list1 if len(x)>3]
-#     json_list2 = [json.loads(x.strip()) for x in json_list2 if len(x)>3]
-#     logger.info('Comparing json lists (lengths: ' + str(len(json_list1)) + ', ' + str(len(json_list2)) + ')')
-#     if len(json_list1)!=len(json_list2):
-#         logger.info('Json lists have different sizes')
-#         return False
-#
-#     while len(json_list1):
-#         json1 = json_list1.pop(0)
-#         logger.debug('Matching: ' + str(json1))
-#         index = 0
-#         json2 = json_list2[index]
-#         # diff = compare_json_ignore(json1, json2, ignore_fields, ignore_jsonpaths)
-#         # logger.debug('First try: ' + str(diff))
-#         while compare_json_ignore(json1, json2, ignore_fields, ignore_jsonpaths):
-#             index += 1
-#             if index>=len(json_list2):
-#                 logger.info('Json not matched')
-#                 return False
-#             json2 = json_list2[index]
-#         logger.info('Json matched')
-#         json_list2.pop(index)
-#     logger.info('All json matched')
-#     return True
-
-
 def compare_json_lists(json_list1, json_list2, ignore_fields=None, ignore_jsonpaths=None):
     json_list1 = [json.loads(x.strip()) for x in json_list1 if len(x)>3]
     json_list2 = [json.loads(x.strip()) for x in json_list2 if len(x)>3]

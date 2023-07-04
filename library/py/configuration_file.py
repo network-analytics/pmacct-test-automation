@@ -43,7 +43,7 @@ class KConfigurationFile:
                     self.data[main_key][sub_key] = value
 
     # subkey='' means all subkeys values will be replaced
-    def replace_value_of_key(self, key, value, subkey=None):
+    def replace_value_of_key(self, key: str, value:str, subkey: str=None) -> bool:
         if key not in self.data:
             return False
         if len(self.data[key])<1:
@@ -52,6 +52,11 @@ class KConfigurationFile:
             if subkey is None or sk==subkey:
                 self.data[key][sk] = value
         return True
+
+    def uses_ipv6(self) -> bool:
+        if '    repro_ip' not in self.data:
+            return False
+        return ':' in self.data['    repro_ip']['']
 
     def print_key_to_stringlist(self, key):
         lines = []

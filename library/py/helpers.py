@@ -65,8 +65,11 @@ def check_file_regex_sequence_in_file(file_path, file_regexes):
         logger.info('All regexes found!')
     return retval
 
+def short_name(filename):
+    return os.path.basename(os.path.dirname(filename))+'/'+os.path.basename(filename)
+
 def replace_in_file(filename, search_pattern, replace_pattern, exclude_if_line_contains = None):
-    logger.debug('Replacing ' + search_pattern + ' with ' + replace_pattern + ' in file ' + filename)
+    logger.debug('Replacing ' + search_pattern + ' with ' + replace_pattern + ' in file ' + short_name(filename))
     with open(filename) as f:
         lines = f.readlines()
     with open(filename + '.bak', 'w') as f:
