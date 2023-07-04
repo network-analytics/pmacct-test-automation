@@ -1,8 +1,8 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 #
-# functions for calling shell scripts and for
-# returning the outcome
+# class representing a configuration file, either
+# pmacct configuration, or traffic repro config
 #
 ###################################################
 

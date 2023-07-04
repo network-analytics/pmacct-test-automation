@@ -1,8 +1,8 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 #
-# functions for calling shell scripts and for
-# returning the outcome
+# functions for preparing the environment for the
+# test case to run in
 #
 ###################################################
 
