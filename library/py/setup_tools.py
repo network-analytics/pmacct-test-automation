@@ -1,3 +1,10 @@
+###################################################
+# Automated Testing Framework for Network Analytics
+#
+# functions for calling shell scripts and for
+# returning the outcome
+#
+###################################################
 
 import library.py.scripts as scripts
 import shutil, secrets
@@ -11,7 +18,7 @@ class KModuleParams:
         self.pmacct_config_filename = pmacct_config_filename
         self.build_static_params(_module.__file__)
 
-    def build_static_params(self, filename):
+    def build_static_params(self, filename: str):
         self.test_folder = os.path.dirname(filename)
         self.tests_folder = os.path.dirname(self.test_folder)
         self.root_folder = os.path.dirname(self.tests_folder)
@@ -39,7 +46,7 @@ class KModuleParams:
         self.log_files = []
 
 
-def create_mount_and_output_folders(params):
+def create_mount_and_output_folders(params: KModuleParams):
     logger.info('Creating test mount folder: ' + short_name(params.results_mount_folder))
     os.makedirs(params.results_mount_folder)
     logger.info('Creating test output folder: ' + short_name(params.results_output_folder))
@@ -49,7 +56,7 @@ def create_mount_and_output_folders(params):
     logger.debug('Mount and output folders created')
 
 # Files in mounted folder, for pmacct to read
-def edit_conf_mount_folder(config, params):
+def edit_conf_mount_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
     config.replace_value_of_key('pre_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key('flow_to_rd_map', params.pmacct_mount_folder + '/f2rd-00.map')
@@ -57,19 +64,19 @@ def edit_conf_mount_folder(config, params):
     config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.lst')
 
 # Files in output folder, for pmacct to write
-def edit_conf_output_folder(config, params):
+def edit_conf_output_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('logfile', params.pmacct_output_folder + '/pmacctd.log')
     config.replace_value_of_key('pidfile', params.pmacct_output_folder + '/pmacctd.pid')
     config.replace_value_of_key('avro_schema_output_file', params.pmacct_output_folder + '/flow_avroschema.avsc')
 
 # Replace specific operational values
-def edit_conf_operational(config, params):
+def edit_conf_operational(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('kafka_avro_schema_registry', 'http://schema-registry:8081')
     config.replace_value_of_key('debug', 'true')
 
 # Replace specific BMP values
-def edit_conf_bmp(config, params):
+def edit_conf_bmp(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('bmp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key('bmp_daemon_msglog_kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('bmp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
@@ -77,7 +84,7 @@ def edit_conf_bmp(config, params):
     config.replace_value_of_key('bmp_daemon_msglog_avro_schema_output_file', params.pmacct_output_folder)
 
 # Replace specific BGP values
-def edit_conf_bgp(config, params):
+def edit_conf_bgp(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('bgp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key('bgp_daemon_msglog_kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('bgp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
@@ -85,7 +92,7 @@ def edit_conf_bgp(config, params):
     config.replace_value_of_key('bgp_daemon_msglog_avro_schema_output_file', params.pmacct_output_folder)
 
 # Copy existing files in pmacct_mount to result (=actual) mounted folder
-def copy_files_in_mount_folder(params):
+def copy_files_in_mount_folder(params: KModuleParams):
     if os.path.exists(params.test_mount_folder):
         src_files = os.listdir(params.test_mount_folder)
         count = 0
@@ -98,13 +105,19 @@ def copy_files_in_mount_folder(params):
         logger.info('Copied ' + str(count) + ' files')
 
 
-def replace_IPs(filename):
-    replace_in_file(filename, '192.168.100.1', '172.111.1.101')
-    replace_in_file(filename, '192.168.100.2', '172.111.1.102')
-    replace_in_file(filename, '192.168.100.3', '172.111.1.103')
-    replace_in_file(filename, 'cafe::1', 'fd25::101')
-    replace_in_file(filename, 'cafe::2', 'fd25::102')
-    replace_in_file(filename, 'cafe::3', 'fd25::103')
+def replace_IPs(filename: str):
+    if file_contains_string(filename, '192.168.100.1'):
+        replace_in_file(filename, '192.168.100.1', '172.111.1.101')
+    if file_contains_string(filename, '192.168.100.2'):
+        replace_in_file(filename, '192.168.100.2', '172.111.1.102')
+    if file_contains_string(filename, '192.168.100.3'):
+        replace_in_file(filename, '192.168.100.3', '172.111.1.103')
+    if file_contains_string(filename, 'cafe::1'):
+        replace_in_file(filename, 'cafe::1', 'fd25::101')
+    if file_contains_string(filename, 'cafe::2'):
+        replace_in_file(filename, 'cafe::2', 'fd25::102')
+    if file_contains_string(filename, 'cafe::3'):
+        replace_in_file(filename, 'cafe::3', 'fd25::103')
 
 
 # RUNS BEFORE PMACCT IS RUN

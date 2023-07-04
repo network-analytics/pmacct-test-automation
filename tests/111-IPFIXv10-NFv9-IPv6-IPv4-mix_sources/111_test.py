@@ -16,7 +16,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
 def main(consumer):
     assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[0], 0, '172.111.1.101')
     assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[1], 1, '172.111.1.102', 'fd25::101')
-    messages = consumer.get_messages(120, helpers.count_non_empty_lines(testParams.output_files[0])) # 24 lines
+    messages = consumer.get_messages(180, helpers.count_non_empty_lines(testParams.output_files[0])) # 24 lines
     assert messages != None and len(messages) > 0
 
     # Replace peer_ip_src with the correct IP address

@@ -1,3 +1,10 @@
+###################################################
+# Automated Testing Framework for Network Analytics
+#
+# functions for calling shell scripts and for
+# returning the outcome
+#
+###################################################
 
 import re, logging
 logger = logging.getLogger(__name__)

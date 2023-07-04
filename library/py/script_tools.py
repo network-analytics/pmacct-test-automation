@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 # Runs the command and returns a tuple of its result (success or not) and the message output
 # command: a list of strings, first of which is the called script, the rest being the arguments
-def run_script(command: List[str]) -> (bool, str):
+def run_script(command: List[str]) -> (bool, str, str):
     try:
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = result.stdout.decode('utf-8').strip()
@@ -30,44 +30,6 @@ def run_script(command: List[str]) -> (bool, str):
         if len(error):
             logger.debug('Error: ' + error)
     return (success, output, error)
-
-
-# Runs the command in the background and returns the pid of the process
-def run_script_in_the_background(command: List[str]) -> (bool, int):
-    try:
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        success = process.pid>0
-    except Exception as e:
-        success = False
-    return process if success else None
-
-
-# Checks if process with specific pid is running
-def is_process_running(pid):
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    else:
-        return True
-
-
-# Runs the command in the background and returns the pid of the process
-def stop_process_with_pid(pid: int):
-    if not is_process_running(pid):
-        logger.error('No process running with pid ' + str(pid))
-        return false
-    os.kill(pid, signal.SIGKILL)
-    seconds = 10
-    while is_process_running(pid) and seconds>0:
-        logger.debug('Process with id ' + str(pid) + ' still running')
-        seconds -= 2
-        time.sleep(2)
-    if is_process_running(pid):
-        logger.error('Could not terminate process with id ' + str(pid))
-        return False
-    logger.info('Process with pid ' + str(pid) + ' terminated')
-    return True
 
 
 # Runs a script, which waits for a container to reach a certain state, for a maximum of time

@@ -4,6 +4,7 @@
 # helpers file for python auxiliary functions
 #
 ###################################################
+
 import os
 import re, time, logging
 
@@ -39,6 +40,12 @@ def find_value_in_config_file(filename: str, keyname: str) -> str:
 
 def get_current_time_in_milliseconds() -> int:
     return round(time.time()*1000)
+
+def file_contains_string(file_path: str, text: str) -> bool:
+    retVal = False
+    with open(file_path, 'r') as file:
+        retVal = text in file.read()
+    return retVal
 
 def check_regex_sequence_in_file(file_path, regexes):
     logger.debug('Checking file ' + file_path + ' for patterns ' + str(regexes))
