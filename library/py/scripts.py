@@ -125,7 +125,11 @@ def replay_pcap_with_docker(pcap_mount_folder: str, ip_address: str, ipv6_addres
             logger.debug('Error: ' + line)
     return success
 
-def replay_pcap_with_detached_docker(pcap_mount_folder: str, player_id: int, container_ip: str) -> bool:
+def replay_pcap_with_detached_docker(pcap_mount_folder: str, player_id: int, container_ip: str, ipv6_address: str = None) -> bool:
     logger.info('Replaying pcap file from ' + pcap_mount_folder + ' with DETACHED docker container')
-    logger.debug('Folder: ' + pcap_mount_folder + ' Pcap Player ID: ' + str(player_id) + ' Container IP: ' + container_ip)
-    return run_script(['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id), container_ip])[0]
+    logger.debug('Folder: ' + pcap_mount_folder + ' Container IP: ' + container_ip + ' Ipv6: ' + str(ipv6_address))
+    args = ['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id), container_ip]
+    if ipv6_address!=None:
+         args.append(ipv6_address)
+    return run_script(args)[0]
+    # return run_script(['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id), container_ip])[0]
