@@ -60,15 +60,10 @@ class KConfigurationFile:
                 self.data[key][sk] = value
         return True
 
-    def uses_ipv6(self) -> bool:
-        if '    repro_ip' not in self.data:
-            return False
-        return ':' in self.data['    repro_ip']['']
-
     def get_kafka_topics(self):
         retVal = {}
-        for propname in ['kafka_topic', 'bmp_daemon_msglog_kafka_topic', 'bgp_daemon_msglog_kafka_topic']:
-            if propname in self.data:
+        for propname in self.data.keys():
+            if propname.endswith('kafka_topic'):
                 if len(self.data[propname].keys())>1:
                     raise Exception('Encountered two kafka topics with same key and different subkeys')
                 retVal[propname] = list(self.data[propname].values())[0]

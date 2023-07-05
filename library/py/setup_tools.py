@@ -178,6 +178,8 @@ def prepare_pcap(_module):
     params.output_files = copyList(test_output_files)
     params.log_files = copyList(test_log_files)
 
+    import yaml
+
     for i in range(len(test_config_files)):
         results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
         os.makedirs(results_pcap_folder)
@@ -186,27 +188,18 @@ def prepare_pcap(_module):
         shutil.copy(params.test_folder + '/' + test_config_files[i], results_pcap_folder + '/traffic-reproducer.conf')
         shutil.copy(params.test_folder + '/' + test_pcap_files[i], results_pcap_folder + '/traffic.pcap')
 
-        confPcap = KConfigurationFile(results_pcap_folder + '/traffic-reproducer.conf')
-        confPcap.replace_value_of_key('pcap', '/pcap/traffic.pcap')
-        if confPcap.uses_ipv6():
-            logger.debug('Traffic uses IPv6')
-            confPcap.replace_value_of_key('    ip', 'fd25::13')
-        else:
-            logger.debug('Traffic uses IPv4')
-            confPcap.replace_value_of_key('    ip', '172.111.1.13')
-        confPcap.print_to_file(results_pcap_folder + '/traffic-reproducer.conf')
+        with open(results_pcap_folder + '/traffic-reproducer.conf') as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+        data['pcap'] = '/pcap/traffic.pcap'
+
+        # adding pmacct IP address
+        isIPv6 = ':' in data['network']['map'][0]['repro_ip']
+        pmacct_ip = 'fd25::13' if isIPv6 else '172.111.1.13'
+        logger.debug('Traffic uses ' + ('IPv6' if isIPv6 else 'IPv4'))
+        for k in ['bmp', 'bgp', 'ipfix']:
+            if k in data:
+                data[k]['collector']['ip'] = pmacct_ip
+
+        with open(results_pcap_folder + '/traffic-reproducer.conf', 'w') as f:
+            data = yaml.dump(data, f, default_flow_style=False, sort_keys=False)
         replace_IPs(results_pcap_folder + '/traffic-reproducer.conf')
-
-        
-
-
-    # following didn't work (possibly because the order is changed when dumped back?)
-    # import yaml
-    # with open(pcap_config_file) as f:
-    #     data = yaml.load(f, Loader=yaml.FullLoader)
-    # data['network']['map'][0]['repro_ip'] = '127.0.0.1'
-    # data['bmp']['collector']['ip'] = '127.0.0.1'
-    # data['bmp']['collector']['port'] = '2929'
-    # with open(pcap_config_file, 'w') as f:
-    #     data = yaml.dump(data, f)
-
