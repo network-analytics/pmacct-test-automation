@@ -11,7 +11,7 @@ testParams = KModuleParams(sys.modules[__name__])
 confFile = KConfigurationFile(testParams.test_conf_file)
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
-    main(consumer_setup_teardown)
+    main(consumer_setup_teardown[0])
 
 def main(consumer):
     helpers.replace_in_file(testParams.log_files[0], '/etc/pmacct', testParams.pmacct_mount_folder, 'Reading configuration file')

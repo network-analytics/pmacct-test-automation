@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 class KMessageReader:
 
     def __init__(self, topic, dump_to_file=None, plainJson=False):
+        consumer_type = 'plain Json' if plainJson else 'avro'
+        logger.info('Creating message reader (kafka ' + consumer_type + ' consumer) for topic ' + topic)
         self.topic = topic
         self.dumpfile = dump_to_file
         self.consumer = None
@@ -64,7 +66,7 @@ class KMessageReader:
         while messages_expected>0 and time_now-time_start<max_time_seconds:
             msg = self.consumer.poll(5)
             if not msg or msg.error():
-                logger.debug('No msg or msg error, waiting (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
+                logger.debug('No message from Kafka (or msg error), waiting (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
             else:
                 # If avro, message value arrives as json and needs dumping; if not, it's in byte format
                 msgval = msg.value().decode('utf-8') if self.plainJson else json.dumps(msg.value())

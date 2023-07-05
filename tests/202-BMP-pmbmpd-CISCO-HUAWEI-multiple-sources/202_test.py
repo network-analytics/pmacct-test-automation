@@ -11,7 +11,7 @@ testParams = KModuleParams(sys.modules[__name__], pmacct_config_filename='pmbmpd
 confFile = KConfigurationFile(testParams.test_conf_file)
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
-    main(consumer_setup_teardown)
+    main(consumer_setup_teardown[0])
 
 def main(consumer):
     for i in range(len(testParams.results_pcap_folders)):

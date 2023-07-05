@@ -32,7 +32,9 @@ def setup_pmacct(request):
     assert os.path.isfile(params.results_conf_file)
     assert params.kafka_topic_name != None
     #    assert scripts.delete_registered_schemas()
-    assert scripts.create_or_clear_kafka_topic(params.kafka_topic_name)
+    for topic in list(params.kafka_topics.values()):
+        assert scripts.create_or_clear_kafka_topic(topic)
+    # assert scripts.create_or_clear_kafka_topic(params.kafka_topic_name)
     assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder) #, params.pmacct_ip)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
 
@@ -58,28 +60,33 @@ def check_root_dir():
     assert os.path.basename(os.getcwd())=='net_ana'
 
 
+def setup_consumer(request, plainJson):
+    params = request.module.testParams
+    consumers = []
+    for k in params.kafka_topics.keys():
+        consumer = KMessageReader(params.kafka_topics[k], params.results_msg_dump, plainJson)
+        consumer.connect()
+        consumers.append(consumer)
+    return consumers
+
 @pytest.fixture(scope="module")
 def consumer_setup_teardown(request):
-    params = request.module.testParams
-    consumer = KMessageReader(params.kafka_topic_name, params.results_msg_dump)
-    consumer.connect()
-    logger.debug('Local setup Consumer ' + str(consumer))
-    yield consumer
-    logger.debug('Local teardown Consumer ' + str(consumer))
-    if consumer:
+    consumers = setup_consumer(request, False)
+    logger.debug('Local setup Consumer ' + str(consumers))
+    yield consumers
+    logger.debug('Local teardown Consumer ' + str(consumers))
+    for consumer in consumers:
         consumer.disconnect()
+
 
 @pytest.fixture(scope="module")
 def consumerJson_setup_teardown(request):
-    params = request.module.testParams
-    consumer = KMessageReader(params.kafka_topic_name, params.results_msg_dump, True)
-    consumer.connect()
-    logger.debug('Local setup Consumer ' + str(consumer))
-    yield consumer
-    logger.debug('Local teardown Consumer ' + str(consumer))
-    if consumer:
+    consumers = setup_consumer(request, True)
+    logger.debug('Local setup Consumer ' + str(consumers))
+    yield consumers
+    logger.debug('Local teardown Consumer ' + str(consumers))
+    for consumer in consumers:
         consumer.disconnect()
-
 
 # Prepares results folder to receive logs and output from pmacct
 @pytest.fixture(scope="module")
@@ -89,5 +96,5 @@ def prepare_test(request):
 # Prepares
 @pytest.fixture(scope="module")
 def prepare_pcap(request):
-    yield setup_tools.prepare_pcap(request.module)
+    setup_tools.prepare_pcap(request.module)
 

@@ -40,6 +40,7 @@ class KModuleParams:
         self.results_pcap_folders = []
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
+        self.kafka_topics = {}
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
         self.results_msg_dump = self.results_folder + '/message_dump.json'
         self.output_files = []
@@ -71,14 +72,12 @@ def edit_conf_output_folder(config: KConfigurationFile, params: KModuleParams):
 
 # Replace specific operational values
 def edit_conf_operational(config: KConfigurationFile, params: KModuleParams):
-    config.replace_value_of_key('kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('kafka_avro_schema_registry', 'http://schema-registry:8081')
     config.replace_value_of_key('debug', 'true')
 
 # Replace specific BMP values
 def edit_conf_bmp(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('bmp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
-    config.replace_value_of_key('bmp_daemon_msglog_kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('bmp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
     config.replace_value_of_key('bmp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
     config.replace_value_of_key('bmp_daemon_msglog_avro_schema_output_file', params.pmacct_output_folder)
@@ -86,7 +85,6 @@ def edit_conf_bmp(config: KConfigurationFile, params: KModuleParams):
 # Replace specific BGP values
 def edit_conf_bgp(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('bgp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
-    config.replace_value_of_key('bgp_daemon_msglog_kafka_topic', params.kafka_topic_name)
     config.replace_value_of_key('bgp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
     config.replace_value_of_key('bgp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
     config.replace_value_of_key('bgp_daemon_msglog_avro_schema_output_file', params.pmacct_output_folder)
@@ -127,6 +125,11 @@ def prepare_test_env(_module):
     config = _module.confFile
 
     logger.info('Test name: ' + params.test_name)
+    topicsDict = config.get_kafka_topics()
+    for k in topicsDict.keys():
+        params.kafka_topics[k] = topicsDict[k] + '.' + secrets.token_hex(4)[:8]
+        config.replace_value_of_key(k, params.kafka_topics[k])
+    logger.debug('Kafka topic(s): ' + str(params.kafka_topics))
 
     if os.path.exists(params.results_folder):
         logger.debug('Results folder exists, deleting folder ' + short_name(params.results_folder))
@@ -182,6 +185,7 @@ def prepare_pcap(_module):
         params.results_pcap_folders.append(results_pcap_folder)
         shutil.copy(params.test_folder + '/' + test_config_files[i], results_pcap_folder + '/traffic-reproducer.conf')
         shutil.copy(params.test_folder + '/' + test_pcap_files[i], results_pcap_folder + '/traffic.pcap')
+
         confPcap = KConfigurationFile(results_pcap_folder + '/traffic-reproducer.conf')
         confPcap.replace_value_of_key('pcap', '/pcap/traffic.pcap')
         if confPcap.uses_ipv6():
@@ -193,9 +197,7 @@ def prepare_pcap(_module):
         confPcap.print_to_file(results_pcap_folder + '/traffic-reproducer.conf')
         replace_IPs(results_pcap_folder + '/traffic-reproducer.conf')
 
-
-
-
+        
 
 
     # following didn't work (possibly because the order is changed when dumped back?)
