@@ -7,7 +7,7 @@
 ###################################################
 
 import library.py.scripts as scripts
-import shutil, secrets
+import shutil, secrets, yaml, os
 from library.py.helpers import *
 from library.py.configuration_file import KConfigurationFile
 logger = logging.getLogger(__name__)
@@ -39,10 +39,10 @@ class KModuleParams:
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
         self.results_pcap_folders = []
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
-        self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
+        #self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
         self.kafka_topics = {}
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
-        self.results_msg_dump = self.results_folder + '/message_dump.json'
+        #self.results_msg_dump = self.results_folder + '/message_dump.json'
         self.output_files = []
         self.log_files = []
 
@@ -155,6 +155,16 @@ def prepare_test_env(_module):
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
 
+class KFileList(list):
+
+    def getFileLike(self, txt):
+        for filename in self:
+            basename = os.path.basename(filename)
+            if txt in basename:
+                return filename
+        return None
+
+
 # RUNS AFTER PMACCT IS RUN
 # Prepares json output, log, pcap and pcap-config files
 def prepare_pcap(_module):
@@ -169,7 +179,7 @@ def prepare_pcap(_module):
     assert len(test_output_files)>0
 
     def copyList(filelist):
-        retVal = []
+        retVal = KFileList()
         for filename in filelist:
             retVal.append(params.results_folder + '/' + filename)
             shutil.copy(params.test_folder + '/' + filename, params.results_folder + '/' + filename)
@@ -177,8 +187,6 @@ def prepare_pcap(_module):
 
     params.output_files = copyList(test_output_files)
     params.log_files = copyList(test_log_files)
-
-    import yaml
 
     for i in range(len(test_config_files)):
         results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)

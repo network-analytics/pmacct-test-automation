@@ -87,3 +87,12 @@ class KMessageReader:
             logger.warning('Received ' + str(len(messages)) + ' messages instead of ' + str(message_count))
             return None
         return messages
+
+
+class KMessageReaderList(list):
+
+    def getReaderOfTopicStartingWith(self, txt):
+        for consumer in self:
+            if consumer.topic.startswith(txt):
+                return consumer
+        return None

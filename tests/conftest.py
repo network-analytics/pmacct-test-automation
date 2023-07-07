@@ -2,7 +2,7 @@
 import library.py.scripts as scripts
 import library.py.setup_tools as setup_tools
 import logging, pytest, os
-from library.py.kafka_consumer import KMessageReader
+from library.py.kafka_consumer import KMessageReader, KMessageReaderList
 logger = logging.getLogger(__name__)
 
 
@@ -30,7 +30,6 @@ def kafka_infra_setup():
 def setup_pmacct(request):
     params = request.module.testParams
     assert os.path.isfile(params.results_conf_file)
-    assert params.kafka_topic_name != None
     #    assert scripts.delete_registered_schemas()
     for topic in list(params.kafka_topics.values()):
         assert scripts.create_or_clear_kafka_topic(topic)
@@ -62,9 +61,11 @@ def check_root_dir():
 
 def setup_consumer(request, plainJson):
     params = request.module.testParams
-    consumers = []
+    consumers = KMessageReaderList()
     for k in params.kafka_topics.keys():
-        consumer = KMessageReader(params.kafka_topics[k], params.results_msg_dump, plainJson)
+        topic_name = '_'.join(params.kafka_topics[k].split('.')[0:-1])
+        msg_dump_file = params.results_folder + '/' + topic_name + '_dump.json'
+        consumer = KMessageReader(params.kafka_topics[k], msg_dump_file, plainJson)
         consumer.connect()
         consumers.append(consumer)
     return consumers

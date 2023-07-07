@@ -2,9 +2,9 @@
 from library.py.configuration_file import KConfigurationFile
 from library.py.setup_tools import KModuleParams
 import library.py.scripts as scripts
-import library.py.json_tools as jsontools
 import library.py.helpers as helpers
-import os, logging, pytest, sys, json, time
+import logging, pytest, sys, time
+import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__])
@@ -16,16 +16,10 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
 def main(consumer):
     assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[0], 0, '172.111.1.101')
     assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[1], 1, '172.111.1.102', 'fd25::101')
-    messages = consumer.get_messages(180, helpers.count_non_empty_lines(testParams.output_files[0])) # 24 lines
-    assert messages != None and len(messages) > 0
 
-    # Replace peer_ip_src with the correct IP address
-    helpers.replace_in_file(testParams.output_files[0], 'cafe::1', 'fd25::101')
-    helpers.replace_in_file(testParams.output_files[0], '192.168.100.1', '172.111.1.101')
+    assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('flow-00'),
+        [('192.168.100.1', '172.111.1.101'), ('cafe::1', 'fd25::101')],
+        ['timestamp_start', 'timestamp_end', 'timestamp_max', 'timestamp_arrival', 'stamp_inserted',
+         'timestamp_min', 'stamp_updated'])
 
-    ignore_fields = ['timestamp_start', 'timestamp_end', 'timestamp_max', 'timestamp_arrival', 'stamp_inserted',
-                     'timestamp_min', 'stamp_updated']
-    assert jsontools.compare_messages_to_json_file(messages, testParams.output_files[0], ignore_fields)
-
-    # Check for ERRORs or WARNINGs
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])

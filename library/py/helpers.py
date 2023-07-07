@@ -62,6 +62,22 @@ def check_regex_sequence_in_file(file_path, regexes):
             start = match.end()
         return True
 
+# Untested - not used currently
+def check_string_sequence_in_file(file_path, strings):
+    logger.debug('Checking file ' + file_path + ' for patterns ' + str(strings))
+    with open(file_path, 'r') as file:
+        text = file.read()
+        start = 0
+        for pattern in strings:
+            logger.debug('Checking string: ' + pattern)
+            idx = text[start:].find(pattern)
+            if idx<0:
+                logger.debug('No match')
+                return False
+            logger.debug('Matched')
+            start = idx + len(pattern)
+        return True
+
 def check_file_regex_sequence_in_file(file_path, file_regexes):
     with open(file_regexes) as f:
         regexes = f.read().split('\n')
@@ -70,6 +86,17 @@ def check_file_regex_sequence_in_file(file_path, file_regexes):
     retval = check_regex_sequence_in_file(file_path, regexes)
     if retval:
         logger.info('All regexes found!')
+    return retval
+
+# Untested - not used currently
+def check_file_string_sequence_in_file(file_path, file_strings):
+    with open(file_strings) as f:
+        strings = f.read().split('\n')
+    strings = [_string for _string in strings if len(_string)>0 and not _string.startswith('#')]
+    logger.info('Checking for ' + str(len(strings)) + ' regexes')
+    retval = check_string_sequence_in_file(file_path, strings)
+    if retval:
+        logger.info('All strings found!')
     return retval
 
 def short_name(filename):
