@@ -6,7 +6,6 @@
 #
 ###################################################
 
-import library.py.scripts as scripts
 import shutil, secrets, yaml, os
 from library.py.helpers import *
 from library.py.configuration_file import KConfigurationFile
@@ -37,7 +36,7 @@ class KModuleParams:
         self.results_folder = os.getcwd() + '/results/' + self.test_name
         self.results_conf_file = self.results_folder + '/pmacctd.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
-        self.results_pcap_folders = []
+        self.pcap_folders = []
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         #self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
         self.kafka_topics = {}
@@ -192,7 +191,7 @@ def prepare_pcap(_module):
         results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
         os.makedirs(results_pcap_folder)
         logger.debug('Created folder ' + short_name(results_pcap_folder))
-        params.results_pcap_folders.append(results_pcap_folder)
+        params.pcap_folders.append(results_pcap_folder)
         shutil.copy(params.test_folder + '/' + test_config_files[i], results_pcap_folder + '/traffic-reproducer.conf')
         shutil.copy(params.test_folder + '/' + test_pcap_files[i], results_pcap_folder + '/traffic.pcap')
 

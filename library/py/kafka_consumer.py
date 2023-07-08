@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class KMessageReader:
 
-    def __init__(self, topic, dump_to_file=None, plainJson=False):
+    def __init__(self, topic: str, dump_to_file: str=None, plainJson: bool=False):
         consumer_type = 'plain Json' if plainJson else 'avro'
         logger.info('Creating message reader (kafka ' + consumer_type + ' consumer) for topic ' + topic)
         self.topic = topic
@@ -51,7 +51,7 @@ class KMessageReader:
             logger.debug('Consumer closed')
 
 
-    def dump_if_needed(self, msgval):
+    def dump_if_needed(self, msgval: str):
         if not self.dumpfile:
             return
         with open(self.dumpfile, 'a') as f:
@@ -72,7 +72,6 @@ class KMessageReader:
                 msgval = msg.value().decode('utf-8') if self.plainJson else json.dumps(msg.value())
                 self.dump_if_needed(msgval)
                 logger.debug('Received message: ' + msgval)
-                #messages.append(msg)
                 messages.append(json.loads(msgval) if self.plainJson else msg.value())
                 messages_expected -= 1
                 if messages_expected>0:
@@ -91,7 +90,7 @@ class KMessageReader:
 
 class KMessageReaderList(list):
 
-    def getReaderOfTopicStartingWith(self, txt):
+    def getReaderOfTopicStartingWith(self, txt: str) -> KMessageReader:
         for consumer in self:
             if consumer.topic.startswith(txt):
                 return consumer

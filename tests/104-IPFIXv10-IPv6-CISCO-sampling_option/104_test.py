@@ -14,7 +14,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     main(consumer_setup_teardown[0]) # Plain Json consumer used here
 
 def main(consumer):
-    assert scripts.replay_pcap_with_docker(testParams.results_pcap_folders[0], '172.111.1.101', 'fd25::101')
+    assert scripts.replay_pcap_with_docker(testParams.pcap_folders[0], '172.111.1.101', 'fd25::101')
 
     assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('flow-00'),
         [('cafe::1', 'fd25::101')],

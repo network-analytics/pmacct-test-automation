@@ -14,8 +14,8 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_
     main(consumer_setup_teardown[0])
 
 def main(consumer):
-    for i in range(len(testParams.results_pcap_folders)):
-        assert scripts.replay_pcap_with_detached_docker(testParams.results_pcap_folders[i], i, '172.111.1.' + str(100+i+1))
+    for i in range(len(testParams.pcap_folders)):
+        assert scripts.replay_pcap_with_detached_docker(testParams.pcap_folders[i], i, '172.111.1.' + str(100+i+1))
 
     assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('flow-00'),
         [('192.168.100.1', '172.111.1.101')],
