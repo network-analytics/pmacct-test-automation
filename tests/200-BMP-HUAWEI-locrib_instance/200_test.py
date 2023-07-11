@@ -23,7 +23,12 @@ def main(consumer):
     # Make sure the expected logs exist in pmacct log
     logger.info('Waiting 15 seconds')
     time.sleep(15)  # needed for the last regex (WARNING) to be found in the logs!
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.log_files.getFileLike('log-00'))
+
+    # Make sure the expected logs exist in pmacct log
+    logfile = testParams.log_files.getFileLike('log-00')
+    helpers.replace_in_file(logfile, '/etc/pmacct/librdkafka.conf', testParams.pmacct_mount_folder + '/librdkafka.conf')
+    test_tools.transform_log_file(logfile, '172.111.1.101')
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
 

@@ -6,9 +6,10 @@
 #
 ###################################################
 
-import logging, os
+import logging, os, secrets
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
+import library.py.escape_regex as escape_regex
 logger = logging.getLogger(__name__)
 
 
@@ -37,3 +38,14 @@ def read_and_compare_messages(consumer, output_json_file, ip_subst_pairs, ignore
     # output_json_file is a file (filename) with json lines
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
+
+def transform_log_file(filename, repro_ip=None):
+    if repro_ip:
+        helpers.replace_in_file(filename, "${repro_ip}", repro_ip)
+        helpers.replace_in_file(filename, "${bgp_id}", repro_ip)
+    helpers.replace_in_file(filename, '${TIMESTAMP}', '')
+    helpers.replace_in_file(filename, '${IGNORE_REST}', '')
+    token = secrets.token_hex(4)[:8]
+    helpers.replace_in_file(filename, '${RANDOM}', token)
+    escape_regex.escape_file(filename)
+    helpers.replace_in_file(filename, token, '.+')

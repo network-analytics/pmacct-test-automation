@@ -6,29 +6,45 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-cd "$(dirname "$0")"
+if [[ "${PWD##*/}" != "net_ana" ]]; then
+  echo "Script not run from net_ana root directory"
+  exit 1
+fi
 
-for arg in "$@"; do
-  files=( tests/${arg}* )
-  # Check the length of the array
-  if [ ${#files[@]} -gt 1 ]; then
-      echo "Wildcard pattern tests/${arg}* matched more than one entry"
-      exit 1
-  fi
-done
+myarg="$( echo "$@ " )"
+lsout="$( ls | tr '\n' ' ')"
 
-if [ "$#" -gt 1 ]; then
-  args=""
+if [[ "$myarg" == "$lsout"  ]]; then
+  # argument was an asterisk
+  test_files="$( ls -d tests/**/*test*.py )"
+else
+  # argument was not an asterisk
+  test_files=""
   for arg in "$@"; do
-    args="$args tests/${arg}*"
+    test_files="$test_files $( ls -d tests/${arg}*/*test*.py )"
   done
+  test_files="${test_files## }"
+fi
+
+count="$( echo "$test_files" | wc -l )"
+
+#echo "Selected: $test_files"
+
+if [ $count -eq 1 ]; then
+  #echo "One file: $test_files"
+  test="${test_files:6:3}"
+  #echo "Test: $test"
+  testdir=$( dirname $test_files )
+  #echo "TestDir: $testdir"
+  python -m pytest $test_files --log-cli-level=DEBUG --html=results/report${test}.html
+  echo "Moving report to the test case specific folder"
+  mv results/report${test}.html ${testdir/tests/results}/
+  mv results/assets ${testdir/tests/results}/
+else
   rm -rf results/assets
   rm -f results/report.html
-  python -m pytest $args --log-cli-level=DEBUG --html=results/report.html
-else
-  python -m pytest tests/${1}* --log-cli-level=DEBUG --html=results/report${1}.html
-  testdir=${files[0]}
-  echo "Moving report to the test case specific folder"
-  mv results/report${1}.html ${testdir/tests/results}/
-  mv results/assets ${testdir/tests/results}/
+  #echo "Multiple files"
+  python -m pytest $test_files --log-cli-level=DEBUG --html=results/report.html
 fi
+
+

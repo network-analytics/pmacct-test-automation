@@ -13,6 +13,12 @@ confFile = KConfigurationFile(testParams.test_conf_file)
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
+def transform_log_file(logfile):
+    helpers.replace_in_file(logfile, '/etc/pmacct', testParams.pmacct_mount_folder, 'Reading configuration file')
+    helpers.replace_in_file(logfile, '.map]', '-00.map]')
+    helpers.replace_in_file(logfile, 'primitives.lst', 'primitives-00.lst')
+    test_tools.transform_log_file(logfile)
+
 def main(consumer):
     assert scripts.replay_pcap_with_docker(testParams.pcap_folders[0], '172.111.1.101')
 
@@ -21,9 +27,10 @@ def main(consumer):
         ['timestamp_start', 'timestamp_end', 'timestamp_arrival',
          'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
 
-    # Make sure the expected logs (in output-log-00.log) exist in pmacct log
-    helpers.replace_in_file(testParams.log_files[0], '/etc/pmacct', testParams.pmacct_mount_folder, 'Reading configuration file')
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.log_files[0])
+    # Make sure the expected logs exist in pmacct log
+    logfile = testParams.log_files.getFileLike('log-00')
+    transform_log_file(logfile)
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
     # Replace -00 maps with -01 maps
@@ -41,6 +48,8 @@ def main(consumer):
         ['timestamp_start', 'timestamp_end', 'timestamp_arrival',
          'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
 
-    helpers.replace_in_file(testParams.log_files[1], '/etc/pmacct', testParams.pmacct_mount_folder)
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.log_files[1])
+    # Make sure the expected logs exist in pmacct log
+    logfile = testParams.log_files.getFileLike('log-01')
+    transform_log_file(logfile)
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])

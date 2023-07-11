@@ -1,6 +1,6 @@
-.+ INFO \( pmbmpd_core/core.+ \[172.111.1.1\d{2}\] BMP connection reset by peer \(0\).
-.+ WARNING \( pmbmpd_core/core.+ Unable to get kafka_host: 172.111.1.1\d{2}
-.+ INFO \( pmbmpd_core/core.+ \[172.111.1.1\d{2}\] BMP connection reset by peer \(0\).
-.+ WARNING \( pmbmpd_core/core.+ Unable to get kafka_host: 172.111.1.1\d{2}
-.+ INFO \( pmbmpd_core/core.+ \[172.111.1.1\d{2}\] BMP connection reset by peer \(0\).
-.+ WARNING \( pmbmpd_core/core.+ Unable to get kafka_host: 172.111.1.1\d{2}
+${TIMESTAMP} INFO ( pmbmpd_core/core/BMP ): [${repro_ip}] BMP connection reset by peer (0).
+${TIMESTAMP} WARNING ( pmbmpd_core/core/BMP ): Unable to get kafka_host: ${repro_ip}
+${TIMESTAMP} INFO ( pmbmpd_core/core/BMP ): [${repro_ip}] BMP connection reset by peer (0).
+${TIMESTAMP} WARNING ( pmbmpd_core/core/BMP ): Unable to get kafka_host: ${repro_ip}
+${TIMESTAMP} INFO ( pmbmpd_core/core/BMP ): [${repro_ip}] BMP connection reset by peer (0).
+${TIMESTAMP} WARNING ( pmbmpd_core/core/BMP ): Unable to get kafka_host: ${repro_ip}

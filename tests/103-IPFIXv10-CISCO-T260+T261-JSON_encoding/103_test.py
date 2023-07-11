@@ -21,4 +21,8 @@ def main(consumer):
         ['timestamp_start', 'timestamp_end', 'timestamp_arrival', 'timestamp_min', 'timestamp_max',
          'stamp_inserted', 'stamp_updated'])
 
+    # Make sure the expected logs exist in pmacct log
+    logfile = testParams.log_files.getFileLike('log-00')
+    test_tools.transform_log_file(logfile)
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])

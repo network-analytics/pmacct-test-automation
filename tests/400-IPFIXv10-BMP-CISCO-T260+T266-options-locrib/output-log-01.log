@@ -1,1 +1,1 @@
-WARNING \( nfacctd_core/core/BMP \): Unable to get kafka_host:
+${TIMESTAMP} WARNING ( nfacctd_core/core/BMP ): Unable to get kafka_host: ${repro_ip}
