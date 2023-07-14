@@ -73,7 +73,6 @@ def setup_consumer(request, plainJson):
 @pytest.fixture(scope="module")
 def consumer_setup_teardown(request):
     consumers = setup_consumer(request, False)
-    logger.debug('Local setup Consumer ' + str(consumers))
     yield consumers
     logger.debug('Local teardown Consumer ' + str(consumers))
     for consumer in consumers:

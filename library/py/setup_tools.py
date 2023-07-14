@@ -44,6 +44,7 @@ class KModuleParams:
         #self.results_msg_dump = self.results_folder + '/message_dump.json'
         self.output_files = []
         self.log_files = []
+        self.bgp_id = None
 
 
 def create_mount_and_output_folders(params: KModuleParams):
@@ -207,6 +208,14 @@ def prepare_pcap(_module):
             if k in data:
                 data[k]['collector']['ip'] = pmacct_ip
 
+        data['network']['map'][0]['repro_ip'] = ('fd25::10' if isIPv6 else '172.111.1.10' ) + str(i+1)
+
+        if 'bgp_id' in data['network']['map'][0]:
+            params.bgp_id = data['network']['map'][0]['bgp_id']
+            logger.debug('Found bgp_id: ' + params.bgp_id)
+        else:
+            logger.debug('No bgp_id found') # in: ' + str(data))
+
         with open(results_pcap_folder + '/traffic-reproducer.conf', 'w') as f:
-            data = yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-        replace_IPs(results_pcap_folder + '/traffic-reproducer.conf')
+            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        #replace_IPs(results_pcap_folder + '/traffic-reproducer.conf')

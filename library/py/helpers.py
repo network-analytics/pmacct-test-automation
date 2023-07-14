@@ -11,36 +11,6 @@ from typing import List
 
 logger = logging.getLogger(__name__)
 
-#
-#
-# def find_value_in_config_file(filename: str, keyname: str) -> str:
-#     relevant_lines = []
-#     with open(filename) as f:
-#         lines = f.readlines()
-#     for line in lines:
-#         line = line.strip()
-#         if '#' in line:
-#             line = line.split('#')[0].strip()
-#             if len(line)<1:
-#                 continue
-#         if '!' in line:
-#             line = line.split('!')[0].strip()
-#             if len(line) < 1:
-#                 continue
-#         matches = re.findall(r"(?<=" + keyname + ": ).+", line)
-#         if len(matches) > 0:
-#             return matches[0].strip()
-#         # Handling plugins
-#         if line.startswith(keyname):
-#             parts = line.split('[')
-#             if len(parts)>1 and parts[0]==keyname:
-#                 parts = line.split(':')
-#                 if len(parts)>1:
-#                     return parts[1].strip()
-#     return None
-
-# def get_current_time_in_milliseconds() -> int:
-#     return round(time.time()*1000)
 
 # Returns true if "text" exists anywhere in the "file_path" file, false otherwise
 def file_contains_string(file_path: str, text: str) -> bool:
@@ -114,7 +84,8 @@ def short_name(filename: str) -> str:
 # except for lines containing string "exclude_if_line_contains", which are excluded from this process
 # If "exclude_if_line_contains" is None (left with default value), no line is excluded
 def replace_in_file(filename: str, search_pattern: str, replace_pattern: str, exclude_if_line_contains: str = None):
-    logger.debug('Replacing ' + search_pattern + ' with ' + replace_pattern + ' in file ' + short_name(filename))
+    repl_text = '<nothing>' if replace_pattern=='' else replace_pattern
+    logger.debug('Replacing ' + search_pattern + ' with ' + repl_text + ' in file ' + short_name(filename))
     with open(filename) as f:
         lines = f.readlines()
     with open(filename + '.bak', 'w') as f:
