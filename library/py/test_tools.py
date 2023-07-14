@@ -44,9 +44,11 @@ def transform_log_file(filename, repro_ip=None, bgp_id=None):
         helpers.replace_in_file(filename, "${repro_ip}", repro_ip)
     if bgp_id:
         helpers.replace_in_file(filename, "${bgp_id}", bgp_id)
-    helpers.replace_in_file(filename, '${TIMESTAMP}', '')
+    token1 = secrets.token_hex(4)[:8]
+    helpers.replace_in_file(filename, '${TIMESTAMP}', token1)
     helpers.replace_in_file(filename, '${IGNORE_REST}', '')
-    token = secrets.token_hex(4)[:8]
-    helpers.replace_in_file(filename, '${RANDOM}', token)
+    token2 = secrets.token_hex(4)[:8]
+    helpers.replace_in_file(filename, '${RANDOM}', token2)
     escape_regex.escape_file(filename)
-    helpers.replace_in_file(filename, token, '.+')
+    helpers.replace_in_file(filename, token1, '\\d{4}\-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z')
+    helpers.replace_in_file(filename, token2, '.+')
