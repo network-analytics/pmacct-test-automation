@@ -13,7 +13,7 @@ import library.py.escape_regex as escape_regex
 logger = logging.getLogger(__name__)
 
 
-def read_and_compare_messages(consumer, output_json_file, ip_subst_pairs, ignore_fields):
+def read_and_compare_messages(consumer, output_json_file, ip_subst_pairs, ignore_fields, wait_time=120):
     # Replacing IP addresses in output json file with the ones anticipated from pmacct
     for pair in ip_subst_pairs:
         helpers.replace_in_file(output_json_file, pair[0], pair[1])
@@ -28,7 +28,7 @@ def read_and_compare_messages(consumer, output_json_file, ip_subst_pairs, ignore
     # Max wait time for line_count messages is 120 seconds
     # The get_messages method will return only if either line_count messages are received,
     # or 120 seconds have passed
-    messages = consumer.get_messages(120, line_count)
+    messages = consumer.get_messages(wait_time, line_count)
 
     # Analytic log messages produced by the get_messages method
     if messages == None:
@@ -40,15 +40,20 @@ def read_and_compare_messages(consumer, output_json_file, ip_subst_pairs, ignore
 
 
 def transform_log_file(filename, repro_ip=None, bgp_id=None):
-    if repro_ip:
-        helpers.replace_in_file(filename, "${repro_ip}", repro_ip)
-    if bgp_id:
-        helpers.replace_in_file(filename, "${bgp_id}", bgp_id)
+    if repro_ip and helpers.file_contains_string(filename, '${repro_ip}'):
+        helpers.replace_in_file(filename, '${repro_ip}', repro_ip)
+    if bgp_id and helpers.file_contains_string(filename, '${bgp_id}'):
+        helpers.replace_in_file(filename, '${bgp_id}', bgp_id)
     token1 = secrets.token_hex(4)[:8]
-    helpers.replace_in_file(filename, '${TIMESTAMP}', token1)
-    helpers.replace_in_file(filename, '${IGNORE_REST}', '')
+    if helpers.file_contains_string(filename, '${TIMESTAMP}'):
+        helpers.replace_in_file(filename, '${TIMESTAMP}', token1)
+    if helpers.file_contains_string(filename, '${IGNORE_REST}'):
+        helpers.replace_in_file(filename, '${IGNORE_REST}', '')
     token2 = secrets.token_hex(4)[:8]
-    helpers.replace_in_file(filename, '${RANDOM}', token2)
+    if helpers.file_contains_string(filename, '${RANDOM}'):
+        helpers.replace_in_file(filename, '${RANDOM}', token2)
     escape_regex.escape_file(filename)
-    helpers.replace_in_file(filename, token1, '\\d{4}\-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z')
-    helpers.replace_in_file(filename, token2, '.+')
+    if helpers.file_contains_string(filename, token1):
+        helpers.replace_in_file(filename, token1, '\\d{4}\-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z')
+    if helpers.file_contains_string(filename, token2):
+        helpers.replace_in_file(filename, token2, '.+')

@@ -1,0 +1,42 @@
+
+from library.py.configuration_file import KConfigurationFile
+from library.py.setup_tools import KModuleParams
+import library.py.scripts as scripts
+import library.py.helpers as helpers
+import logging, pytest, sys, time
+import library.py.test_tools as test_tools
+logger = logging.getLogger(__name__)
+
+testParams = KModuleParams(sys.modules[__name__])
+confFile = KConfigurationFile(testParams.test_conf_file)
+
+def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
+    main(consumer_setup_teardown)
+
+def main(consumers):
+    assert scripts.replay_pcap_with_detached_docker(testParams.pcap_folders[0], 0, '172.111.1.101')
+
+    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'),
+                                                testParams.output_files.getFileLike('bmp-00'),
+        [('192.168.100.1', '172.111.1.101')],
+        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
+
+    # Make sure the expected logs exist in pmacct log
+    logger.info('Waiting 15 seconds')
+    time.sleep(15)  # needed for the last regex (WARNING) to be found in the logs!
+
+    # Make sure the expected logs exist in pmacct log
+    logfile = testParams.log_files.getFileLike('log-00')
+    test_tools.transform_log_file(logfile, '172.111.1.101')
+    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+
+    logger.info('Waiting 2 minutes')
+    time.sleep(120)
+
+    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp.dump'),
+                                                testParams.output_files.getFileLike('bmp-01'),
+                                                [('192.168.100.1', '172.111.1.101')],
+                                                ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port',
+                                                 'bgp_nexthop'])  # bgp_nexthop ?)
+

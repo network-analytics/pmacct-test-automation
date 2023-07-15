@@ -89,6 +89,12 @@ def edit_conf_bgp(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('bgp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
     config.replace_value_of_key('bgp_daemon_msglog_avro_schema_output_file', params.pmacct_output_folder)
 
+# Replace specific BGP values
+def edit_conf_bmp_dump(config: KConfigurationFile, params: KModuleParams):
+    config.replace_value_of_key('bmp_dump_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
+    config.replace_value_of_key('bmp_dump_kafka_avro_schema_registry', 'http://schema-registry:8081')
+    config.replace_value_of_key('bmp_dump_avro_schema_output_file', params.pmacct_output_folder)
+
 # Copy existing files in pmacct_mount to result (=actual) mounted folder
 def copy_files_in_mount_folder(params: KModuleParams):
     if os.path.exists(params.test_mount_folder):
@@ -142,6 +148,7 @@ def prepare_test_env(_module):
     edit_conf_operational(config, params)
     edit_conf_bmp(config, params)
     edit_conf_bgp(config, params)
+    edit_conf_bmp_dump(config, params)
 
     # Output to new conf file in mount folder
     config.print_to_file(params.results_conf_file)
