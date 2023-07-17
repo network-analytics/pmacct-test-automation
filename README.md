@@ -96,3 +96,11 @@ python -m pytest -r tests/*/test.py --log-cli-level=INFO --html=results/report.h
               creates pcap_mount_n folders and copies traffic pcap and reproducer conf
 
 **consumer_setup_teardown** creates and tears down the Kafka consumer (message reader)
+
+## Hints
+
+If no messages are received and reading times out, it is very probably that you are not using the correct consumer
+object in the test. The framework creates as many consumers as the number of Kafka topics referenced in the pmacct
+config file.
+The fixture consumer_setup_teardown returns the list of consumers created. The test method typically calls main with
+either the consumer list, or the first consumer only- it's up to the test case author.
