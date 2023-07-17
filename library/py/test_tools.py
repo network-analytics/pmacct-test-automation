@@ -12,7 +12,10 @@ import library.py.helpers as helpers
 import library.py.escape_regex as escape_regex
 logger = logging.getLogger(__name__)
 
-
+# Reads messages from Kafka topic and compares with given file. First argument is the Kafka consumer object,
+# which will be used for reading. The number of messages anticipated is equal to the number of non-empty
+# lines of the json file passed as second argument. The latter is first edited in terms of referenced IPs,
+# as per the ip_subst_pairs, which are pairs of IPs, representing which IPs must be replaced by which.
 def read_and_compare_messages(consumer, output_json_file, ip_subst_pairs, ignore_fields, wait_time=120):
     # Replacing IP addresses in output json file with the ones anticipated from pmacct
     for pair in ip_subst_pairs:
@@ -38,7 +41,7 @@ def read_and_compare_messages(consumer, output_json_file, ip_subst_pairs, ignore
     # output_json_file is a file (filename) with json lines
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
-
+# Transforms a provided log file, in terms of regex syntax and IP substitutions
 def transform_log_file(filename, repro_ip=None, bgp_id=None):
     if repro_ip and helpers.file_contains_string(filename, '${repro_ip}'):
         helpers.replace_in_file(filename, '${repro_ip}', repro_ip)

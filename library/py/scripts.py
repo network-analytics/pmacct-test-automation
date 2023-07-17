@@ -85,6 +85,7 @@ def clear_kafka_topic(topic: str) -> bool:
 
 # Creates new Kafka topic. If it exists already, it clears/resets it.
 # topic: name of the topic to create
+# clearing/resetting functionality NOT thoroughly tested
 def create_or_clear_kafka_topic(topic: str) -> bool:
     logger.info("Creating (or clearing) Kafka topic " + topic)
     out = run_script('./library/sh/docker_tools/list-topics.sh')

@@ -58,8 +58,6 @@ def create_mount_and_output_folders(params: KModuleParams):
 
 # Files in mounted folder, for pmacct to read
 def edit_conf_mount_folder(config: KConfigurationFile, params: KModuleParams):
-    config.replace_value_of_key('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
-    config.replace_value_of_key('pre_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key('flow_to_rd_map', params.pmacct_mount_folder + '/f2rd-00.map')
     config.replace_value_of_key('sampling_map', params.pmacct_mount_folder + '/sampling-00.map')
     config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.lst')
@@ -68,32 +66,6 @@ def edit_conf_mount_folder(config: KConfigurationFile, params: KModuleParams):
 def edit_conf_output_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('logfile', params.pmacct_output_folder + '/pmacctd.log')
     config.replace_value_of_key('pidfile', params.pmacct_output_folder + '/pmacctd.pid')
-    config.replace_value_of_key('avro_schema_output_file', params.pmacct_output_folder + '/flow_avroschema.avsc')
-
-# Replace specific operational values
-def edit_conf_operational(config: KConfigurationFile, params: KModuleParams):
-    config.replace_value_of_key('kafka_avro_schema_registry', 'http://schema-registry:8081')
-    config.replace_value_of_key('debug', 'true')
-
-# Replace specific BMP values
-def edit_conf_bmp(config: KConfigurationFile, params: KModuleParams):
-    config.replace_value_of_key('bmp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
-    config.replace_value_of_key('bmp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
-    config.replace_value_of_key('bmp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
-    config.replace_value_of_key('bmp_daemon_msglog_avro_schema_output_file', params.pmacct_output_folder)
-
-# Replace specific BGP values
-def edit_conf_bgp(config: KConfigurationFile, params: KModuleParams):
-    config.replace_value_of_key('bgp_daemon_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
-    config.replace_value_of_key('bgp_daemon_msglog_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
-    config.replace_value_of_key('bgp_daemon_msglog_kafka_avro_schema_registry', 'http://schema-registry:8081')
-    config.replace_value_of_key('bgp_daemon_msglog_avro_schema_output_file', params.pmacct_output_folder)
-
-# Replace specific BGP values
-def edit_conf_bmp_dump(config: KConfigurationFile, params: KModuleParams):
-    config.replace_value_of_key('bmp_dump_kafka_config_file', '/var/log/pmacct/librdkafka.conf')
-    config.replace_value_of_key('bmp_dump_kafka_avro_schema_registry', 'http://schema-registry:8081')
-    config.replace_value_of_key('bmp_dump_avro_schema_output_file', params.pmacct_output_folder)
 
 # Copy existing files in pmacct_mount to result (=actual) mounted folder
 def copy_files_in_mount_folder(params: KModuleParams):
@@ -145,10 +117,9 @@ def prepare_test_env(_module):
 
     edit_conf_mount_folder(config, params)
     edit_conf_output_folder(config, params)
-    edit_conf_operational(config, params)
-    edit_conf_bmp(config, params)
-    edit_conf_bgp(config, params)
-    edit_conf_bmp_dump(config, params)
+    config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
+    config.replace_value_of_key_ending_with('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
+    config.replace_value_of_key_ending_with('kafka_avro_schema_registry', 'http://schema-registry:8081')
 
     # Output to new conf file in mount folder
     config.print_to_file(params.results_conf_file)

@@ -17,6 +17,7 @@ lsout="$( ls | tr '\n' ' ')"
 if [[ "$myarg" == "$lsout"  ]]; then
   # argument was an asterisk
   test_files="$( ls -d tests/**/*test*.py )"
+  test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
 else
   # argument was not an asterisk
   test_files=""
@@ -26,7 +27,11 @@ else
   test_files="${test_files## }"
 fi
 
-count="$( echo "$test_files" | wc -l )"
+echo "$test_files"
+
+count="$( echo "$test_files" | wc -w )"
+
+echo "Will run $count test files"
 
 #echo "Selected: $test_files"
 
@@ -43,7 +48,7 @@ if [ $count -eq 1 ]; then
 else
   rm -rf results/assets
   rm -f results/report.html
-  #echo "Multiple files"
+  echo "Multiple files"
   python -m pytest $test_files --log-cli-level=DEBUG --html=results/report.html
 fi
 

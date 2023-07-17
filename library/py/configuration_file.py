@@ -60,6 +60,14 @@ class KConfigurationFile:
                 self.data[key][sk] = value
         return True
 
+    def replace_value_of_key_ending_with(self, key_ending: str, value:str, subkey: str=None) -> bool:
+        for key in self.data.keys():
+            if key.endswith(key_ending):
+                for sk in self.data[key]:
+                    if subkey is None or sk==subkey:
+                        self.data[key][sk] = value
+        return True
+
     def get_kafka_topics(self):
         retVal = {}
         for propname in self.data.keys():
