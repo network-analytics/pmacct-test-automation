@@ -82,25 +82,17 @@ def copy_files_in_mount_folder(params: KModuleParams):
 
 
 def replace_IPs(filename: str):
-    if file_contains_string(filename, '192.168.100.1'):
-        replace_in_file(filename, '192.168.100.1', '172.111.1.101')
-    if file_contains_string(filename, '192.168.100.2'):
-        replace_in_file(filename, '192.168.100.2', '172.111.1.102')
-    if file_contains_string(filename, '192.168.100.3'):
-        replace_in_file(filename, '192.168.100.3', '172.111.1.103')
-    if file_contains_string(filename, 'cafe::1'):
-        replace_in_file(filename, 'cafe::1', 'fd25::101')
-    if file_contains_string(filename, 'cafe::2'):
-        replace_in_file(filename, 'cafe::2', 'fd25::102')
-    if file_contains_string(filename, 'cafe::3'):
-        replace_in_file(filename, 'cafe::3', 'fd25::103')
+    if file_contains_string(filename, '192.168.100.'):
+        replace_in_file(filename, '192.168.100.', '172.111.1.10')
+    if file_contains_string(filename, 'cafe::'):
+        replace_in_file(filename, 'cafe::', 'fd25::10')
 
 
 # RUNS BEFORE PMACCT IS RUN
 # Prepares results folder to receive logs and output from pmacct
 def prepare_test_env(_module):
     params = _module.testParams
-    config = _module.confFile
+    config = KConfigurationFile(_module.testParams.test_conf_file)
 
     logger.info('Test name: ' + params.test_name)
     topicsDict = config.get_kafka_topics()

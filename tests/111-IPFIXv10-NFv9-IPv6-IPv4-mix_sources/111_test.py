@@ -8,20 +8,14 @@ import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__])
-confFile = KConfigurationFile(testParams.test_conf_file)
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
-    main(consumer_setup_teardown[0]) # Plain Json consumer used here
+    main(consumer_setup_teardown[0])
 
 def main(consumer):
-    assert scripts.replay_pcap_with_detached_docker(testParams.pcap_folders[0], 0, '172.111.1.101')
-    #assert scripts.replay_pcap_with_detached_docker(testParams.pcap_folders[1], 1, '172.111.1.102', 'fd25::101')
-    assert scripts.replay_pcap_with_detached_docker(testParams.pcap_folders[1], 1, '172.111.1.102', 'fd25::102')
+    assert scripts.replay_pcap_detached(testParams.pcap_folders[0], 0)
+    assert scripts.replay_pcap_detached(testParams.pcap_folders[1], 1)
 
-    #assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('flow-00'),
-    #    [('192.168.100.1', '172.111.1.101'), ('cafe::1', 'fd25::101')],
-    #    ['timestamp_start', 'timestamp_end', 'timestamp_max', 'timestamp_arrival', 'stamp_inserted',
-    #     'timestamp_min', 'stamp_updated'])
     assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('flow-00'),
                                                 [('192.168.100.1', '172.111.1.101'), ('cafe::1', 'fd25::102')],
                                                 ['timestamp_start', 'timestamp_end', 'timestamp_max',

@@ -1,0 +1,2 @@
+2023-05-30T08:02:06Z INFO ( nfacctd_core/core/BGP ): [${bgp_id}] BGP connection reset by peer (104).
+2023-05-30T08:02:06Z WARNING ( nfacctd_core/core/BGP ): Unable to get kafka_host: ${repro_ip}

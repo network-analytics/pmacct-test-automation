@@ -8,13 +8,12 @@ import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__])
-confFile = KConfigurationFile(testParams.test_conf_file)
 
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
     main(consumer_setup_teardown)
 
 def main(consumers):
-    assert scripts.replay_pcap_with_detached_docker(testParams.pcap_folders[0], 0, '172.111.1.101', 'fd25::101')
+    assert scripts.replay_pcap_detached(testParams.pcap_folders[0], 0)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bgp'),
         testParams.output_files.getFileLike('bgp-00'), [('cafe::1', 'fd25::101')],

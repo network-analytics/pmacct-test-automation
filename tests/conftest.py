@@ -98,3 +98,6 @@ def prepare_test(request):
 def prepare_pcap(request):
     setup_tools.prepare_pcap(request.module)
 
+@pytest.fixture(scope="module")
+def prepare_pcap(request):
+    setup_tools.prepare_pcap(request.module)
