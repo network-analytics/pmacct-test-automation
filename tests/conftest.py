@@ -99,5 +99,5 @@ def prepare_pcap(request):
     setup_tools.prepare_pcap(request.module)
 
 @pytest.fixture(scope="module")
-def prepare_pcap(request):
-    setup_tools.prepare_pcap(request.module)
+def test_core(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap):
+    pass

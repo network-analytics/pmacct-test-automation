@@ -1,15 +1,13 @@
-import shutil
 
-from library.py.configuration_file import KConfigurationFile
+import shutil
 from library.py.setup_tools import KModuleParams
 import library.py.scripts as scripts
-import library.py.helpers as helpers
 import logging, pytest, sys, time, datetime, os
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__])
-def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap, consumer_setup_teardown):
+def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
 def prep_pcap():
