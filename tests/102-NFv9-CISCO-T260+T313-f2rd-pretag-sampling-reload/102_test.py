@@ -38,7 +38,7 @@ def main(consumer):
     # Sending the signal to reload maps
     assert scripts.send_signal_to_pmacct('SIGUSR2')
 
-    assert scripts.replay_pcap(testParams.pcap_folders[0]) #, '172.111.1.101')
+    assert scripts.replay_pcap(testParams.pcap_folders[0])
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-01',
         ['timestamp_start', 'timestamp_end', 'timestamp_arrival',

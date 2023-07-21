@@ -40,13 +40,11 @@ class KModuleParams:
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
         self.pcap_folders = []
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
-        #self.kafka_topic_name = 'test.topic.' + secrets.token_hex(4)[:8]
         self.kafka_topics = {}
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
-        #self.results_msg_dump = self.results_folder + '/message_dump.json'
         self.output_files = []
         self.log_files = []
-        self.bgp_id = None
+        #self.bgp_id = None
 
     def replace_IPs(self, filename: str):
         if self.test_subnet_ipv4!='' and file_contains_string(filename, self.test_subnet_ipv4):
@@ -178,7 +176,7 @@ def prepare_pcap(_module):
         for k in ['bmp', 'bgp', 'ipfix']:
             if k in data:
                 data[k]['collector']['ip'] = pmacct_ip
-        
+
         if isIPv6:
             if len(params.test_subnet_ipv6)<1:
                 raise Exception('IPv6 used, but subnet not set in test case')
@@ -189,12 +187,6 @@ def prepare_pcap(_module):
                 raise Exception('IPv4 used, but subnet not set in test case')
             data['network']['map'][0]['repro_ip'] = data['network']['map'][0]['repro_ip'].\
                 replace(params.test_subnet_ipv4, '172.111.1.10')
-
-        if 'bgp_id' in data['network']['map'][0]:
-            params.bgp_id = data['network']['map'][0]['bgp_id']
-            logger.debug('Found bgp_id: ' + params.bgp_id)
-        else:
-            logger.debug('No bgp_id found') # in: ' + str(data))
 
         with open(results_pcap_folder + '/traffic-reproducer.conf', 'w') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)

@@ -14,7 +14,7 @@ def test(test_core, consumer_setup_teardown):
 def transform_log_file(logfile):
     helpers.replace_in_file(logfile, '${repro_ip}', 'ABCDEFGH')
     test_tools.transform_log_file(logfile)
-    helpers.replace_in_file(logfile, "ABCDEFGH", '172.111.1.1\\d{2}')
+    helpers.replace_in_file(logfile, "ABCDEFGH", '172.111.1.1\\d{2}') # we don't really know which one will come first
 
 def main(consumer):
     for i in range(len(testParams.pcap_folders)):
@@ -22,7 +22,6 @@ def main(consumer):
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bmp-00',
         ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop is wrong (?)
-#        [('192.168.100.1', '172.111.1.101'), ('192.168.100.2', '172.111.1.102'), ('192.168.100.3', '172.111.1.103')],
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
