@@ -87,13 +87,12 @@ def clear_kafka_topic(topic: str) -> bool:
 # topic: name of the topic to create
 # clearing/resetting functionality NOT thoroughly tested
 def create_or_clear_kafka_topic(topic: str) -> bool:
-    logger.info("Creating (or clearing) Kafka topic " + topic)
     out = run_script('./library/sh/docker_tools/list-topics.sh')
     if not out[0]:
         logger.info("Could not list existing topics")
         return False
     if topic in out[1]:
-        logger.info("Topic exists already")
+        logger.info("Topic " + topic + " exists already")
         retval = clear_kafka_topic(topic)
         if retval:
             logger.info("Topic cleared successfully")

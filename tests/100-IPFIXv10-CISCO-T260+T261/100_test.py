@@ -5,7 +5,7 @@ import library.py.test_tools as test_tools
 import logging, pytest, sys
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__])
+testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
@@ -13,6 +13,5 @@ def test(test_core, consumer_setup_teardown):
 def main(consumer):
     assert scripts.replay_pcap(testParams.pcap_folders[0])
 
-    assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('flow-00'),
-        [('192.168.100.1', '172.111.1.101')],
+    assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
         ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])

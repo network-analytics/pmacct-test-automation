@@ -5,8 +5,7 @@
 #
 ###################################################
 
-import os
-import re, time, logging
+import os, re, logging
 from typing import List
 
 logger = logging.getLogger(__name__)
@@ -36,7 +35,7 @@ def check_regex_sequence_in_file(file_path: str, regexes: List[str]) -> bool:
             start = match.end()
         return True
 
-# Untested - not used currently
+# Untested
 # def check_string_sequence_in_file(file_path: str, strings: List[str]) -> bool:
 #     logger.debug('Checking file ' + file_path + ' for patterns ' + str(strings))
 #     with open(file_path, 'r') as file:
@@ -65,7 +64,7 @@ def check_file_regex_sequence_in_file(file_path: str, file_regexes: str) -> bool
         logger.info('All regexes found!')
     return retval
 
-# Untested - not used currently
+# Untested
 # def check_file_string_sequence_in_file(file_path: str, file_strings: str) -> bool:
 #     with open(file_strings) as f:
 #         strings = f.read().split('\n')
@@ -115,3 +114,9 @@ def count_non_empty_lines(file_path: str) -> int:
             if len(line.strip()):
                 count += 1
     return count
+
+# def replace_IPs(filename: str):
+#     if file_contains_string(filename, '192.168.100.'):
+#         replace_in_file(filename, '192.168.100.', '172.111.1.10')
+#     if file_contains_string(filename, 'cafe::'):
+#         replace_in_file(filename, 'cafe::', 'fd25::10')

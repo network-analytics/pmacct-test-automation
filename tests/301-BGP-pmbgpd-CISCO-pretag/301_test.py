@@ -6,7 +6,7 @@ import logging, pytest, sys, time
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], pmacct_config_filename='pmbgpd-00.conf')
+testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.', pmacct_config_filename='pmbgpd-00.conf')
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
@@ -14,14 +14,11 @@ def test(test_core, consumer_setup_teardown):
 def main(consumer):
     assert scripts.replay_pcap(testParams.pcap_folders[0])
 
-    assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('bgp-00'),
-        [('192.168.100.1', '172.111.1.101')], ['seq', 'timestamp', 'peer_tcp_port'])
+    assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-00', ['seq', 'timestamp', 'peer_tcp_port'])
 
     # Make sure the expected logs exist in pmacct log
     logger.info('Waiting 15 seconds')
     time.sleep(15)  # needed for the last regex (WARNING) to be found in the logs!
-    # assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.log_files.getFileLike('log-00'))
-    # assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')

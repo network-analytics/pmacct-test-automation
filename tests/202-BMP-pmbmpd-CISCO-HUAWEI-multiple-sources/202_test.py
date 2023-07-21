@@ -6,7 +6,7 @@ import logging, pytest, sys, time
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], pmacct_config_filename='pmbmpd-00.conf')
+testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.', pmacct_config_filename='pmbmpd-00.conf')
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
@@ -20,9 +20,9 @@ def main(consumer):
     for i in range(len(testParams.pcap_folders)):
         assert scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
 
-    assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('bmp-00'),
-        [('192.168.100.1', '172.111.1.101'), ('192.168.100.2', '172.111.1.102'), ('192.168.100.3', '172.111.1.103')],
+    assert test_tools.read_and_compare_messages(consumer, testParams, 'bmp-00',
         ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop is wrong (?)
+#        [('192.168.100.1', '172.111.1.101'), ('192.168.100.2', '172.111.1.102'), ('192.168.100.3', '172.111.1.103')],
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')

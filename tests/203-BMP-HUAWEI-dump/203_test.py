@@ -6,7 +6,7 @@ import logging, pytest, sys, time
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__])
+testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
@@ -14,10 +14,8 @@ def test(test_core, consumer_setup_teardown):
 def main(consumers):
     assert scripts.replay_pcap_detached(testParams.pcap_folders[0], 0)
 
-    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'),
-                                                testParams.output_files.getFileLike('bmp-00'),
-        [('192.168.100.1', '172.111.1.101')],
-        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
+    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'), testParams,
+        'bmp-00', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
 
     # Make sure the expected logs exist in pmacct log
     logger.info('Waiting 15 seconds')
@@ -32,9 +30,6 @@ def main(consumers):
     logger.info('Waiting 2 minutes')
     time.sleep(120)
 
-    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp.dump'),
-                                                testParams.output_files.getFileLike('bmp-01'),
-                                                [('192.168.100.1', '172.111.1.101')],
-                                                ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port',
-                                                 'bgp_nexthop'])  # bgp_nexthop ?)
+    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp.dump'), testParams,
+        'bmp-01', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
 

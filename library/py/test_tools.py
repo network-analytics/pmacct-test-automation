@@ -16,10 +16,13 @@ logger = logging.getLogger(__name__)
 # which will be used for reading. The number of messages anticipated is equal to the number of non-empty
 # lines of the json file passed as second argument. The latter is first edited in terms of referenced IPs,
 # as per the ip_subst_pairs, which are pairs of IPs, representing which IPs must be replaced by which.
-def read_and_compare_messages(consumer, output_json_file, ip_subst_pairs, ignore_fields, wait_time=120):
+def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_time=120):
     # Replacing IP addresses in output json file with the ones anticipated from pmacct
-    for pair in ip_subst_pairs:
-        helpers.replace_in_file(output_json_file, pair[0], pair[1])
+    output_json_file = params.output_files.getFileLike(json_name)
+    params.replace_IPs(output_json_file)
+    #helpers.replace_IPs(output_json_file)
+    #for pair in ip_subst_pairs:
+    #    helpers.replace_in_file(output_json_file, pair[0], pair[1])
 
     # Counting non empty json lines in output file, so that we know the number of anticipated messages
     line_count = helpers.count_non_empty_lines(output_json_file)

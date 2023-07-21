@@ -6,7 +6,7 @@ import os, logging, pytest, sys, time
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__])
+testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
@@ -15,11 +15,11 @@ def main(consumers):
     assert scripts.replay_pcap_detached(testParams.pcap_folders[0], 0)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.flow'),
-        testParams.output_files.getFileLike('flow-00'), [('192.168.100.1', '172.111.1.101')],
+        testParams, 'flow-00',
         ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'),
-        testParams.output_files.getFileLike('bmp-00'), [('192.168.100.1', '172.111.1.101')],
+        testParams, 'bmp-00',
         ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])
 
 
@@ -36,7 +36,7 @@ def main(consumers):
     assert scripts.stop_and_remove_traffic_container(0)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'),
-        testParams.output_files.getFileLike('bmp-01'), [('192.168.100.1', '172.111.1.101')],
+        testParams, 'bmp-01',
         ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])
 
     # Make sure the expected logs exist in pmacct log

@@ -6,14 +6,16 @@
 #
 ###################################################
 
-import shutil, secrets, yaml, os
+import shutil, secrets, yaml
 from library.py.helpers import *
 from library.py.configuration_file import KConfigurationFile
 logger = logging.getLogger(__name__)
 
 
 class KModuleParams:
-    def __init__(self, _module, pmacct_config_filename=''):
+    def __init__(self, _module, ipv4_subnet='', ipv6_subnet='', pmacct_config_filename=''):
+        self.test_subnet_ipv4 = ipv4_subnet
+        self.test_subnet_ipv6 = ipv6_subnet
         self.pmacct_config_filename = pmacct_config_filename
         self.build_static_params(_module.__file__)
 
@@ -46,6 +48,11 @@ class KModuleParams:
         self.log_files = []
         self.bgp_id = None
 
+    def replace_IPs(self, filename: str):
+        if self.test_subnet_ipv4!='' and file_contains_string(filename, self.test_subnet_ipv4):
+            replace_in_file(filename, self.test_subnet_ipv4, '172.111.1.10')
+        if self.test_subnet_ipv6!='' and file_contains_string(filename, self.test_subnet_ipv6):
+            replace_in_file(filename, self.test_subnet_ipv6, 'fd25::10')
 
 def create_mount_and_output_folders(params: KModuleParams):
     logger.info('Creating test mount folder: ' + short_name(params.results_mount_folder))
@@ -81,13 +88,6 @@ def copy_files_in_mount_folder(params: KModuleParams):
         logger.info('Copied ' + str(count) + ' files')
 
 
-def replace_IPs(filename: str):
-    if file_contains_string(filename, '192.168.100.'):
-        replace_in_file(filename, '192.168.100.', '172.111.1.10')
-    if file_contains_string(filename, 'cafe::'):
-        replace_in_file(filename, 'cafe::', 'fd25::10')
-
-
 # RUNS BEFORE PMACCT IS RUN
 # Prepares results folder to receive logs and output from pmacct
 def prepare_test_env(_module):
@@ -120,7 +120,8 @@ def prepare_test_env(_module):
 
     results_pretag_files = select_files(params.results_mount_folder, '.+\\.map$')
     for results_pretag_file in results_pretag_files:
-        replace_IPs(params.results_mount_folder + '/' + results_pretag_file)
+        params.replace_IPs(params.results_mount_folder + '/' + results_pretag_file)
+        #replace_IPs(params.results_mount_folder + '/' + results_pretag_file)
 
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
@@ -177,8 +178,17 @@ def prepare_pcap(_module):
         for k in ['bmp', 'bgp', 'ipfix']:
             if k in data:
                 data[k]['collector']['ip'] = pmacct_ip
-
-        data['network']['map'][0]['repro_ip'] = ('fd25::10' if isIPv6 else '172.111.1.10' ) + str(i+1)
+        
+        if isIPv6:
+            if len(params.test_subnet_ipv6)<1:
+                raise Exception('IPv6 used, but subnet not set in test case')
+            data['network']['map'][0]['repro_ip'] = data['network']['map'][0]['repro_ip'].\
+                replace(params.test_subnet_ipv6, 'fd25::10')
+        else:
+            if len(params.test_subnet_ipv4)<1:
+                raise Exception('IPv4 used, but subnet not set in test case')
+            data['network']['map'][0]['repro_ip'] = data['network']['map'][0]['repro_ip'].\
+                replace(params.test_subnet_ipv4, '172.111.1.10')
 
         if 'bgp_id' in data['network']['map'][0]:
             params.bgp_id = data['network']['map'][0]['bgp_id']
@@ -188,4 +198,3 @@ def prepare_pcap(_module):
 
         with open(results_pcap_folder + '/traffic-reproducer.conf', 'w') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-        #replace_IPs(results_pcap_folder + '/traffic-reproducer.conf')

@@ -6,7 +6,7 @@ import shutil, logging, pytest, sys
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__])
+testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
@@ -20,8 +20,7 @@ def transform_log_file(logfile):
 def main(consumer):
     assert scripts.replay_pcap(testParams.pcap_folders[0])
 
-    assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('flow-00'),
-        [('192.168.100.1', '172.111.1.101')],
+    assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
         ['timestamp_start', 'timestamp_end', 'timestamp_arrival',
          'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
 
@@ -41,8 +40,7 @@ def main(consumer):
 
     assert scripts.replay_pcap(testParams.pcap_folders[0]) #, '172.111.1.101')
 
-    assert test_tools.read_and_compare_messages(consumer, testParams.output_files.getFileLike('flow-01'),
-        [('192.168.100.1', '172.111.1.101')],
+    assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-01',
         ['timestamp_start', 'timestamp_end', 'timestamp_arrival',
          'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
 

@@ -6,7 +6,7 @@ import logging, pytest, sys, time
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__])
+testParams = KModuleParams(sys.modules[__name__], ipv6_subnet='cafe::')
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
@@ -15,8 +15,7 @@ def main(consumers):
     assert scripts.replay_pcap_detached(testParams.pcap_folders[0], 0)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bgp'),
-        testParams.output_files.getFileLike('bgp-00'), [('cafe::1', 'fd25::101')],
-        ['seq', 'timestamp', 'peer_tcp_port', 'bgp_nexthop'])
+        testParams, 'bgp-00', ['seq', 'timestamp', 'peer_tcp_port', 'bgp_nexthop'])
 
 
     # Make sure the expected logs exist in pmacct log
