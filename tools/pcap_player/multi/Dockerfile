@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Copy the application files to the container
 COPY traffic-reproducer /app
-COPY run_traffic_reproducer.sh /app/
+COPY multi/run_traffic_reproducer.sh /app/
 
 RUN mkdir /pcap
 

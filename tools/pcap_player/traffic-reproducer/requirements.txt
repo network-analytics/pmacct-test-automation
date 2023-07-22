@@ -1,0 +1,4 @@
+prettytable
+PyYAML
+scapy==2.4.5
+wcwidth

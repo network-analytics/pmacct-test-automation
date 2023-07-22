@@ -142,13 +142,26 @@ def replay_pcap_detached(pcap_mount_folder: str, player_id: int) -> bool:
 
     return repro_info if success else None
 
-def replay_pcap_with_detached_docker_dual(pcap_mount_folder1: str, pcap_mount_folder2: str, player_id: int,
-                                          container_ip: str, ipv6_address: str = None) -> bool:
-    logger.info('Replaying dual pcap file from ' + pcap_mount_folder1 + ' and ' + pcap_mount_folder2 +
-                ' with DETACHED docker container')
-    logger.debug('Container IP: ' + container_ip + ' Ipv6: ' + str(ipv6_address))
-    args = ['./library/sh/traffic_docker/start_bg_dual.sh', pcap_mount_folder1, pcap_mount_folder2, str(player_id),
-            container_ip]
-    if ipv6_address != None:
-        args.append(ipv6_address)
-    return run_script(args)[0]
+def replay_pcap_detached_multi(pcap_mount_folder, player_id) -> bool:
+    logger.info('Replaying multiple pcap files from ' + pcap_mount_folder + ' with DETACHED docker container')
+
+    with open(pcap_mount_folder + '/pcap0/traffic-reproducer.conf') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    repro_info = data['network']['map'][0]
+    logger.info('Pcap player repro info: ' + str(repro_info))
+    args = ['./library/sh/traffic_docker/start_bg_multi.sh', pcap_mount_folder, str(player_id), repro_info['repro_ip']]
+
+    success = run_script(args)[0]
+
+    # success, output, error = run_script(args)
+    # logger.debug('Success: ' + str(success))
+    # if len(output) > 0:
+    #     lines = output.split('\n')
+    #     for line in lines:
+    #         logger.debug('Output: ' + line)
+    # if len(error):
+    #     lines = error.split('\n')
+    #     for line in lines:
+    #         logger.debug('Error: ' + line)
+
+    return repro_info if success else None

@@ -6,7 +6,7 @@
 #
 ###################################################
 
-import logging, os, secrets
+import logging, os, secrets, yaml, shutil
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
 import library.py.escape_regex as escape_regex
@@ -20,9 +20,6 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     # Replacing IP addresses in output json file with the ones anticipated from pmacct
     output_json_file = params.output_files.getFileLike(json_name)
     params.replace_IPs(output_json_file)
-    #helpers.replace_IPs(output_json_file)
-    #for pair in ip_subst_pairs:
-    #    helpers.replace_in_file(output_json_file, pair[0], pair[1])
 
     # Counting non empty json lines in output file, so that we know the number of anticipated messages
     line_count = helpers.count_non_empty_lines(output_json_file)
@@ -43,6 +40,40 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     # Comparing the received messages with the anticipated ones
     # output_json_file is a file (filename) with json lines
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
+
+
+def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
+    logger.info('Preparing multiple pcap files from ' + str(pcap_mount_folders))
+
+    def getREPROIPandBGPID(pcap_mount_folder):
+        logger.info('Pcap folder ' + pcap_mount_folder)
+        with open(pcap_mount_folder + '/traffic-reproducer.conf') as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+        repro_info = [data['network']['map'][0]['repro_ip'], None]
+        if 'bgp_id' in data['network']['map'][0]:
+            repro_info[1] = data['network']['map'][0]['bgp_id']
+        return repro_info
+
+    repro_info = getREPROIPandBGPID(pcap_mount_folders[0])
+    for i in range(1, len(pcap_mount_folders)):
+        if repro_info != getREPROIPandBGPID(pcap_mount_folders[i]):
+            logger.error('IP and/or BGP_ID for the same player do not match!')
+            return None
+
+    pcap_folder = results_folder + '/pcap_mount_' + secrets.token_hex(4)[:8]
+    os.makedirs(pcap_folder)
+
+    logger.info('Pcap player repro info: ' + str(repro_info))
+    logger.debug('Editing pcap folders and copying them together')
+    for i in range(len(pcap_mount_folders)):
+        dst = pcap_folder + '/pcap' + str(i)
+        shutil.copytree(pcap_mount_folders[i], dst)
+        helpers.replace_in_file(dst + '/traffic-reproducer.conf', '/pcap/traffic.pcap',
+                                '/pcap/pcap' + str(i) + '/traffic.pcap')
+
+    return pcap_folder
+
+
 
 # Transforms a provided log file, in terms of regex syntax and IP substitutions
 def transform_log_file(filename, repro_ip=None, bgp_id=None):

@@ -2,7 +2,7 @@
 from library.py.setup_tools import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import logging, pytest, sys, time
+import logging, pytest, sys, time, secrets
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
@@ -12,9 +12,10 @@ def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
 def transform_log_file(logfile):
-    helpers.replace_in_file(logfile, '${repro_ip}', 'ABCDEFGH')
+    token = secrets.token_hex(4)[:8]
+    helpers.replace_in_file(logfile, '${repro_ip}', token)
     test_tools.transform_log_file(logfile)
-    helpers.replace_in_file(logfile, "ABCDEFGH", '172.111.1.1\\d{2}') # we don't really know which one will come first
+    helpers.replace_in_file(logfile, token, '172.111.1.1\\d{2}') # we don't really know which one will come first
 
 def main(consumer):
     for i in range(len(testParams.pcap_folders)):

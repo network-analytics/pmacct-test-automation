@@ -119,7 +119,6 @@ def prepare_test_env(_module):
     results_pretag_files = select_files(params.results_mount_folder, '.+\\.map$')
     for results_pretag_file in results_pretag_files:
         params.replace_IPs(params.results_mount_folder + '/' + results_pretag_file)
-        #replace_IPs(params.results_mount_folder + '/' + results_pretag_file)
 
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
