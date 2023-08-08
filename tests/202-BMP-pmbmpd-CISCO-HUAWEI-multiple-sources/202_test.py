@@ -28,6 +28,9 @@ def main(consumer):
     logfile = testParams.log_files.getFileLike('log-00')
     transform_log_file(logfile)
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['\\[172\\.111\\.1\\.101] BMP peers usage'])
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['\\[172\\.111\\.1\\.102] BMP peers usage'])
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['\\[172\\.111\\.1\\.103] BMP peers usage'])
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
     for i in range(len(testParams.pcap_folders)):

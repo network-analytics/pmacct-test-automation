@@ -80,7 +80,7 @@ class KMessageReader:
                 messages.append(json.loads(msgval) if self.plainJson else msg.value())
                 messages_expected -= 1
                 if messages_expected>0:
-                    logger.info('Waiting for ' + str(messages_expected) + ' more messages')
+                    logger.debug('Waiting for ' + str(messages_expected) + ' more messages')
             time_now = round(time.time())
         if messages_expected<1:
             logger.info('Received the expected number of messages (' + str(message_count) + ')')

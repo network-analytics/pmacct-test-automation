@@ -25,9 +25,11 @@ def start_kafka_containers() -> bool:
 # It gets as input the full-path filename of the pmacct configuration file
 def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str,
                            pmacct_daemon_name: str) -> bool: #, pmacct_ip: str) -> bool:
-    logger.info("Starting pmacct container (daemon: " + pmacct_daemon_name + ")")
+    dckr_image = "pmacct/" + pmacct_daemon_name + ":bleeding-edge"
+    logger.info("Starting pmacct container, daemon: " + pmacct_daemon_name)
+    logger.info("Using docker image: " + dckr_image)
     return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath,
-                      pmacct_daemon_name])[0]
+                       pmacct_daemon_name, dckr_image])[0]
 
 # Deletes pmacct_test_network while tearing-down
 def delete_test_network() -> bool:

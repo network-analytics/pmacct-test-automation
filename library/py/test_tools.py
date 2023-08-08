@@ -24,8 +24,9 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     # Counting non empty json lines in output file, so that we know the number of anticipated messages
     line_count = helpers.count_non_empty_lines(output_json_file)
 
-    logger.info('Using json file ' + os.path.basename(output_json_file) + ', expecting ' + \
+    logger.info('Using json file ' + helpers.short_name(output_json_file) + ', expecting ' + \
                 str(line_count) + ' messages')
+    # os.path.basename(output_json_file)
 
     # Reading messages from Kafka topic
     # Max wait time for line_count messages is 120 seconds
@@ -39,6 +40,7 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
 
     # Comparing the received messages with the anticipated ones
     # output_json_file is a file (filename) with json lines
+    logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
 
@@ -91,6 +93,6 @@ def transform_log_file(filename, repro_ip=None, bgp_id=None):
         helpers.replace_in_file(filename, '${RANDOM}', token2)
     escape_regex.escape_file(filename)
     if helpers.file_contains_string(filename, token1):
-        helpers.replace_in_file(filename, token1, '\\d{4}\-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z')
+        helpers.replace_in_file(filename, token1, '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z')
     if helpers.file_contains_string(filename, token2):
         helpers.replace_in_file(filename, token2, '.+')
