@@ -114,9 +114,3 @@ def count_non_empty_lines(file_path: str) -> int:
             if len(line.strip()):
                 count += 1
     return count
-
-# def replace_IPs(filename: str):
-#     if file_contains_string(filename, '192.168.100.'):
-#         replace_in_file(filename, '192.168.100.', '172.111.1.10')
-#     if file_contains_string(filename, 'cafe::'):
-#         replace_in_file(filename, 'cafe::', 'fd25::10')

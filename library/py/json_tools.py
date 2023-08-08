@@ -1,7 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 #
-# helpers file for python auxiliary functions
+# json tools commonly used by framework functions
 #
 ###################################################
 

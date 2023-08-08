@@ -23,9 +23,11 @@ def start_kafka_containers() -> bool:
 # Starts pmacct container using docker run and returns success or not
 # If the pmacct container exists, it removes it using docker rm (pmacct needs to have exited)
 # It gets as input the full-path filename of the pmacct configuration file
-def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str) -> bool: #, pmacct_ip: str) -> bool:
-    logger.info("Starting pmacct container")
-    return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath])[0]
+def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str,
+                           pmacct_daemon_name: str) -> bool: #, pmacct_ip: str) -> bool:
+    logger.info("Starting pmacct container (daemon: " + pmacct_daemon_name + ")")
+    return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath,
+                      pmacct_daemon_name])[0]
 
 # Deletes pmacct_test_network while tearing-down
 def delete_test_network() -> bool:

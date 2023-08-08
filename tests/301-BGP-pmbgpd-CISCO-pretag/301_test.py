@@ -6,7 +6,7 @@ import logging, pytest, sys, time
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.', pmacct_config_filename='pmbgpd-00.conf')
+testParams = KModuleParams(sys.modules[__name__], daemon='pmbgpd', ipv4_subnet='192.168.100.')
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])

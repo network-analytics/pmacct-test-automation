@@ -1,13 +1,12 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 #
-# functions for Kafka consumption
+# class for Kafka consumption
 #
 ###################################################
 
 from confluent_kafka.avro import AvroConsumer
 from confluent_kafka import Consumer
-from confluent_kafka import cimpl
 import time, logging, json
 from typing import List
 logger = logging.getLogger(__name__)
@@ -58,7 +57,10 @@ class KMessageReader:
             f.write(msgval + '\n')
 
 
-    def get_messages(self, max_time_seconds: int, messages_expected: int) -> List[cimpl.Message]:
+    # Receives as input the maximum time to wait and the number of expected messages
+    # Returns a list of dictionaries representing the messages received, or None if fewer than expected messages
+    # (or no messages at all) were received
+    def get_messages(self, max_time_seconds: int, messages_expected: int) -> List[dict]:
         messages = []
         message_count = messages_expected
         time_start = round(time.time())
@@ -68,10 +70,13 @@ class KMessageReader:
             if not msg or msg.error():
                 logger.debug('No message from Kafka (or msg error), waiting (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
             else:
-                # If avro, message value arrives as json and needs dumping; if not, it's in byte format
+                # If avro, message value arrives as json and needs dumping; if not (plain json), then
+                # it's in byte format and needs decoding
                 msgval = msg.value().decode('utf-8') if self.plainJson else json.dumps(msg.value())
                 self.dump_if_needed(msgval)
                 logger.debug('Received message: ' + msgval)
+                # If plain json, then dictionary is created simply by loading the decoded value of the message
+                # If avro, then msg.value() is a dictionary already
                 messages.append(json.loads(msgval) if self.plainJson else msg.value())
                 messages_expected -= 1
                 if messages_expected>0:

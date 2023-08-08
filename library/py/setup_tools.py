@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class KModuleParams:
-    def __init__(self, _module, ipv4_subnet='', ipv6_subnet='', pmacct_config_filename=''):
+    def __init__(self, _module, daemon='nfacctd', ipv4_subnet='', ipv6_subnet=''):
+        self.daemon = daemon
         self.test_subnet_ipv4 = ipv4_subnet
         self.test_subnet_ipv6 = ipv6_subnet
-        self.pmacct_config_filename = pmacct_config_filename
         self.build_static_params(_module.__file__)
 
     def build_static_params(self, filename: str):
@@ -27,14 +27,7 @@ class KModuleParams:
         self.test_mount_folder = self.test_folder + '/pmacct_mount'
         self.pmacct_mount_folder = '/var/log/pmacct'
         self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
-        if self.pmacct_config_filename!='':
-            self.test_conf_file = self.test_folder + '/' + self.pmacct_config_filename
-        else:
-            self.test_conf_file = self.test_folder + '/pmacctd.conf'
-            if not os.path.isfile(self.test_conf_file):
-                fnames = select_files(self.test_folder, 'nfacctd.+conf$')
-                assert len(fnames)==1
-                self.test_conf_file = self.test_folder + '/' + fnames[0]
+        self.test_conf_file = self.test_folder + '/' + self.daemon + '-00.conf'
         self.results_folder = os.getcwd() + '/results/' + self.test_name
         self.results_conf_file = self.results_folder + '/pmacctd.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'

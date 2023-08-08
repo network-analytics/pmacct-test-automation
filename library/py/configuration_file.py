@@ -1,42 +1,33 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 #
-# class representing a configuration file, either
-# pmacct configuration, or traffic repro config
+# class representing a pmacct configuration file
 #
 ###################################################
 
 import re, logging
+from typing import List, Dict
 logger = logging.getLogger(__name__)
-
-def count_spaces(line: str) -> int:
-    count = 0
-    while line.startswith(' '):
-        count += 1
-        line = line[1:]
-    return count
 
 class KConfigurationFile:
     def __init__(self, filename: str):
         self.data = {}
         self.read_conf_file(filename)
 
-    # Changed all strips to right-only strips, to keep indentation (important in traffic-repro.conf)
     def read_conf_file(self, filename: str):
         self.data = {}
         with open(filename, 'r') as file:
             for line in file:
-                indent = count_spaces(line)
-                line = line.rstrip()
+                line = line.strip()
                 if '#' in line:
-                    line = line.split('#')[0].rstrip()
+                    line = line.split('#')[0].strip()
                 if '!' in line:
-                    line = line.split('!')[0].rstrip()
+                    line = line.split('!')[0].strip()
                 if len(line) < 1:
                     continue
                 if ':' in line:
                     key_value = line.split(':', 1)
-                    key = key_value[0].rstrip()
+                    key = key_value[0].strip()
                     value = key_value[1].strip()
                     match = re.match(r'^([^\[]+)\[([^\]]+)\]', key)
                     if match:
@@ -49,7 +40,7 @@ class KConfigurationFile:
                         self.data[main_key] = {}
                     self.data[main_key][sub_key] = value
 
-    # subkey='' means all subkeys values will be replaced
+    # subkey='' means all subkey values will be replaced
     def replace_value_of_key(self, key: str, value:str, subkey: str=None) -> bool:
         if key not in self.data:
             return False
@@ -68,7 +59,7 @@ class KConfigurationFile:
                         self.data[key][sk] = value
         return True
 
-    def get_kafka_topics(self):
+    def get_kafka_topics(self) -> Dict:
         retVal = {}
         for propname in self.data.keys():
             if propname.endswith('kafka_topic'):
@@ -77,7 +68,7 @@ class KConfigurationFile:
                 retVal[propname] = list(self.data[propname].values())[0]
         return retVal
 
-    def print_key_to_stringlist(self, key):
+    def print_key_to_stringlist(self, key: str) -> List[str]:
         lines = []
         for k in self.data[key]:
             if k=='':
@@ -86,7 +77,7 @@ class KConfigurationFile:
                 lines.append(key + '[' + k + ']: ' + self.data[key][k])
         return lines
 
-    def print_to_file(self, filename):
+    def print_to_file(self, filename: str):
         logger.debug('Dumping configuration to file: ' + filename)
         with open(filename, 'w') as f:
             for key in self.data:

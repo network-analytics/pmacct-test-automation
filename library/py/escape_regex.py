@@ -1,13 +1,21 @@
+###################################################
+# Automated Testing Framework for Network Analytics
+#
+# Tool for escaping regular expression special
+# characters, so that they have their literal sense
+#
+###################################################
+
 import sys
 import re
 import shutil
 
-def escape_regex_chars(pattern):
+def escape_regex_chars(pattern: str) -> str:
     special_chars = r'\^$.|?*+()[{\\'
     escaped_pattern = re.sub(fr'([{re.escape(special_chars)}])', r'\\\1', pattern)
     return escaped_pattern
 
-def escape_file(input_file):
+def escape_file(input_file: str):
     temp_file = input_file + ".tmp"
     backup_file = input_file + ".bak"
 
