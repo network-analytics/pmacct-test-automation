@@ -43,7 +43,6 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
-
 def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
     logger.info('Preparing multiple pcap files from ' + str(pcap_mount_folders))
 

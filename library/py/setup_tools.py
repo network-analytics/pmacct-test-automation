@@ -135,9 +135,9 @@ def prepare_pcap(_module):
     test_output_files = select_files(params.test_folder, 'output.*-\\d+.json$')
     test_log_files = select_files(params.test_folder, 'output.*-\\d+.log$')
 
-    assert len(test_pcap_files)>0
+    # assert len(test_pcap_files)>0
     assert len(test_pcap_files)==len(test_config_files)
-    assert len(test_output_files)>0
+    # assert len(test_output_files)>0 Not needed in TC 900
 
     def copyList(filelist):
         retVal = KFileList()

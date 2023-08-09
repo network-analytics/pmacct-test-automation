@@ -41,13 +41,13 @@ class KMessageReader:
             logger.debug('Consumer exists')
             self.consumer.close()
             logger.debug('Consumer closed')
+            self.consumer = None
+        else:
+            logger.debug('Consumer is already down')
 
     def __del__(self):
         logger.debug('Message reader destructor called')
-        if self.consumer:
-            logger.debug('Consumer exists')
-            self.consumer.close()
-            logger.debug('Consumer closed')
+        self.disconnect()
 
 
     def dump_if_needed(self, msgval: str):
