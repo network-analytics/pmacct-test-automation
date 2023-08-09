@@ -26,6 +26,8 @@ def start_kafka_containers() -> bool:
 def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str,
                            pmacct_daemon_name: str) -> bool: #, pmacct_ip: str) -> bool:
     dckr_image = "pmacct/" + pmacct_daemon_name + ":bleeding-edge"
+    if pmacct_daemon_name=='nfacctd':
+        dckr_image = 'remote-docker.artifactory.swisscom.com/pmacct/nfacctd:bleeding-edge'
     logger.info("Starting pmacct container, daemon: " + pmacct_daemon_name)
     logger.info("Using docker image: " + dckr_image)
     return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath,

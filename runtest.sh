@@ -6,9 +6,15 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+DRY_RUN="FALSE"
+if [[ "$1" == "--dry" ]]; then
+  DRY_RUN="TRUE"
+  shift
+fi
+
 LOG_LEVEL="DEBUG"
-if [[ "$1" == "-loglevel="* ]]; then
-  LOG_LEVEL=${1/-loglevel=/}
+if [[ "$1" == "--loglevel="* ]]; then
+  LOG_LEVEL=${1/--loglevel=/}
   shift
 fi
 
@@ -40,11 +46,12 @@ echo "Will run $count test files"
 echo "Selected: $test_files"
 
 if [ $count -eq 1 ]; then
-  #echo "One file: $test_files"
   test="${test_files:6:3}"
-  #echo "Test: $test"
   testdir=$( dirname $test_files )
-  #echo "TestDir: $testdir"
+  if [[ "$DRY_RUN" == "TRUE" ]]; then
+    echo "python -m pytest $test_files --log-cli-level=$LOG_LEVEL --html=results/report${test}.html"
+    exit 0
+  fi
   python -m pytest $test_files --log-cli-level=$LOG_LEVEL --html=results/report${test}.html
   echo "Moving report to the test case specific folder"
   mv results/report${test}.html ${testdir/tests/results}/
@@ -53,6 +60,10 @@ else
   rm -rf results/assets
   rm -f results/report.html
   echo "Multiple files"
+  if [[ "$DRY_RUN" == "TRUE" ]]; then
+    echo "python -m pytest $test_files --log-cli-level=$LOG_LEVEL --html=results/report.html"
+    exit 0
+  fi
   python -m pytest $test_files --log-cli-level=$LOG_LEVEL --html=results/report.html
 fi
 

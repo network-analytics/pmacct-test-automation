@@ -1,17 +1,13 @@
 ---
 version: '3'
 
-#networks:
-#  default:
-#    name: pmacct_test_network
-
 networks:
   pmacct_test_network:
     external: true
 
 services:
   zookeeper:
-    image: remote-docker.artifactory.swisscom.com/confluentinc/cp-zookeeper:7.3.0
+    image: confluentinc/cp-zookeeper:7.3.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -24,7 +20,7 @@ services:
 #      - "2181:2181" not required cause we don't use zookeeper from outside the docker-compose network
     
   broker:
-    image: remote-docker.artifactory.swisscom.com/confluentinc/cp-kafka:7.3.0
+    image: confluentinc/cp-kafka:7.3.0
     container_name: broker
     ports:
 #      - "29092:29092" such mapping not required cause 29092 only gives out network-internal hostnames
@@ -50,7 +46,7 @@ services:
         ipv6_address: fd25::11
       
   schema-registry:
-    image: remote-docker.artifactory.swisscom.com/confluentinc/cp-schema-registry:7.3.0
+    image: confluentinc/cp-schema-registry:7.3.0
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
