@@ -17,10 +17,13 @@ $ pip install -r requirements.txt
 
 To run on or more test cases:
 ```shell
-$ ./runtest.sh <test case number> [<test case number> ...]
+$ ./runtest.sh [--dry] [--loglevel=LOGLEVEL] <test case number or wildcard> [<test case number or wildcard> ...]
 e.g.
-$ ./runtest.sh 101
-$ ./runtest.sh 200 201 202
+$ ./runtest.sh 202 (run test 202 with default log level DEBUG)
+$ ./runtest.sh 101 102 201 301 (run tests 101, 102, 201 and 301 with log level DEBUG)
+$ ./runtest.sh --loglevel=INFO 2* (run all 2xx test cases with log level INFO)
+$ ./runtest.sh * (run all test cases with log level DEBUG)
+$ ./runtest.sh --dry --loglevel=INFO 4* (dry-run all 4xx test cases – the python pytest command will only be printed, not executed)
 
 ```
 
