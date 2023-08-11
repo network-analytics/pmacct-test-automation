@@ -19,9 +19,6 @@ def transform_log_file(logfile):
     test_tools.transform_log_file(logfile)
 
 def main(consumer):
-    # logger.debug('Waiting 10 sec')
-    # time.sleep(10)
-
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     transform_log_file(logfile)
@@ -30,9 +27,7 @@ def main(consumer):
 
     scripts.stop_and_remove_redis_container()
 
-    logger.debug('Waiting 30 seconds for pmacct to attempt sending to Redis')
-    time.sleep(30)
-
     logfile = testParams.log_files.getFileLike('log-01')
     test_tools.transform_log_file(logfile)
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    assert helpers.retry_until_true('Checking expected logs',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)

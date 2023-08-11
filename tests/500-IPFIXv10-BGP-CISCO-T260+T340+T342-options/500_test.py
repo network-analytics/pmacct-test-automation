@@ -23,15 +23,11 @@ def main(consumers):
         testParams, 'bgp-00',
         ['seq', 'timestamp', 'timestamp_arrival', 'peer_tcp_port', 'bgp_nexthop'])
 
-
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     test_tools.transform_log_file(logfile, repro_info['repro_ip'], repro_info['bgp_id'])
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
-
-    logger.info('Waiting 10 sec')
-    time.sleep(10)
 
     logger.info('Stopping traffic container (closing TCP connections)')
     assert scripts.stop_and_remove_traffic_container(0)

@@ -26,11 +26,10 @@ def main(consumers):
 
     scripts.stop_and_remove_traffic_container(0)
 
-    logger.debug('Waiting 10 sec')
-    time.sleep(10)  # needed for the last regex (WARNING) to be found in the logs!
-
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-01')
     test_tools.transform_log_file(logfile, repro_info['repro_ip'], repro_info['bgp_id'])
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    # Retry needed for the last regex (WARNING) to be found in the logs
+    assert helpers.retry_until_true('Checking expected logs',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])

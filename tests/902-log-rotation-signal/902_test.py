@@ -13,9 +13,6 @@ def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
 def main(consumer):
-    logger.debug('Waiting 10 sec')
-    time.sleep(10)
-
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     test_tools.transform_log_file(logfile)

@@ -51,11 +51,10 @@ def main(consumer):
                                                     ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
     scripts.stop_and_remove_traffic_container(2)
-    logger.debug('Waiting 10 sec')
-    time.sleep(10)
 
     logfile = testParams.log_files.getFileLike('log-01')
     test_tools.transform_log_file(logfile, repro_info_multi['repro_ip'], repro_info_multi['bgp_id'])
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    assert helpers.retry_until_true('Checking expected logs',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file,
                                                     ['ERROR|WARNING(?!.*Unable to get kafka_host)'])

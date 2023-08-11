@@ -35,6 +35,12 @@ $ python -m pytest tests/001-IPFIXv10-cisco-T260+261 --log-cli-level=DEBUG --htm
 
 ```
 
+In exceptional situations, e.g. when setup or teardown fails or is stopped, there may be some remaining components left running.
+To stop Kafka components, including the created network, do:
+```shell
+$ tools/stop_all.sh
+
+```
 
 Local folder results/<test case>/pmacct_mount is mounted on pmacct container's folder /var/log/pmacct
 

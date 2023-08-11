@@ -2,6 +2,7 @@
 import library.py.scripts as scripts
 import library.py.setup_tools as setup_tools
 import logging, pytest, os
+import library.py.helpers as helpers
 from library.py.kafka_consumer import KMessageReader, KMessageReaderList
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,9 @@ def setup_pmacct(request):
         assert scripts.create_or_clear_kafka_topic(topic)
     assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder, params.daemon)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
-
+    def checkFirstLog():
+        return helpers.check_regex_sequence_in_file(params.pmacct_log_file, ['_core/core.+ Daemon, '])
+    assert helpers.retry_until_true('Pmacct first log line', checkFirstLog, 30, 5)
 
 @pytest.fixture(scope="module")
 def pmacct_setup_teardown(request):

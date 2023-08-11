@@ -18,14 +18,11 @@ def main(consumer):
         ['timestamp_start', 'timestamp_end', 'timestamp_arrival', 'timestamp_min', 'timestamp_max',
          'stamp_inserted', 'stamp_updated'])
 
-    #assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
-    logger.info('Waiting 15 seconds')
-    time.sleep(15)  # needed for the last message ('Purging cache - END (PID: xx, QN: 51/51, ET: 0)') to exist in logs
-    #assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, testParams.log_files.getFileLike('log-00'))
-
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     test_tools.transform_log_file(logfile)
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    # retry needed for the last message ('Purging cache - END (PID: xx, QN: 51/51, ET: 0)') to exist in logs
+    assert helpers.retry_until_true('Checking expected logs',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 

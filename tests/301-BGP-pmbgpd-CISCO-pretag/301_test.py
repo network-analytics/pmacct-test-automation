@@ -18,11 +18,12 @@ def main(consumer):
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-00', ['seq', 'timestamp', 'peer_tcp_port'])
 
     # Make sure the expected logs exist in pmacct log
-    logger.info('Waiting 15 seconds')
-    time.sleep(15)  # needed for the last regex (WARNING) to be found in the logs!
+    #logger.info('Waiting 15 seconds')
+    #time.sleep(15)  # needed for the last regex (WARNING) to be found in the logs!
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     test_tools.transform_log_file(logfile, repro_info['repro_ip'], repro_info['bgp_id'])
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    assert helpers.retry_until_true('Checking expected logs',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])

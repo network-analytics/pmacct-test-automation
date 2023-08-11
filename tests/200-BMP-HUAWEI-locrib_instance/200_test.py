@@ -23,13 +23,11 @@ def main(consumer):
         ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
 
     # Make sure the expected logs exist in pmacct log
-    logger.info('Waiting 15 seconds')
-    time.sleep(15)  # needed for the last regex (WARNING) to be found in the logs!
-
-    # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     transform_log_file(logfile, repro_info['repro_ip'])
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    # Retry needed for the last regex (WARNING) to be found in the logs!
+    assert helpers.retry_until_true('Checking expected logs',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
 

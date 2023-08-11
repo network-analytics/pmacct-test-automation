@@ -19,18 +19,17 @@ def main(consumers):
         'bmp-00', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
 
     # Make sure the expected logs exist in pmacct log
-    logger.info('Waiting 15 seconds')
-    time.sleep(15)  # needed for the last regex (WARNING) to be found in the logs!
-
-    # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     test_tools.transform_log_file(logfile, repro_info['repro_ip'])
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    # Retry needed for the last regex (WARNING) to be found in the logs
+    assert helpers.retry_until_true('Checking expected logs',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
-    logger.info('Waiting 2 minutes')
-    time.sleep(120)
+    logfile = testParams.log_files.getFileLike('log-01')
+    test_tools.transform_log_file(logfile)
+    assert helpers.retry_until_true('Checking expected logs',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 180, 10)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp.dump'), testParams,
         'bmp-01', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
-

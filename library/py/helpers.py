@@ -5,7 +5,8 @@
 #
 ###################################################
 
-import os, re, logging
+import os, re, logging, time
+from typing import Callable
 from typing import List
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ def file_contains_string(file_path: str, text: str) -> bool:
 # Return true if all regular expressions in "regexes" are matched against the content of file "file_path"
 # in the given order, false otherwise
 def check_regex_sequence_in_file(file_path: str, regexes: List[str]) -> bool:
-    logger.debug('Checking file ' + file_path + ' for patterns ' + str(regexes))
+    logger.debug('Checking file ' + file_path + ' for regex patterns')
     with open(file_path, 'r') as file:
         text = file.read()
         start = 0
@@ -114,3 +115,17 @@ def count_non_empty_lines(file_path: str) -> int:
             if len(line.strip()):
                 count += 1
     return count
+
+def retry_until_true(checkmessage: str, checkfunc: Callable, seconds: int, sec_repeat: int =1) -> bool:
+    logger.info('Waiting for: ' + checkmessage)
+    out = checkfunc()
+    while not out:
+        seconds -= sec_repeat
+        if seconds < 0:
+            logger.info('Timed out: ' + checkmessage)
+            return False
+        time.sleep(sec_repeat)
+        logger.info('Still waiting for: ' + checkmessage + ' (remaining ' + str(seconds) + ' seconds)')
+        out = checkfunc()
+    logger.info('Succeeded: ' + checkmessage)
+    return True
