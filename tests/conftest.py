@@ -43,6 +43,12 @@ def pmacct_setup_teardown(request):
     scripts.stop_and_remove_all_traffic_containers()
     scripts.stop_and_remove_pmacct_container()
 
+@pytest.fixture(scope="module")
+def redis_setup_teardown(request):
+    assert scripts.start_redis_container()
+    assert scripts.wait_redis_running(5)  # wait up to 5 seconds
+    yield
+    scripts.stop_and_remove_redis_container()
 
 # For troubleshooting/debugging only!
 @pytest.fixture(scope="module")

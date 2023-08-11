@@ -33,6 +33,11 @@ def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: 
     return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath,
                        pmacct_daemon_name, dckr_image])[0]
 
+# Starts Redis container
+def start_redis_container() -> bool:
+    logger.info("Starting Redis container")
+    return run_script(['./library/sh/redis_docker/start.sh'])[0]
+
 # Deletes pmacct_test_network while tearing-down
 def delete_test_network() -> bool:
     logger.info("Deleting test network (pmacct_test_network)")
@@ -47,6 +52,11 @@ def stop_and_remove_kafka_containers() -> bool:
 def stop_and_remove_pmacct_container() -> bool:
     logger.info("Stopping and removing pmacct container")
     return run_script(['./library/sh/pmacct_docker/stop.sh'])[0]
+
+# Stops and removes Redis container
+def stop_and_remove_redis_container() -> bool:
+    logger.info("Stopping Redis container")
+    return run_script(['./library/sh/redis_docker/stop.sh'])[0]
 
 # Stops traffic-reproducer container using docker stop and docker rm and returns success or not
 def stop_and_remove_traffic_container(traffic_id: int) -> bool:
@@ -64,6 +74,13 @@ def wait_pmacct_running(seconds: int) -> bool:
     def checkfunction(out):
         return out[0] and not 'false' in out[1].lower()
     return wait_for_container('./library/sh/docker_tools/check-container-running.sh', 'pmacct', checkfunction, seconds)
+
+# Waits for redis container to be reported as running and return success or not
+# seconds: maximum time to wait for pmacct
+def wait_redis_running(seconds: int) -> bool:
+    def checkfunction(out):
+        return out[0] and 'pong' in out[1].lower()
+    return wait_for_container('./library/sh/docker_tools/check-redis-running.sh', 'redis', checkfunction, seconds)
 
 # Checks if broker container is running or not and return boolean value
 def check_broker_running() -> bool:

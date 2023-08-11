@@ -38,7 +38,7 @@ def run_script(command: List[str]) -> (bool, str, str):
 # name: the name of the container
 # checkfunc: the function that checks whether the desired state has been reached. It takes as input a
 #    tuple of the form (bool, str) and returns True or False, in terms of the state having been reached or not
-def wait_for_container(command: List[str], name: str, checkfunc: Callable[[Tuple[bool, str]], bool], seconds: int, \
+def wait_for_container(command: str, name: str, checkfunc: Callable[[Tuple[bool, str]], bool], seconds: int, \
                        sec_update: int =1) -> bool:
     logger.info('Waiting for ' + name + ' to be functional')
     out = run_script([command, name])

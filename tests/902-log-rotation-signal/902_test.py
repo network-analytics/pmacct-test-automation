@@ -26,6 +26,9 @@ def main(consumer):
     assert not os.path.isfile(testParams.pmacct_log_file)
     logger.info('Log file deleted')
 
+    #logger.debug('SEND SIGHUP SIGNAL (Waiting 180 sec)')
+    #time.sleep(180)
+
     # Sending the signal to recreate log file
     assert scripts.send_signal_to_pmacct('SIGHUP')
 

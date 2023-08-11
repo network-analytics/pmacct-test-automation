@@ -103,6 +103,7 @@ def prepare_test_env(_module):
     config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key_ending_with('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
     config.replace_value_of_key_ending_with('kafka_avro_schema_registry', 'http://schema-registry:8081')
+    config.replace_value_of_key('redis_host', '172.111.1.14:6379')
 
     # Output to new conf file in mount folder
     config.print_to_file(params.results_conf_file)

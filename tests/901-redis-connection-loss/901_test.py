@@ -8,33 +8,31 @@ logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
-def test(test_core, consumer_setup_teardown):
+# added redis fixture below, that's why the test_core fixture is not used here
+def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, redis_setup_teardown, pmacct_setup_teardown,
+         prepare_pcap, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
+def transform_log_file(logfile):
+    helpers.replace_in_file(logfile, '${redis_ip}', '172.111.1.14')
+    helpers.replace_in_file(logfile, '${redis_port}', '6379')
+    test_tools.transform_log_file(logfile)
+
 def main(consumer):
-    logger.debug('Waiting 10 sec')
-    time.sleep(10)
+    # logger.debug('Waiting 10 sec')
+    # time.sleep(10)
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
-    test_tools.transform_log_file(logfile)
+    transform_log_file(logfile)
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
-    #consumer.get_messages(120, 1)
-    consumer.disconnect() # For the Kafka consumer not to hang when Kafka is killed
-    scripts.stop_and_remove_kafka_containers()
+    scripts.stop_and_remove_redis_container()
 
-    assert scripts.replay_pcap(testParams.pcap_folders[0])
-
-    logger.debug('Waiting 90 seconds for pmacct to attempt sending to Kafka')
-    time.sleep(90)
+    logger.debug('Waiting 30 seconds for pmacct to attempt sending to Redis')
+    time.sleep(30)
 
     logfile = testParams.log_files.getFileLike('log-01')
     test_tools.transform_log_file(logfile)
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-
-    scripts.stop_and_remove_traffic_container(0)
-
-    assert scripts.start_kafka_containers()
-    assert scripts.wait_schemaregistry_healthy(120)
