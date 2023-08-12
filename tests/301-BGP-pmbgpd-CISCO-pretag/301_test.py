@@ -2,7 +2,7 @@
 from library.py.setup_tools import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import logging, pytest, sys, time
+import logging, pytest, sys
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
@@ -16,10 +16,6 @@ def main(consumer):
     assert repro_info
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-00', ['seq', 'timestamp', 'peer_tcp_port'])
-
-    # Make sure the expected logs exist in pmacct log
-    #logger.info('Waiting 15 seconds')
-    #time.sleep(15)  # needed for the last regex (WARNING) to be found in the logs!
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')

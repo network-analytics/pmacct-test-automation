@@ -116,16 +116,29 @@ def count_non_empty_lines(file_path: str) -> int:
                 count += 1
     return count
 
-def retry_until_true(checkmessage: str, checkfunc: Callable, seconds: int, sec_repeat: int =1) -> bool:
+# Checks if the checkfunc function returns True. Repeats every sec_repeat seconds until it returns True, or until
+# time reaches max_seconds
+def retry_until_true(checkmessage: str, checkfunc: Callable, max_seconds: int, sec_repeat: int =1) -> bool:
     logger.info('Waiting for: ' + checkmessage)
     out = checkfunc()
     while not out:
-        seconds -= sec_repeat
-        if seconds < 0:
+        max_seconds -= sec_repeat
+        if max_seconds < 0:
             logger.info('Timed out: ' + checkmessage)
             return False
         time.sleep(sec_repeat)
-        logger.info('Still waiting for: ' + checkmessage + ' (remaining ' + str(seconds) + ' seconds)')
+        logger.info('Still waiting for: ' + checkmessage + ' (remaining ' + str(max_seconds) + ' seconds)')
         out = checkfunc()
     logger.info('Succeeded: ' + checkmessage)
     return True
+
+# Loads a conf file (key=value) into a dictionary
+def read_config_file(filename):
+    conf_data = {}
+    with open(filename, "r") as file:
+        for line in file:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                key, value = line.split("=", 1)
+                conf_data[key] = value
+    return conf_data

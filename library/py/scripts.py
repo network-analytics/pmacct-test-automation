@@ -7,7 +7,7 @@
 ###################################################
 
 from library.py.script_tools import *
-import re, logging, os, yaml
+import logging, yaml
 logger = logging.getLogger(__name__)
 
 
@@ -24,14 +24,11 @@ def start_kafka_containers() -> bool:
 # If the pmacct container exists, it removes it using docker rm (pmacct needs to have exited)
 # It gets as input the full-path filename of the pmacct configuration file
 def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str,
-                           pmacct_daemon_name: str) -> bool: #, pmacct_ip: str) -> bool:
-    dckr_image = "pmacct/" + pmacct_daemon_name + ":bleeding-edge"
-    if pmacct_daemon_name=='nfacctd':
-        dckr_image = 'remote-docker.artifactory.swisscom.com/pmacct/nfacctd:bleeding-edge'
+                           pmacct_daemon_name: str, pmacct_image: str) -> bool:
     logger.info("Starting pmacct container, daemon: " + pmacct_daemon_name)
-    logger.info("Using docker image: " + dckr_image)
+    logger.info("Using docker image: " + pmacct_image)
     return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath,
-                       pmacct_daemon_name, dckr_image])[0]
+                       pmacct_daemon_name, pmacct_image])[0]
 
 # Starts Redis container
 def start_redis_container() -> bool:
