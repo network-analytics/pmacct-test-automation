@@ -16,7 +16,7 @@ fi
 docker run -v "$PMACCT_CONF":/etc/pmacct/${PMACCT_DAEMON}.conf \
            -v "$PMACCT_MOUNT":/var/log/pmacct \
            --network pmacct_test_network \
-           --ip 172.111.1.13 \
+           --ip 172.21.1.13 \
            --ip6 fd25::13 \
            --name pmacct \
            $PMACCT_IMAGE >/dev/null 2>&1 &

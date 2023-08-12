@@ -41,7 +41,7 @@ class KModuleParams:
 
     def replace_IPs(self, filename: str):
         if self.test_subnet_ipv4!='' and file_contains_string(filename, self.test_subnet_ipv4):
-            replace_in_file(filename, self.test_subnet_ipv4, '172.111.1.10')
+            replace_in_file(filename, self.test_subnet_ipv4, '172.21.1.10')
         if self.test_subnet_ipv6!='' and file_contains_string(filename, self.test_subnet_ipv6):
             replace_in_file(filename, self.test_subnet_ipv6, 'fd25::10')
 
@@ -103,7 +103,7 @@ def prepare_test_env(_module):
     config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key_ending_with('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
     config.replace_value_of_key_ending_with('kafka_avro_schema_registry', 'http://schema-registry:8081')
-    config.replace_value_of_key('redis_host', '172.111.1.14:6379')
+    config.replace_value_of_key('redis_host', '172.21.1.14:6379')
 
     # Output to new conf file in mount folder
     config.print_to_file(params.results_conf_file)
@@ -164,7 +164,7 @@ def prepare_pcap(_module):
 
         # adding pmacct IP address
         isIPv6 = ':' in data['network']['map'][0]['repro_ip']
-        pmacct_ip = 'fd25::13' if isIPv6 else '172.111.1.13'
+        pmacct_ip = 'fd25::13' if isIPv6 else '172.21.1.13'
         logger.debug('Traffic uses ' + ('IPv6' if isIPv6 else 'IPv4'))
         for k in ['bmp', 'bgp', 'ipfix']:
             if k in data:
@@ -179,7 +179,7 @@ def prepare_pcap(_module):
             if len(params.test_subnet_ipv4)<1:
                 raise Exception('IPv4 used, but subnet not set in test case')
             data['network']['map'][0]['repro_ip'] = data['network']['map'][0]['repro_ip'].\
-                replace(params.test_subnet_ipv4, '172.111.1.10')
+                replace(params.test_subnet_ipv4, '172.21.1.10')
 
         with open(results_pcap_folder + '/traffic-reproducer.conf', 'w') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)

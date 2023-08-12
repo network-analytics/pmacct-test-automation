@@ -14,7 +14,7 @@ def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, redis_setup_t
     main(consumer_setup_teardown[0])
 
 def transform_log_file(logfile):
-    helpers.replace_in_file(logfile, '${redis_ip}', '172.111.1.14')
+    helpers.replace_in_file(logfile, '${redis_ip}', '172.21.1.14')
     helpers.replace_in_file(logfile, '${redis_port}', '6379')
     test_tools.transform_log_file(logfile)
 

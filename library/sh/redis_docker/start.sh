@@ -12,7 +12,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/../../../settings.conf
 
 # deploy Redis container
-docker run --ip 172.111.1.14 \
+docker run --ip 172.21.1.14 \
            --ip6 fd25::14 \
            --name redis \
            $REDIS_IMG >/dev/null 2>&1 &

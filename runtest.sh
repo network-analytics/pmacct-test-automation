@@ -12,7 +12,7 @@ if [[ "$1" == "--dry" ]]; then
   shift
 fi
 
-LOG_LEVEL="DEBUG"
+LOG_LEVEL="INFO"
 if [[ "$1" == "--loglevel="* ]]; then
   LOG_LEVEL=${1/--loglevel=/}
   shift
