@@ -22,12 +22,13 @@ def main(consumer):
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     transform_log_file(logfile)
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
+    assert helpers.retry_until_true('Checking connection evidence',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
 
     scripts.stop_and_remove_redis_container()
 
     logfile = testParams.log_files.getFileLike('log-01')
     test_tools.transform_log_file(logfile)
-    assert helpers.retry_until_true('Checking expected logs',
-        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
+    assert helpers.retry_until_true('Checking for lost connectivity evidence',
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 90, 10)

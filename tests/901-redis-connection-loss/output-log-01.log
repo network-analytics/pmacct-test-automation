@@ -1,2 +1,2 @@
-#${TIMESTAMP} ERROR ( nfacctd_kafka/kafka/redis ): Can't connect to redis server: ${IGNORE_REST}
-${TIMESTAMP} ERROR ( nfacctd_core/core/redis ): Can't connect to redis server: ${IGNORE_REST}
+${TIMESTAMP} WARN ( nfacctd_kafka/kafka/redis ): Can't connect to redis server: ${IGNORE_REST}
+${TIMESTAMP} WARN ( nfacctd_core/core/redis ): Can't connect to redis server: ${IGNORE_REST}
