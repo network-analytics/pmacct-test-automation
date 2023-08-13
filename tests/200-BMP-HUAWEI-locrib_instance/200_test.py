@@ -29,9 +29,3 @@ def main(consumer):
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
-
-
-# Underscore prevents the test from being run by pytest
-# For troubleshooting: sets up kafka infra and pmacct
-def t_est_start_pmacct(check_root_dir, kafka_infra_setup, prepare_test, prepare_config_local, prepare_pcap, pmacct_setup):
-    assert True

@@ -28,18 +28,23 @@ lsout="$( ls | tr '\n' ' ')"
 
 if [[ "$myarg" == "$lsout"  ]]; then
   # argument was an asterisk
-  test_files="$( ls -d tests/**/*test*.py )"
+  test_files="$( ls -d tests/**/*test*.py 2>/dev/null )"
   test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
 else
   # argument was not an asterisk
   test_files=""
   for arg in "$@"; do
-    test_files="$test_files $( ls -d tests/${arg}*/*test*.py )"
+    test_files="$test_files $( ls -d tests/${arg}*/*test*.py 2>/dev/null )"
   done
   test_files="${test_files## }"
 fi
 
 count="$( echo "$test_files" | wc -w )"
+
+if [ $count -lt 1 ]; then
+  echo "No test case(s) found"
+  exit 1
+fi
 
 echo "Will run $count test files"
 

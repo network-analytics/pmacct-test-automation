@@ -111,3 +111,7 @@ def prepare_pcap(request):
 @pytest.fixture(scope="module")
 def test_core(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap):
     pass
+
+@pytest.fixture(scope="module")
+def debug_core(check_root_dir, prepare_test, pmacct_setup, prepare_pcap):
+    pass

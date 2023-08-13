@@ -8,5 +8,5 @@ library/sh/docker_tools/clear-topic.json
 *.html
 assets/*
 results_working
-
+**/*.tmp
 
