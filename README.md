@@ -80,6 +80,23 @@ e.g.
 tools/start_pmacct.sh 302
 ```
 
+To play pcap file from a specific pcap folder (i.e., which contains a pcap file and a config file).
+Note: the pcap folder must have been created in the corresponding results folder, 
+if the start_pmacct script has been used for deploying pmacct:
+```shell
+tools/play_traffic.sh <full-path-to-pcap-folder> <IP address of the pcap player>
+e.g.
+tools/play_traffic.sh /Users/myusername/Documents/net_ana/results/200-BMP-HUAWEI-locrib_instance/pcap_mount_0 172.21.1.101
+```
+
+To display all available (pending) messages from a Kafka topic
+(note: the actual Kafka topic name is listed in the pmacct config file in the results folder of the test case):
+```shell
+tools/get_pending_kafka_messages.sh <Kafka topic name>
+e.g.
+tools/get_pending_kafka_messages.sh daisy.bmp.19f5021c
+```
+
 ## Fixtures explained
 
 **check_root_dir** makes sure pytest is run from the top level directory of the framework
