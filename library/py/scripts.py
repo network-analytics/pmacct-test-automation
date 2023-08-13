@@ -81,7 +81,7 @@ def wait_redis_running(seconds: int) -> bool:
 
 # Checks if broker container is running or not and return boolean value
 def check_broker_running() -> bool:
-    logger.info("Checking if broker is running")
+    logger.info("Checking if Kafka broker is running")
     return run_script(['./library/sh/docker_tools/check-container-running.sh', 'broker'])[0]
 
 # Sends signal to container

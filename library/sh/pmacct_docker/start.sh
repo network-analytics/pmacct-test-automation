@@ -13,10 +13,10 @@ if [ $? -ne 1 ]; then
 fi
 
 # deploy pmacct container
-docker run -v "$PMACCT_CONF":/etc/pmacct/${PMACCT_DAEMON}.conf \
+docker run -d -v "$PMACCT_CONF":/etc/pmacct/${PMACCT_DAEMON}.conf \
            -v "$PMACCT_MOUNT":/var/log/pmacct \
            --network pmacct_test_network \
            --ip 172.21.1.13 \
            --ip6 fd25::13 \
            --name pmacct \
-           $PMACCT_IMAGE >/dev/null 2>&1 &
+           $PMACCT_IMAGE

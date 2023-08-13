@@ -85,7 +85,6 @@ def prepare_test_env(_module):
     params = _module.testParams
     config = KConfigurationFile(_module.testParams.test_conf_file)
 
-    # logger.info('Test name: ' + params.test_name)
     topicsDict = config.get_kafka_topics()
     for k in topicsDict.keys():
         params.kafka_topics[k] = topicsDict[k] + '.' + secrets.token_hex(4)[:8]

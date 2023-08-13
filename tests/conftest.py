@@ -40,7 +40,8 @@ def setup_pmacct(request):
         pmacct_img)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
     assert helpers.retry_until_true('Pmacct first log line',
-        lambda: helpers.check_regex_sequence_in_file(params.pmacct_log_file, ['_core/core.+ Daemon, ']), 30, 5)
+        lambda: helpers.check_regex_sequence_in_file(params.pmacct_log_file,
+                                                     ['_core/core .+ waiting for .+ data on interface']), 30, 5)
 
 @pytest.fixture(scope="module")
 def pmacct_setup_teardown(request):
