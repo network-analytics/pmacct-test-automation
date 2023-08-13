@@ -109,9 +109,26 @@ def prepare_pcap(request):
     setup_tools.prepare_pcap(request.module)
 
 @pytest.fixture(scope="module")
-def test_core(check_root_dir, kafka_infra_setup_teardown, prepare_test, pmacct_setup_teardown, prepare_pcap):
+def debug_core(check_root_dir, prepare_test, pmacct_setup, prepare_pcap):
     pass
 
 @pytest.fixture(scope="module")
-def debug_core(check_root_dir, prepare_test, pmacct_setup, prepare_pcap):
+def test_name_logging(request):
+    params = request.module.testParams
+    txt = 'Starting test: ' + params.test_name
+    logger.info('*' * len(txt))
+    logger.info('*' * len(txt))
+    logger.info('Starting test: ' + params.test_name)
+    logger.info('*' * len(txt))
+    logger.info('*' * len(txt))
+    yield
+    logger.info('*' * len(txt))
+    logger.info('*' * len(txt))
+    logger.info('Finishing test: ' + params.test_name)
+    logger.info('*' * len(txt))
+    logger.info('*' * len(txt))
+
+@pytest.fixture(scope="module")
+def test_core(check_root_dir, kafka_infra_setup_teardown, test_name_logging, prepare_test, pmacct_setup_teardown,
+              prepare_pcap):
     pass
