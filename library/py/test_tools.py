@@ -44,10 +44,11 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
 def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
-    logger.info('Preparing multiple pcap files from ' + str(pcap_mount_folders))
+    folder_names = ', '.join([helpers.short_name(folder) for folder in pcap_mount_folders])
+    logger.info('Preparing multi-pcap player container...')
+    logger.info('Creating common mount pcap folder for folders: ' + folder_names)
 
     def getREPROIPandBGPID(pcap_mount_folder):
-        logger.info('Pcap folder ' + pcap_mount_folder)
         with open(pcap_mount_folder + '/traffic-reproducer.conf') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
         repro_info = [data['network']['map'][0]['repro_ip'], None]
@@ -63,6 +64,7 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
 
     pcap_folder = results_folder + '/pcap_mount_' + secrets.token_hex(4)[:8]
     os.makedirs(pcap_folder)
+    logger.info('Created following common mount pcap folder: ' + helpers.short_name(pcap_folder))
 
     logger.info('Pcap player repro info: ' + str(repro_info))
     logger.debug('Editing pcap folders and copying them together')

@@ -3,6 +3,7 @@
 PCAP_MOUNT_DIR="$1"
 ID="$2"
 IP_ADDRESS="$3"
+MULTI_OR_EMPTY="$4" # either "-multi", or an empty string
 
 IP_OPT="--ip"
 if [[ "$IP_ADDRESS" == *"::"* ]]; then
@@ -14,4 +15,4 @@ docker run -d -v ${PCAP_MOUNT_DIR}:/pcap \
           --network pmacct_test_network \
           $IP_OPT $IP_ADDRESS \
           --name traffic-reproducer-"$ID" \
-          traffic-reproducer
+          traffic-reproducer${MULTI_OR_EMPTY}
