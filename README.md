@@ -13,25 +13,32 @@ Install Python project dependencies:
 $ pip install -r requirements.txt
 ```
 
+Build single- and multi-pcap traffic reproducer images
+```shell
+$ cd tools/pcap_player
+$ docker build -t traffic-reproducer -f single/Dockerfile .
+$ docker build -t traffic-reproducer-multi -f multi/Dockerfile .
+```
+
 ## How To Run
 
-To run on or more test cases:
+To run one or more test cases:
 ```shell
 $ ./runtest.sh [--dry] [--loglevel=LOGLEVEL] <test case number or wildcard> [<test case number or wildcard> ...]
 e.g.
-$ ./runtest.sh 202 (run test 202 with default log level DEBUG)
-$ ./runtest.sh 101 102 201 301 (run tests 101, 102, 201 and 301 with log level DEBUG)
+$ ./runtest.sh 202 (run test 202 with default log level INFO)
+$ ./runtest.sh 101 102 201 301 (run tests 101, 102, 201 and 301 with log level INFO)
 $ ./runtest.sh --loglevel=INFO 2* (run all 2xx test cases with log level INFO)
-$ ./runtest.sh * (run all test cases with log level DEBUG)
-$ ./runtest.sh --dry --loglevel=INFO 4* (dry-run all 4xx test cases – the python pytest command will only be printed, not executed)
+$ ./runtest.sh * (run all test cases with log level INFO)
+$ ./runtest.sh --dry --loglevel=DEBUG 4* (dry-run all 4xx test cases – the python pytest command will only be printed, not executed)
 
 ```
 
-To run test cases with python and pytest:
+To run test cases with python and pytest (without the added functionality of ./runtests.sh):
 ```shell
 $ python -m pytest tests/<test case name> --log-cli-level=<log level> --html=<report html file>
 e.g.
-$ python -m pytest tests/001-IPFIXv10-cisco-T260+261 --log-cli-level=DEBUG --html=smokereport.html
+$ python -m pytest tests/300-BGP-IPv6-CISCO-extNH_enc --log-cli-level=DEBUG --html=report.html
 
 ```
 
@@ -47,47 +54,30 @@ Local folder results/<test case>/pmacct_mount is mounted on pmacct container's f
 Local folder(s) results/<test case>/pcap_mount_n are mounted on traffic reproducer container's folder /pcap
 
 
-## Debugging and Developing
+## Debugging and Developing Test Cases
 
 While at net_ana root directory,
 
 To create the pmacct test network:
 ```shell
-library/sh/test_network/create.sh
+tools/start_network.sh
 ```
 
 To start Kafka infrastructure (pmacct test network required):
 ```shell
-library/sh/kafka_compose/start.sh
+tools/start_kafka.sh
 ```
 
-To send ipfix packets for 1 second
+To start Redis, if needed (pmacct test network required):
 ```shell
-sudo python3 ./traffic_generators/ipfix/play_ipfix_packets.py -S 10.1.1.1 -D 1 -F 15 -C 1 -w 10 -p 2929
+tools/start_redis.sh
 ```
 
-Do:
-python -m pytest tests/skeleton/test.py -k 'read' --log-cli-level=DEBUG
-for reading available Kafka messages
-
-To stop pmacct:
+To start pmacct with the EXACT configuration of a specific test case:
 ```shell
-library/sh/pmacct_docker/stop.sh
-```
-
-To stop Kafka infrastructure:
-```shell
-library/sh/kafka_compose/stop.sh
-```
-
-To delete pmacct_test_network:
-```shell
-library/sh/test_network/delete.sh
-```
-
-To run all tests (make sure to first delete existing results/assets and results/report.html):
-```shell
-python -m pytest -r tests/*/test.py --log-cli-level=INFO --html=results/report.html
+tools/start_pmacct.sh <test_case_number>
+e.g.
+tools/start_pmacct.sh 302
 ```
 
 ## Fixtures explained
