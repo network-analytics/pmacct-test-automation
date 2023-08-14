@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if docker inspect pmacct >/dev/null 2>&1; then
+    echo "Pmacct container already exists, please remove it first"
+    exit 0
+fi
+
 # exit if there is no argument
 if [ -z "$1" ]; then
   echo "No argument supplied"
@@ -32,7 +37,5 @@ $params_line
 def test(debug_core):
     pass
 EOL
-
-cat ${test_file}.tmp
 
 python -m pytest $test_filename --log-cli-level=DEBUG
