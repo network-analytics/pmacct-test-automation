@@ -118,18 +118,13 @@ def debug_core(check_root_dir, prepare_test, pmacct_setup, prepare_pcap):
 @pytest.fixture(scope="module")
 def test_name_logging(request):
     params = request.module.testParams
-    txt = 'Starting test: ' + params.test_name
-    logger.info('*' * len(txt))
-    logger.info('*' * len(txt))
-    logger.info('Starting test: ' + params.test_name)
-    logger.info('*' * len(txt))
-    logger.info('*' * len(txt))
+    def logMessage(msg):
+        txts = ['*'*len(msg), '*'*len(msg), msg, '*'*len(msg), '*'*len(msg)]
+        for txt in txts:
+            logger.info(txt)
+    logMessage('Starting test: ' + params.test_name)
     yield
-    logger.info('*' * len(txt))
-    logger.info('*' * len(txt))
-    logger.info('Finishing test: ' + params.test_name)
-    logger.info('*' * len(txt))
-    logger.info('*' * len(txt))
+    logMessage('Finishing test: ' + params.test_name)
 
 @pytest.fixture(scope="module")
 def test_core(check_root_dir, kafka_infra_setup_teardown, test_name_logging, prepare_test, pmacct_setup_teardown,

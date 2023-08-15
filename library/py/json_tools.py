@@ -58,6 +58,7 @@ def is_part_of_json(dict_part, dict_whole):
         return False
     return part[1:-1] in whole[1:-1]
 
+# Compares two json objects, which have been deprived of potentially irrelevant fields (to be ignored)
 def compare_json_ignore(json1, json2, ignore_fields=None):
     if ignore_fields:
         for field in ignore_fields:
@@ -65,6 +66,10 @@ def compare_json_ignore(json1, json2, ignore_fields=None):
             json2.pop(field, None)
     return compare_json_objects(json1, json2)
 
+# Compares two lists of json structures (strings), by potentially ignoring some (top-level) fields
+# Every json object of the first list (json_list1) is checked against the full json_list2. If there's
+# match , regardless of the order, the lines are considered as matching. The comparison fails at the first
+# occurrence of a line in json_list1 not matching any object in json_list2
 def compare_json_lists(json_list1, json_list2, ignore_fields=None):
     json_list1 = [json.loads(x.strip()) for x in json_list1 if len(x)>3]
     json_list2 = [json.loads(x.strip()) for x in json_list2 if len(x)>3]
@@ -72,7 +77,6 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None):
     if len(json_list1)!=len(json_list2):
         logger.info('Json lists have different sizes')
         return False
-
     while len(json_list1):
         json1 = json_list1.pop(0)
         logger.debug('Matching: ' + str(json1))
@@ -92,6 +96,8 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None):
     logger.info('All json matched')
     return True
 
+# Compares a list of dictionaries, which correspond to the messages received from Kafka,
+# with the lines of a file, which depict json structures
 def compare_messages_to_json_file(message_dicts, jsonfile, ignore_fields=None):
     with open(jsonfile) as f:
         lines = f.readlines()

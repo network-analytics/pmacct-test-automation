@@ -19,8 +19,8 @@ pip install -r requirements.txt || exit $?
 echo "Pulling docker images from repository"
 cat settings.conf | awk -F '=' '{print $2}' | while read -r value; do
   if [ ! -z $value ]; then
-    docker pull "$value";
-  fi;
+    docker pull "$value"
+  fi
 done
 
 echo "Building traffic reproducer docker images"
