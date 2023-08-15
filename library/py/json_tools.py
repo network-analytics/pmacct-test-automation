@@ -43,7 +43,7 @@ def compare_json_objects(json1, json2):
         return differences if differences else None
     else:
         if json1 != json2:
-            return {'value': {'before': json1, 'after': json2}}
+            return {'value': {'received': json1, 'expected': json2}}
         return None
 
 def are_json_identical(json1, json2):
@@ -81,13 +81,17 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None):
         json1 = json_list1.pop(0)
         logger.debug('Matching: ' + str(json1))
         index = 0
+        min_diff_len = 1000000000
         json2 = json_list2[index]
         diff = compare_json_ignore(json1, json2, ignore_fields)
         while diff:
-            #logger.debug('Try ' + str(index+1) + ', differences:' + str(len(diff.keys())) + ' keys: ' + str(diff.keys()))
+            if len(diff)<min_diff_len:
+                min_diff, min_diff_len, min_diff_index = diff, len(diff), index
             index += 1
             if index>=len(json_list2):
-                logger.info('Json not matched')
+                logger.info('Json not matched: ' + str(json1))
+                logger.info('Closest match: ' + str(json_list2[min_diff_index]))
+                logger.info('Closest match delta: ' + str(min_diff))
                 return False
             json2 = json_list2[index]
             diff = compare_json_ignore(json1, json2, ignore_fields)
