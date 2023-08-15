@@ -58,24 +58,14 @@ def is_part_of_json(dict_part, dict_whole):
         return False
     return part[1:-1] in whole[1:-1]
 
-def compare_json_ignore(json1, json2, ignore_fields=None, ignore_jsonpaths=None):
+def compare_json_ignore(json1, json2, ignore_fields=None):
     if ignore_fields:
         for field in ignore_fields:
             json1.pop(field, None)
             json2.pop(field, None)
-    if ignore_jsonpaths:
-        for jsonpath in ignore_jsonpaths:
-            keys = jsonpath.strip('/').split('/')
-            temp_json1 = json1
-            temp_json2 = json2
-            for key in keys[:-1]:
-                temp_json1 = temp_json1.get(key, {})
-                temp_json2 = temp_json2.get(key, {})
-            temp_json1.pop(keys[-1], None)
-            temp_json2.pop(keys[-1], None)
     return compare_json_objects(json1, json2)
 
-def compare_json_lists(json_list1, json_list2, ignore_fields=None, ignore_jsonpaths=None):
+def compare_json_lists(json_list1, json_list2, ignore_fields=None):
     json_list1 = [json.loads(x.strip()) for x in json_list1 if len(x)>3]
     json_list2 = [json.loads(x.strip()) for x in json_list2 if len(x)>3]
     logger.info('Comparing json lists (lengths: ' + str(len(json_list1)) + ', ' + str(len(json_list2)) + ')')
@@ -88,7 +78,7 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None, ignore_jsonpa
         logger.debug('Matching: ' + str(json1))
         index = 0
         json2 = json_list2[index]
-        diff = compare_json_ignore(json1, json2, ignore_fields, ignore_jsonpaths)
+        diff = compare_json_ignore(json1, json2, ignore_fields)
         while diff:
             #logger.debug('Try ' + str(index+1) + ', differences:' + str(len(diff.keys())) + ' keys: ' + str(diff.keys()))
             index += 1
@@ -96,14 +86,14 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None, ignore_jsonpa
                 logger.info('Json not matched')
                 return False
             json2 = json_list2[index]
-            diff = compare_json_ignore(json1, json2, ignore_fields, ignore_jsonpaths)
+            diff = compare_json_ignore(json1, json2, ignore_fields)
         logger.debug('Json matched')
         json_list2.pop(index)
     logger.info('All json matched')
     return True
 
-def compare_messages_to_json_file(message_dicts, jsonfile, ignore_fields=None, ignore_jsonpaths=None):
+def compare_messages_to_json_file(message_dicts, jsonfile, ignore_fields=None):
     with open(jsonfile) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg) for msg in message_dicts]
-    return compare_json_lists(jsons, lines, ignore_fields, ignore_jsonpaths)
+    return compare_json_lists(jsons, lines, ignore_fields)

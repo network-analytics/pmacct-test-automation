@@ -39,9 +39,11 @@ def setup_pmacct(request):
     assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder, params.daemon,
         pmacct_img)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
-    assert helpers.retry_until_true('Pmacct first log line',
-        lambda: helpers.check_regex_sequence_in_file(params.pmacct_log_file,
-                                                     ['_core/core .+ waiting for .+ data on interface']), 30, 5)
+    def checkfunction():
+        return os.path.isfile(params.pmacct_log_file) and \
+            helpers.check_regex_sequence_in_file(params.pmacct_log_file, \
+                ['_core/core .+ waiting for .+ data on interface'])
+    assert helpers.retry_until_true('Pmacct first log line', checkfunction, 30, 5)
 
 @pytest.fixture(scope="module")
 def pmacct_setup_teardown(request):
