@@ -16,14 +16,11 @@ services:
       pmacct_test_network:
         ipv4_address: 172.21.1.10
         ipv6_address: fd25::10
-#    ports:
-#      - "2181:2181" not required cause we don't use zookeeper from outside the docker-compose network
     
   broker:
     image: ${KAFKA_IMG}
     container_name: broker
     ports:
-#      - "29092:29092" such mapping not required cause 29092 only gives out network-internal hostnames
       - "9092:9092"
     healthcheck:
       test: kafka-topics --bootstrap-server broker:9092 --list
