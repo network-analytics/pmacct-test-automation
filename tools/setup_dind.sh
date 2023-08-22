@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
-cd $SCRIPT_DIR/..
+cd $SCRIPT_DIR/.. || exit $?
 
 echo "Installing needed apk packages"
 apk add python3 || exit $?
