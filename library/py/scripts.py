@@ -46,6 +46,14 @@ def stop_and_remove_kafka_containers() -> bool:
     logger.info("Stopping Kafka containers")
     return run_script(['./library/sh/kafka_compose/stop.sh'])[0]
 
+# Gets pmacct container stats
+def get_pmacct_stats() -> str:
+    logger.info("Getting pmacct stats from docker")
+    ret = run_script(['./library/sh/docker_tools/get-container-stats.sh', 'pmacct'])
+    if not ret[0]:
+        return ret[2]
+    return ret[1]
+
 # Stops pmacct container using docker stop and docker rm and returns success or not
 def stop_and_remove_pmacct_container() -> bool:
     logger.info("Stopping and removing pmacct container")

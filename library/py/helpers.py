@@ -5,7 +5,7 @@
 #
 ###################################################
 
-import os, re, logging, time
+import os, re, logging, time, json
 from typing import Callable
 from typing import List
 
@@ -142,3 +142,13 @@ def read_config_file(filename):
                 key, value = line.split("=", 1)
                 conf_data[key] = value
     return conf_data
+
+def container_resources_string(json_str: str) -> List:
+    dct = json.loads(json_str)
+    ret = []
+    ret.append('Memory usage (used/available): ' + dct['MemUsage'])
+    ret.append('Network usage (input/output): ' + dct['NetIO'])
+    ret.append('Processes created: ' + dct['PIDs'])
+    ret.append('Host CPU consumption: ' + dct['CPUPerc'])
+    ret.append('Host memory consumption: ' + dct['MemPerc'])
+    return ret

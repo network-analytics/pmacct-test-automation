@@ -61,6 +61,7 @@ if [ $count -eq 1 ]; then
   echo "Moving report to the test case specific folder"
   mv results/pytestlog${test}.log ${testdir/tests/results}/
   mv results/report${test}.html ${testdir/tests/results}/
+  rm -rf ${testdir/tests/results}/
   mv results/assets ${testdir/tests/results}/
 else
   rm -rf results/assets

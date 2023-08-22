@@ -50,6 +50,10 @@ def pmacct_setup_teardown(request):
     setup_pmacct(request)
     yield
     scripts.stop_and_remove_all_traffic_containers()
+    rsc_msg = ['Pmacct container resources:']
+    rsc_msg += [' '+x for x in helpers.container_resources_string(scripts.get_pmacct_stats())]
+    for msg in rsc_msg:
+        logger.info(msg)
     scripts.stop_and_remove_pmacct_container()
 
 @pytest.fixture(scope="module")
