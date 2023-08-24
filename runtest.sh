@@ -3,6 +3,8 @@
 # exit if there is no argument
 if [ -z "$1" ]; then
     echo "No argument supplied"
+    echo "Usage:   ./runtest.sh [--loglevel=<log level>] [--dry] <test case number> [<test_case_number> ...]"
+    echo "Example: ./runtest.sh --loglevel=DEBUG 103 202"
     exit 1
 fi
 
