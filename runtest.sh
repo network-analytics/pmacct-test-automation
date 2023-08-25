@@ -8,21 +8,23 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+if [[ "${PWD##*/}" != "net_ana" ]]; then
+  echo "Script not run from net_ana root directory"
+  exit 1
+fi
+
 DRY_RUN="FALSE"
 if [[ "$1" == "--dry" ]]; then
   DRY_RUN="TRUE"
   shift
 fi
 
-LOG_LEVEL="INFO"
+
+source ./settings.conf
+#LOG_LEVEL="INFO"
 if [[ "$1" == "--loglevel="* ]]; then
   LOG_LEVEL=${1/--loglevel=/}
   shift
-fi
-
-if [[ "${PWD##*/}" != "net_ana" ]]; then
-  echo "Script not run from net_ana root directory"
-  exit 1
 fi
 
 myarg="$( echo "$@ " )"
@@ -60,6 +62,10 @@ if [ $count -eq 1 ]; then
     exit 0
   fi
   python -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html
+  retCode=$?
+  if [[ "$retCode" != "0" ]]; then
+    exit "$retCode"
+  fi
   echo "Moving report to the test case specific folder"
   mv results/pytestlog${test}.log ${testdir/tests/results}/
   mv results/report${test}.html ${testdir/tests/results}/
@@ -74,6 +80,10 @@ else
     exit 0
   fi
   python -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog.log --html=results/report.html
+  retCode=$?
+    if [[ "$retCode" != "0" ]]; then
+      exit "$retCode"
+    fi
 fi
 
 
