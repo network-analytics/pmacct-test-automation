@@ -20,7 +20,8 @@ def main(consumer):
     assert repro_info
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bmp-00',
-        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
+        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])
+    # if bgp_nexthop omitted: 'received': '198.51.100.82', 'expected': '::ffff:198.51.100.82'
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')

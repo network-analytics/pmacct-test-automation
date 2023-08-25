@@ -16,6 +16,7 @@ def main(consumer):
     assert repro_info
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-00', ['seq', 'timestamp', 'peer_tcp_port'])
+    # if peer_tcp_port omitted: 'received': 50675, 'expected': 33277
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')

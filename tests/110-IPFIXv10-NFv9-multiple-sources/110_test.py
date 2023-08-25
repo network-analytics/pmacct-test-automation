@@ -17,6 +17,6 @@ def main(consumer):
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
         ['timestamp_max', 'timestamp_arrival', 'stamp_inserted',
-         'timestamp_min', 'stamp_updated', 'timestamp_start', 'timestamp_end', 'peer_ip_src'])
+         'timestamp_min', 'stamp_updated', 'timestamp_start', 'timestamp_end'])
 
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
