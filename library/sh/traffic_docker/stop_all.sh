@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Forcefully deleting all traffic containers
 

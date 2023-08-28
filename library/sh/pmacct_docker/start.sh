@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 PMACCT_CONF="$1"
 PMACCT_MOUNT="$2"

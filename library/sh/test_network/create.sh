@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Create network for use throughout the test framework
 # 172.21.1.10, 172.21.1.11 and 172.21.1.12: kafka containers

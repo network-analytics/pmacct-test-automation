@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 PCAP_MOUNT_DIR="$1"
 ID="$2"

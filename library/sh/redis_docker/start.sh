@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # docker inspect will return 1 if redis container already exists
 # if so, the redis container is removed (before it is deployed next)
