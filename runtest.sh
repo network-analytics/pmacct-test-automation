@@ -63,9 +63,6 @@ if [ $count -eq 1 ]; then
   fi
   python -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html
   retCode=$?
-  if [[ "$retCode" != "0" ]]; then
-    exit "$retCode"
-  fi
   echo "Moving report to the test case specific folder"
   mv results/pytestlog${test}.log ${testdir/tests/results}/
   mv results/report${test}.html ${testdir/tests/results}/
@@ -81,9 +78,6 @@ else
   fi
   python -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog.log --html=results/report.html
   retCode=$?
-    if [[ "$retCode" != "0" ]]; then
-      exit "$retCode"
-    fi
 fi
-
+exit "$retCode"
 
