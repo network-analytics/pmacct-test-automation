@@ -57,11 +57,12 @@ echo "Selected: $test_files"
 if [ $count -eq 1 ]; then
   test="${test_files:6:3}"
   testdir=$( dirname $test_files )
+  cmd="python3 -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
   if [[ "$DRY_RUN" == "TRUE" ]]; then
-    echo "python -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
+    echo "$cmd"
     exit 0
   fi
-  python -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html
+  eval "$cmd"
   retCode=$?
   echo "Moving report to the test case specific folder"
   mv results/pytestlog${test}.log ${testdir/tests/results}/
@@ -72,11 +73,12 @@ else
   rm -rf results/assets
   rm -f results/report.html
   echo "Multiple files"
+  cmd="python3 -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog.log --html=results/report.html"
   if [[ "$DRY_RUN" == "TRUE" ]]; then
-    echo "python -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog.log --html=results/report.html"
+    echo "$cmd"
     exit 0
   fi
-  python -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog.log --html=results/report.html
+  eval "$cmd"
   retCode=$?
 fi
 exit "$retCode"

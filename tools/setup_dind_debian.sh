@@ -1,17 +1,18 @@
 #!/bin/sh
 
-#SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
-#cd $SCRIPT_DIR/.. || exit $?
+SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
+cd $SCRIPT_DIR/.. || exit $?
 
 echo "Installing needed apk packages"
-apt -y install python3 || exit $?
-apt -y install python3-pip || exit $?
-apt -y install python3-dev || exit $?
-apt -y install make || exit $?
-apt -y install gcc || exit $?
-apt -y install bash || exit $?
-#apt install alpine-sdk || exit $?
-apt -y install librdkafka-dev || exit $?
+apt-get -y install python3 || exit $?
+apt-get -y install python3-pip || exit $?
+apt-get -y install python3-dev || exit $?
+apt-get -y install make || exit $?
+apt-get -y install gcc || exit $?
+apt-get -y install bash || exit $?
+#apt-get install alpine-sdk || exit $?
+apt-get -y install librdkafka-dev || exit $?
+apt-get -y install docker || exit $?
 
 echo "Installing python library requirements"
 pip install -r requirements.txt || exit $?

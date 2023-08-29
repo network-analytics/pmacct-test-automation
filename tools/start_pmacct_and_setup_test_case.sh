@@ -38,4 +38,4 @@ def test(debug_core):
     pass
 EOL
 
-python -m pytest $test_filename --log-cli-level=DEBUG
+python3 -m pytest $test_filename --log-cli-level=DEBUG

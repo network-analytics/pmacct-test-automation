@@ -5,4 +5,5 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 
 # deploy Kafka infrastructure containers (zookeeper, broker and schema-registry)
 # by passing the settings file, where docker image URLs are defined
-docker compose --env-file $SCRIPT_DIR/../../../settings.conf -f "$SCRIPT_DIR/docker-compose.yml" up -d
+docker-compose --env-file $SCRIPT_DIR/../../../settings.conf -f "$SCRIPT_DIR/docker-compose.yml" up -d
+# docker compose (two words) does not work on Debian (Jenkins slave)
