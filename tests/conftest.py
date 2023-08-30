@@ -3,7 +3,7 @@ import library.py.scripts as scripts
 import library.py.setup_tools as setup_tools
 import logging, pytest, os
 import library.py.helpers as helpers
-from library.py.kafka_consumer import KMessageReader, KMessageReaderList
+from library.py.kafka_consumer import KMessageReaderAvro, KMessageReaderPlainJson, KMessageReaderList
 logger = logging.getLogger(__name__)
 
 
@@ -76,13 +76,13 @@ def check_root_dir():
     assert os.path.basename(os.getcwd())=='net_ana'
 
 
-def setup_consumers(request, plainJson):
+def setup_consumers(request, messageReaderClass): #plainJson):
     params = request.module.testParams
     consumers = KMessageReaderList()
     for k in params.kafka_topics.keys():
         topic_name = '_'.join(params.kafka_topics[k].split('.')[0:-1])
         msg_dump_file = params.results_folder + '/' + topic_name + '_dump.json'
-        consumer = KMessageReader(params.kafka_topics[k], msg_dump_file, plainJson)
+        consumer = messageReaderClass(params.kafka_topics[k], msg_dump_file) #, plainJson)
         consumer.connect()
         consumers.append(consumer)
     logger.debug('Local setup Consumers ' + str(consumers))
@@ -95,13 +95,13 @@ def teardown_consumers(consumers):
 
 @pytest.fixture(scope="module")
 def consumer_setup_teardown(request):
-    consumers = setup_consumers(request, False)
+    consumers = setup_consumers(request, KMessageReaderAvro) #False)
     yield consumers
     teardown_consumers(consumers)
 
 @pytest.fixture(scope="module")
 def consumerJson_setup_teardown(request):
-    consumers = setup_consumers(request, True)
+    consumers = setup_consumers(request, KMessageReaderPlainJson) #True)
     yield consumers
     teardown_consumers(consumers)
 

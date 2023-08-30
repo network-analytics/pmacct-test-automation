@@ -9,17 +9,27 @@ from confluent_kafka.avro import AvroConsumer
 from confluent_kafka import Consumer
 import time, logging, json
 from typing import List
+from abc import ABC, abstractmethod
 logger = logging.getLogger(__name__)
 
-class KMessageReader:
+class KMessageReader(ABC):
 
-    def __init__(self, topic: str, dump_to_file: str=None, plainJson: bool=False):
-        consumer_type = 'plain Json' if plainJson else 'avro'
-        logger.info('Creating message reader (kafka ' + consumer_type + ' consumer) for topic ' + topic)
+    def __init__(self, topic: str, dump_to_file: str=None): #, plainJson: bool=False):
         self.topic = topic
         self.dumpfile = dump_to_file
         self.consumer = None
-        self.plainJson = plainJson
+
+    @abstractmethod
+    def instantiate_consumer(self, prop_dict):
+        raise NotImplementedError("Must override instantiate_consumer")
+
+    @abstractmethod
+    def get_json_string(self, prop_dict):
+        raise NotImplementedError("Must override get_json_string")
+
+    @abstractmethod
+    def get_json_dict(self, prop_dict):
+        raise NotImplementedError("Must override get_json_dict")
 
     def connect(self):
         prop_dict = {
@@ -28,11 +38,7 @@ class KMessageReader:
                 'group.id': 'smoke_test',
                 'auto.offset.reset': 'earliest'
             }
-        if self.plainJson:
-            self.consumer = Consumer(prop_dict)
-        else:
-            prop_dict['schema.registry.url'] = 'http://localhost:8081'
-            self.consumer = AvroConsumer(prop_dict)
+        self.instantiate_consumer(prop_dict)
         self.consumer.subscribe([self.topic])
 
     def disconnect(self):
@@ -70,14 +76,11 @@ class KMessageReader:
             if not msg or msg.error():
                 logger.debug('No message from Kafka (or msg error), waiting (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
             else:
-                # If avro, message value arrives as json and needs dumping; if not (plain json), then
-                # it's in byte format and needs decoding
-                msgval = msg.value().decode('utf-8') if self.plainJson else json.dumps(msg.value())
+                msgval = self.get_json_string(msg)
+                msgdict = self.get_json_dict(msg)
                 self.dump_if_needed(msgval)
                 logger.debug('Received message: ' + msgval)
-                # If plain json, then dictionary is created simply by loading the decoded value of the message
-                # If avro, then msg.value() is a dictionary already
-                messages.append(json.loads(msgval) if self.plainJson else msg.value())
+                messages.append(msgdict)
                 messages_expected -= 1
                 if messages_expected>0:
                     logger.debug('Waiting for ' + str(messages_expected) + ' more messages')
@@ -97,12 +100,45 @@ class KMessageReader:
         messages = []
         msg = self.consumer.poll(5)
         while msg and not msg.error() and (maxcount<0 or len(messages)<maxcount):
-            msgval = msg.value().decode('utf-8') if self.plainJson else json.dumps(msg.value())
-            messages.append(json.loads(msgval) if self.plainJson else msg.value())
+            messages.append(self.get_json_dict(msg))
             msg = self.consumer.poll(5)
         return messages
 
 
+class KMessageReaderAvro(KMessageReader):
+
+    def __init__(self, topic: str, dump_to_file: str=None):
+        logger.info('Creating message reader (kafka avro consumer) for topic ' + topic)
+        super().__init__(topic, dump_to_file)
+
+    def instantiate_consumer(self, prop_dict):
+        prop_dict['schema.registry.url'] = 'http://localhost:8081'
+        self.consumer = AvroConsumer(prop_dict)
+
+    # If avro, message value arrives as json and needs dumping
+    def get_json_string(self, msg):
+        return json.dumps(msg.value())
+
+    # If avro, then msg.value() is a dictionary already
+    def get_json_dict(self, msg):
+        return msg.value()
+
+class KMessageReaderPlainJson(KMessageReader):
+
+    def __init__(self, topic: str, dump_to_file: str=None):
+        logger.info('Creating message reader (kafka plain json consumer) for topic ' + topic)
+        super().__init__(topic, dump_to_file)
+
+    def instantiate_consumer(self, prop_dict):
+        self.consumer = Consumer(prop_dict)
+
+    # If plain json, then message is in byte format and needs decoding
+    def get_json_string(self, msg):
+        return msg.value().decode('utf-8')
+
+    # If plain json, then dictionary is created by loading the decoded value of the message
+    def get_json_dict(self, msg):
+        return json.loads(self.get_json_string(msg))
 
 class KMessageReaderList(list):
 
