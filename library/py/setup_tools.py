@@ -52,6 +52,7 @@ def create_mount_and_output_folders(params: KModuleParams):
     _mask = os.umask(0)
     os.makedirs(params.results_output_folder, 0o777)
     os.umask(_mask)
+    open(params.results_output_folder + '/pmacctd.log', 'w').close()
     logger.debug('Mount and output folders created')
 
 # Files in mounted folder, for pmacct to read
