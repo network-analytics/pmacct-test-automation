@@ -76,7 +76,7 @@ def check_root_dir():
     assert os.path.basename(os.getcwd())=='net_ana'
 
 
-def setup_consumer(request, plainJson):
+def setup_consumers(request, plainJson):
     params = request.module.testParams
     consumers = KMessageReaderList()
     for k in params.kafka_topics.keys():
@@ -85,25 +85,25 @@ def setup_consumer(request, plainJson):
         consumer = KMessageReader(params.kafka_topics[k], msg_dump_file, plainJson)
         consumer.connect()
         consumers.append(consumer)
+    logger.debug('Local setup Consumers ' + str(consumers))
     return consumers
+
+def teardown_consumers(consumers):
+    logger.debug('Local teardown Consumers ' + str(consumers))
+    for consumer in consumers:
+        consumer.disconnect()
 
 @pytest.fixture(scope="module")
 def consumer_setup_teardown(request):
-    consumers = setup_consumer(request, False)
+    consumers = setup_consumers(request, False)
     yield consumers
-    logger.debug('Local teardown Consumer ' + str(consumers))
-    for consumer in consumers:
-        consumer.disconnect()
-
+    teardown_consumers(consumers)
 
 @pytest.fixture(scope="module")
 def consumerJson_setup_teardown(request):
-    consumers = setup_consumer(request, True)
-    logger.debug('Local setup Consumer ' + str(consumers))
+    consumers = setup_consumers(request, True)
     yield consumers
-    logger.debug('Local teardown Consumer ' + str(consumers))
-    for consumer in consumers:
-        consumer.disconnect()
+    teardown_consumers(consumers)
 
 # Prepares results folder to receive logs and output from pmacct
 @pytest.fixture(scope="module")
