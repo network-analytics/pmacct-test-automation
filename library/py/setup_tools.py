@@ -50,7 +50,7 @@ def create_mount_and_output_folders(params: KModuleParams):
     os.makedirs(params.results_mount_folder)
     logger.info('Creating test output folder: ' + short_name(params.results_output_folder))
     _mask = os.umask(0)
-    os.makedirs(params.results_output_folder, 0o777)
+    os.makedirs(params.results_output_folder, 0o770)
     os.umask(_mask)
     open(params.results_output_folder + '/pmacctd.log', 'w').close()
     logger.debug('Mount and output folders created')
