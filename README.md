@@ -15,9 +15,12 @@ $ pip install -r requirements.txt
 
 Build single- and multi-pcap traffic reproducer images
 ```shell
-$ cd tools/pcap_player
-$ docker build -t traffic-reproducer -f single/Dockerfile .
-$ docker build -t traffic-reproducer-multi -f multi/Dockerfile .
+$ tools/pcap_player/build_docker_images.sh
+```
+
+Build pmacct images (temporarily requires separate clone of pmacct repo, later we will integrate test framework in there)
+```shell
+$ tools/pmacct_build/build_docker_images.sh
 ```
 
 ## How To Run
