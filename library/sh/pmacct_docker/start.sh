@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# exit if bad arguents
+if [ -z "$4" ]; then
+    echo "Wrong number of arguments supplied"
+    exit 1
+fi
+
 PMACCT_CONF="$1"
 PMACCT_MOUNT="$2"
 PMACCT_DAEMON="$3"

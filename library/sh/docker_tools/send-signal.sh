@@ -7,4 +7,4 @@ if [ -z "$2" ]; then
 fi
 
 # send signal to container
-docker kill --signal=$2 "$1" 2>&1
+docker kill --signal=$2 "$1" # 2>&1

@@ -9,7 +9,7 @@ fi
 
 # find directory, where this script resides, and load docker image URLs (REDIS_IMG is defined therein)
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
-source $SCRIPT_DIR/../../../settings.conf
+source $SCRIPT_DIR/../../../settings.conf # REDIS_IMG defined here
 
 # deploy Redis container
 docker run -d --network pmacct_test_network \
