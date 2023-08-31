@@ -72,7 +72,11 @@ class KMessageReader(ABC):
         time_start = round(time.time())
         time_now = round(time.time())
         while messages_expected>0 and time_now-time_start<max_time_seconds:
-            msg = self.consumer.poll(5)
+            try:
+                msg = self.consumer.poll(5)
+            except Exception as err:
+                logger.error(str(err))
+                return messages
             if not msg or msg.error():
                 logger.debug('No message from Kafka (or msg error), waiting (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
             else:

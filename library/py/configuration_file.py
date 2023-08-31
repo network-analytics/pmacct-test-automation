@@ -1,9 +1,11 @@
-###################################################
+###########################################################
 # Automated Testing Framework for Network Analytics
 #
-# class representing a pmacct configuration file
+# class encapsulating a pmacct configuration file
 #
-###################################################
+# File created on 23/05/2023 by Nicolas Tsokas for Swisscom
+#
+###########################################################
 
 import re, logging
 from typing import List, Dict
@@ -14,6 +16,7 @@ class KConfigurationFile:
         self.data = {}
         self.read_conf_file(filename)
 
+    # Loads configuration from file whose name is passed
     def read_conf_file(self, filename: str):
         self.data = {}
         with open(filename, 'r') as file:
@@ -40,7 +43,9 @@ class KConfigurationFile:
                         self.data[main_key] = {}
                     self.data[main_key][sub_key] = value
 
-    # subkey='' means all subkey values will be replaced
+    # Replaces in memory the value of a key. If key has subkey (e.g.. thekey[thesubkey]: thevalue), then
+    # the subkey can also be provided. If subkey argument is None, all subkey values will be replaced. If
+    # key is not found, False is returned. If subkey is not None and is not found, True is returned.
     def replace_value_of_key(self, key: str, value:str, subkey: str=None) -> bool:
         if key not in self.data:
             return False
@@ -51,13 +56,16 @@ class KConfigurationFile:
                 self.data[key][sk] = value
         return True
 
-    def replace_value_of_key_ending_with(self, key_ending: str, value:str, subkey: str=None) -> bool:
+    # Replaces in memory the values of all keys ending with "key_ending". For example,
+    # replace_value_of_key_ending_with('_tag_map', 'map_filename') will replace the values of all
+    # keys ending with _tag_map with value "map_filename". If subkey is provided, only matched subkeys
+    # are changed. Otherwise, all subkeys are affected.
+    def replace_value_of_key_ending_with(self, key_ending: str, value:str, subkey: str=None):
         for key in self.data.keys():
             if key.endswith(key_ending):
                 for sk in self.data[key]:
                     if subkey is None or sk==subkey:
                         self.data[key][sk] = value
-        return True
 
     def get_kafka_topics(self) -> Dict:
         retVal = {}

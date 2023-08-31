@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
-def test(test_core, consumerJson_setup_teardown): # Plain Json consumer used here
-    main(consumerJson_setup_teardown[0])
+def test(test_core, consumer_setup_teardown): # Plain Json consumer instantiated for _json topic
+    main(consumer_setup_teardown[0])
 
 def main(consumer):
     assert scripts.replay_pcap(testParams.pcap_folders[0])
