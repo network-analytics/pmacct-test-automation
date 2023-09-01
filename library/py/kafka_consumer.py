@@ -1,8 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-#
-# class for Kafka consumption
-#
+# Classes for Kafka consumption
+# nikolaos.tsokas@swisscom.com 23/05/2023
 ###################################################
 
 from confluent_kafka.avro import AvroConsumer

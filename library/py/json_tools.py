@@ -1,8 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-#
 # json tools commonly used by framework functions
-#
+# nikolaos.tsokas@swisscom.com 23/05/2023
 ###################################################
 
 import logging, json
@@ -66,9 +65,9 @@ def compare_json_ignore(json1, json2, ignore_fields=None):
             json2.pop(field, None)
     return compare_json_objects(json1, json2)
 
-# Compares two lists of json structures (strings), by potentially ignoring some (top-level) fields
+# Compares two lists of json structures (strings), by optionally ignoring some (top-level) fields
 # Every json object of the first list (json_list1) is checked against the full json_list2. If there's
-# match , regardless of the order, the lines are considered as matching. The comparison fails at the first
+# match, regardless of the order, the lines are considered as matching. The comparison fails at the first
 # occurrence of a line in json_list1 not matching any object in json_list2
 def compare_json_lists(json_list1, json_list2, ignore_fields=None):
     json_list1 = [json.loads(x.strip()) for x in json_list1 if len(x)>3]

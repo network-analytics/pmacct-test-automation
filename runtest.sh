@@ -46,7 +46,7 @@ fi
 count="$( echo "$test_files" | wc -w )"
 
 if [ $count -lt 1 ]; then
-  echo "No test case(s) found"
+  echo "No test case(s) found for: $myarg"
   exit 1
 fi
 

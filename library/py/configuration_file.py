@@ -1,11 +1,8 @@
-###########################################################
+###################################################
 # Automated Testing Framework for Network Analytics
-#
-# class encapsulating a pmacct configuration file
-#
-# File created on 23/05/2023 by Nicolas Tsokas for Swisscom
-#
-###########################################################
+# Class encapsulating a pmacct configuration file
+# nikolaos.tsokas@swisscom.com 23/05/2023
+###################################################
 
 import re, logging
 from typing import List, Dict

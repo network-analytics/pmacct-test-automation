@@ -1,11 +1,8 @@
-###########################################################
+###################################################
 # Automated Testing Framework for Network Analytics
-#
-# Central fixtures definition; fixture used by all tests
-#
-# File created on 23/05/2023 by Nicolas Tsokas for Swisscom
-#
-###########################################################
+# Central fixtures definition; used by all tests
+# nikolaos.tsokas@swisscom.com 23/05/2023
+###################################################
 
 import library.py.scripts as scripts
 import library.py.setup_tools as setup_tools
