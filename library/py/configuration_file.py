@@ -1,7 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 # Class encapsulating a pmacct configuration file
-# nikolaos.tsokas@swisscom.com 23/05/2023
+# nikolaos.tsokas@swisscom.com 16/05/2023
 ###################################################
 
 import re, logging

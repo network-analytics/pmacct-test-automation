@@ -1,3 +1,10 @@
+###################################################
+# Automated Testing Framework for Network Analytics
+# Pytest wrapper script for running test cases or
+# groups thereof
+# nikolaos.tsokas@swisscom.com 30/06/2023
+###################################################
+
 #!/bin/bash
 
 # exit if there is no argument

@@ -1,7 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 # Classes for Kafka consumption
-# nikolaos.tsokas@swisscom.com 23/05/2023
+# nikolaos.tsokas@swisscom.com 21/02/2023
 ###################################################
 
 from confluent_kafka.avro import AvroConsumer
@@ -76,8 +76,12 @@ class KMessageReader(ABC):
             except Exception as err:
                 logger.error(str(err))
                 return messages
-            if not msg or msg.error():
-                logger.debug('No message from Kafka (or msg error), waiting (' + str(max_time_seconds-time_now+time_start) + ' seconds left)')
+            if not msg:
+                logger.debug('No message received from Kafka, waiting (' + str(max_time_seconds-time_now+time_start) +
+                    ' seconds left)')
+            elif msg.error():
+                logger.warning('Erroneous message received from Kafka, waiting (' + str(max_time_seconds - time_now +
+                    time_start) + ' seconds left)')
             else:
                 msgval = self.get_json_string(msg)
                 msgdict = self.get_json_dict(msg)

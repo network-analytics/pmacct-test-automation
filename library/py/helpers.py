@@ -1,8 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-#
-# helpers file for python auxiliary functions
-#
+# Helpers file for python auxiliary functions
+# nikolaos.tsokas@swisscom.com 26/02/2023
 ###################################################
 
 import os, re, logging, time, json

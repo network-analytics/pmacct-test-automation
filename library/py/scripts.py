@@ -1,9 +1,8 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-#
-# python functions calling specific shell scripts
+# Python functions calling specific shell scripts
 # and returning the outcome
-#
+# nikolaos.tsokas@swisscom.com 26/02/2023
 ###################################################
 
 from library.py.script_tools import *

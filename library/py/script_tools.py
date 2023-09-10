@@ -1,9 +1,8 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-#
-# functions for calling shell scripts and for
-# returning the outcome
-#
+# Functions for calling shell scripts and returning
+# the outcome
+# nikolaos.tsokas@swisscom.com 26/02/2023
 ###################################################
 
 import subprocess, time, logging, os, signal

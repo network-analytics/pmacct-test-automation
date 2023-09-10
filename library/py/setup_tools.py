@@ -1,9 +1,8 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-#
-# functions for preparing the environment for the
+# Functions for preparing the environment for the
 # test case to run in
-#
+# nikolaos.tsokas@swisscom.com 11/05/2023
 ###################################################
 
 import shutil, secrets, yaml

@@ -1,9 +1,8 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-#
 # Tool for escaping regular expression special
 # characters, so that they have their literal sense
-#
+# nikolaos.tsokas@swisscom.com 01/07/2023
 ###################################################
 
 import sys

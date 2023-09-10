@@ -1,9 +1,8 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-#
-# Highest level test functions for reusing
-# repeatable test case functionality
-#
+# Highest-level test functions for test cases to
+# reuse repeatable/common functionality
+# nikolaos.tsokas@swisscom.com 07/07/2023
 ###################################################
 
 import logging, os, secrets, yaml, shutil
@@ -29,7 +28,7 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     # os.path.basename(output_json_file)
 
     # Reading messages from Kafka topic
-    # Max wait time for line_count messages is 120 seconds
+    # Max wait time for line_count messages is 120 seconds by default (overriden in arguments)
     # The get_messages method will return only if either line_count messages are received,
     # or 120 seconds have passed
     messages = consumer.get_messages(wait_time, line_count)
