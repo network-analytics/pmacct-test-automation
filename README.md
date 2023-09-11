@@ -78,9 +78,9 @@ tools/start_redis.sh
 
 To start pmacct with the EXACT configuration of a specific test case:
 ```shell
-tools/start_pmacct.sh <test_case_number>
+tools/start_pmacct_and_setup_test_case.sh <test_case_number>
 e.g.
-tools/start_pmacct.sh 302
+tools/start_pmacct_and_setup_test_case.sh 302
 ```
 
 To play pcap file from a specific pcap folder (i.e., which contains a pcap file and a config file).
