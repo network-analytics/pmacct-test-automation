@@ -20,12 +20,12 @@ def main(consumer):
     assert repro_info
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bmp-00',
-        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])
-    # if bgp_nexthop omitted: 'received': '198.51.100.82', 'expected': '::ffff:198.51.100.82'
+        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
     transform_log_file(logfile, repro_info['repro_ip'])
+
     # Retry needed for the last regex (WARNING) to be found in the logs!
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
