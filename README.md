@@ -95,9 +95,9 @@ tools/play_traffic.sh /Users/myusername/Documents/net_ana/results/200-BMP-HUAWEI
 To display all available (pending) messages from a Kafka topic
 (note: the actual Kafka topic name is listed in the pmacct config file in the results folder of the test case):
 ```shell
-tools/get_pending_kafka_messages.sh <Kafka topic name>
+tools/get_pending_kafka_messages.sh <Kafka topic name> <Avro|PlainJson>
 e.g.
-tools/get_pending_kafka_messages.sh daisy.bmp.19f5021c
+tools/get_pending_kafka_messages.sh daisy.bmp.19f5021c Avro
 ```
 
 ## Fixtures explained
