@@ -16,7 +16,7 @@ def main(consumers):
     assert repro_info
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bgp'),
-        testParams, 'bgp-00', ['seq', 'timestamp', 'bgp_nexthop', 'peer_tcp_port'])
+        testParams, 'bgp-00', ['seq', 'timestamp', 'peer_tcp_port'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
