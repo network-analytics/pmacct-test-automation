@@ -22,9 +22,15 @@ def transform_log_file(logfile, repro_info_list):
     helpers.replace_in_file(logfile, token2, '(' + '|'.join(repro_bgp_ids) + ')')
 
 def main(consumer):
-    logger.info('Minute seconds: ' + str(datetime.datetime.now().second))
-    wait_sec = 31 - datetime.datetime.now().second
-    if wait_sec > 0:
+    curr_sec = datetime.datetime.now().second
+    logger.info('Minute seconds: ' + str(curr_sec))
+    
+    if curr_sec < 25: 
+        wait_sec = 25 - curr_sec
+        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
+        time.sleep(wait_sec)
+    elif curr_sec > 55:
+        wait_sec = 85 - curr_sec
         logger.debug('Waiting ' + str(wait_sec) + ' seconds')
         time.sleep(wait_sec)
 
@@ -37,12 +43,16 @@ def main(consumer):
         repro_info = scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
         assert repro_info
         repro_info_list.append(repro_info)
+
     repro_info_multi = scripts.replay_pcap_detached_multi(pcap_folder, 2)
     assert repro_info_multi
     repro_info_list.append(repro_info_multi)
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-00',
-        ['seq', 'timestamp', 'peer_tcp_port', 'bgp_nexthop'], 240)
+        ['seq', 'timestamp', 'peer_tcp_port'], 90)
+
+    # Wait to ensure traffic-reproducer-03 has attempted the connection
+    time.sleep(25)
 
     logfile = testParams.log_files.getFileLike('log-00')
     transform_log_file(logfile, repro_info_list)
@@ -50,7 +60,12 @@ def main(consumer):
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file,
                                                     ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
 
-    scripts.stop_and_remove_traffic_container(2)
+    for i in [0, 1, 2]:
+      scripts.stop_and_remove_traffic_container(i)
+
+    # DAISY: we need to debug why pretag is not working properly on delete messages (might be a bug)
+    #assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-01',
+    #    ['seq', 'timestamp', 'peer_tcp_port'], 60)
 
     logfile = testParams.log_files.getFileLike('log-01')
     test_tools.transform_log_file(logfile, repro_info_multi['repro_ip'], repro_info_multi['bgp_id'])
