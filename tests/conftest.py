@@ -81,7 +81,9 @@ def pmacct_setup(request):
 @pytest.fixture(scope="session")
 def check_root_dir():
     logger.debug('Framework runs from directory: ' + os.getcwd())
-    assert os.path.basename(os.getcwd())=='net_ana'
+    assert all(x in os.listdir(os.getcwd()) for x in ['tools', 'tests', 'library', 'pytest.ini', 'settings.conf'])
+    assert os.path.dirname(__file__) == os.getcwd() + '/tests'
+
 
 
 def setup_consumers(request):
