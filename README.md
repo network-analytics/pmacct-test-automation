@@ -91,6 +91,12 @@ tools/play_traffic.sh <full-path-to-pcap-folder> <IP address of the pcap player>
 e.g.
 tools/play_traffic.sh /Users/myusername/Documents/net_ana/results/200-BMP-HUAWEI-locrib_instance/pcap_mount_0 172.21.1.101
 ```
+To play in detached mode:
+```shell
+tools/play_traffic_detached.sh <full-path-to-pcap-folder> <traffic_container_ID> <IP address of the pcap player>
+e.g.
+tools/play_traffic_detached.sh /Users/myusername/Documents/net_ana/results/200-BMP-HUAWEI-locrib_instance/pcap_mount_0 0 172.21.1.101
+```
 
 To display all available (pending) messages from a Kafka topic
 (note: the actual Kafka topic name is listed in the pmacct config file in the results folder of the test case):
