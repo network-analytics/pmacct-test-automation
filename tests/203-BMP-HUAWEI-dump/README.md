@@ -4,20 +4,20 @@ Test for verifying BMP regular dump feature. Pcap taken from test 200: Huawei VR
 
 ### Provided files:
 
+- 203_test.py                  pytest file defining test execution
+
 - traffic-00.pcap              pcap file (for traffic generator)
-- traffic-reproducer-00.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
+- traffic-reproducer-00.conf   traffic replay function config file
 
 - nfacctd-00.conf              nfacctd daemon configuration file
-- librdkafka-00.conf           librdkafka configuration for nfacctd
 
-- output-bmp-00.json           desired nfacctd kafka output [daisy.bgp topic] containing json messages
-- output-bmp-dump-00.json           desired nfacctd kafka output [daisy.bgp topic] containing json messages
-- output-log-00.log            log messages that need to be in the logfile                                  HINT: contains variable parameters
-- output-log-01.log            log messages that need to be in the logfile                                  HINT: contains variable parameters
+- output-bmp-00.json           desired nfacctd kafka output [daisy.bmp topic] containing json messages
+- output-bmp-dump-00.json      desired nfacctd kafka output [daisy.bmp.dump topic] containing json messages
+- output-log-00.log            log messages that need to be in the logfile
+- output-log-01.log            log messages that need to be in the logfile
 
 ### Test timeline:
 
-pcap file time duration: 
 t=0s --> the first full minute after starting the traffic generator
 
 - t=5s: BMP packets sent 

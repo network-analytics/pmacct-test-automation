@@ -6,29 +6,29 @@ f2rd_map is used to set MPLS VPN RD. Pretag map is used as well. Map reload is a
 
 ### Provided files:
 
-- traffic-00.pcap              pcap file (for traffic generator)
-- traffic-reproducer-00.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
+- 102_test.py                             pytest file defining test execution
 
-- nfacctd-00.conf              nfacctd daemon configuration file
-- librdkafka-00.conf           librdkafka configuration for nfacctd
+- traffic-00.pcap                         pcap file (for traffic generator)
+- traffic-reproducer-00.conf              traffic replay function config file
 
-- pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- f2rd-00.map                  flow_to_rd mapping file for nfacctd          HINT: IPs need to match with repro_ips
-- sampling-00.map              sampling mapping file for nfacctd            HINT: IPs need to match with repro_ips
-- custom-primitives-00.lst     list of custom primitives for nfacctd
+- nfacctd-00.conf                         nfacctd daemon configuration file
 
-- pretag-01.map                [for reload] pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- f2rd-01.map                  [for reload] flow_to_rd mapping file for nfacctd          HINT: IPs need to match with repro_ips
-- sampling-01.map              [for reload] sampling mapping file for nfacctd            HINT: IPs need to match with repro_ips
+- pmacct_mount/pretag-00.map              pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+- pmacct_mount/f2rd-00.map                flow_to_rd mapping file for nfacctd          HINT: IPs need to match with repro_ips
+- pmacct_mount/sampling-00.map            sampling mapping file for nfacctd            HINT: IPs need to match with repro_ips
+- pmacct_mount/custom-primitives-00.lst   list of custom primitives for nfacctd
 
-- output-flow-00.json          desired nfacctd kafka output [daisy.flow topic] containing json messages
-- output-log-00.log            log messages that need to be in the logfile
-- output-flow-01.json          desired nfacctd kafka output [daisy.flow topic] containing json messages
-- output-log-01.log            log messages that need to be in the logfile
+- pmacct_mount/pretag-01.map              [for reload] pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+- pmacct_mount/f2rd-01.map                [for reload] flow_to_rd mapping file for nfacctd          HINT: IPs need to match with repro_ips
+- pmacct_mount/sampling-01.map            [for reload] sampling mapping file for nfacctd            HINT: IPs need to match with repro_ips
+
+- output-flow-00.json                     desired nfacctd kafka output [daisy.flow topic] containing json messages
+- output-log-00.log                       log messages that need to be in the logfile
+- output-flow-01.json                     desired nfacctd kafka output [daisy.flow topic] containing json messages
+- output-log-01.log                       log messages that need to be in the logfile
 
 ### Test timeline:
 
-pcap file time duration: 
 t=0s --> the first full minute after starting the traffic generator
 
 - t=1s:   IPFIX Data-Template packets sent
@@ -41,7 +41,7 @@ t=0s --> the first full minute after starting the traffic generator
 After nfacctd produced to kafka (t=60s), check the following:
 
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
-- The timestamp values will change between runs, with the only exceptions being timestamp_start and timestamp_end, which come from IPFIX fields and will stay the same.
+- The timestamp values will change between runs (since we have NFv9 in this test, timestamp_start and timestamp_end also change between runs).
 - Order of the json messages could change
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - No ERROR or WARN/WARNING messages are present in the logfile
@@ -57,7 +57,7 @@ After nfacctd produced to kafka (t=60s), check the following:
 After nfacctd produced again to kafka, check the following:
 
 - The (new) nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-01.json".
-- The timestamp values will change between runs, with the only exceptions being timestamp_start and timestamp_end, which come from IPFIX fields and will stay the same.
+- The timestamp values will change between runs (since we have NFv9 in this test, timestamp_start and timestamp_end also change between runs).
 - Order of the json messages could change
 - Log messages (new) in "output-log-01.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - No ERROR or WARN/WARNING messages are present in the logfile

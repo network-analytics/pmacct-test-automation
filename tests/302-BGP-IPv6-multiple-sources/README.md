@@ -4,22 +4,23 @@ Testing with BGP traffic from 4 senders (mix ipv4 and ipv6), with 3 different so
 
 ### Provided files:
 
-- traffic-01.pcap              pcap file (for traffic reproducer)
-- traffic-02.pcap              pcap file (for traffic reproducer)
-- traffic-02.pcap              pcap file (for traffic reproducer)
-- traffic-03.pcap              pcap file (for traffic reproducer)
-- traffic-reproducer-00.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
-- traffic-reproducer-01.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
-- traffic-reproducer-02.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
-- traffic-reproducer-03.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
+- 302_test.py                               pytest file defining test execution
 
-- nfacctd-00.conf              nfacctd daemon configuration file
-- librdkafka-00.conf           librdkafka configuration for nfacctd
+- traffic-01.pcap                           pcap file (for traffic reproducer)
+- traffic-02.pcap                           pcap file (for traffic reproducer)
+- traffic-02.pcap                           pcap file (for traffic reproducer)
+- traffic-03.pcap                           pcap file (for traffic reproducer)
+- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-01.conf                traffic replay function config file
+- traffic-reproducer-02.conf                traffic replay function config file
+- traffic-reproducer-03.conf                traffic replay function config file
 
-- pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+- nfacctd-00.conf                           nfacctd daemon configuration file
 
-- output-bgp-00.json           desired nfacctd kafka output [daisy.bgp topic] containing json messages
-- output-log-00.log            log messages that need to be in the logfile                                  HINT: contains variable parameters
+- pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+
+- output-bgp-00.json                        desired nfacctd kafka output [daisy.bgp topic] containing json messages
+- output-log-00.log                         log messages that need to be in the logfile
 
 ### Test timeline:
 
@@ -34,12 +35,12 @@ pcaps file time duration:
 1. Part 1: start traffic reproducers (00, 01, 02, 03) with provided configs. 
 
 IMPORTANT: Make sure that you start the reproducers after in the 25s-55s range of a minute (to make sure timings and interactions between the pcaps are respected in all scenarios)!
-IMPORTANT: do not kill the traffic reproducer process of traffic-generator-02, which stays open thanks to keep_open=true!
+IMPORTANT: do not kill the traffic reproducer processes, which stay open thanks to keep_open=true!
 
 Check the following at t=60s:
 
 - The nfacctd kafka output messages in topic daisy.bgp need to match with  the json messages in "output-bgp-00.json".
-- The timestamp values will change between runs, with the only exceptions being timestamp_start and timestamp_end, which come from IPFIX fields and will stay the same.
+- The timestamp values will change between runs.
 - Order of the json messages could change (this means you also have to ignore any sequence numbers when comparing the json output!)
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - HINT: ${repro_ip} and ${bgp_id} can be one of the 4 used by the reproducers!
@@ -47,7 +48,7 @@ Check the following at t=60s:
 
 2. Part 2: 
 
-Now kill the traffic reproducer 02 (e.g. with CTRL-C). This will close the TCP sockets with nfacctd. 
+Now kill the traffic reproducers (e.g. with CTRL-C). This will close the TCP sockets with nfacctd. 
 Then check the following:
 
 - Log messages in "output-log-01.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)

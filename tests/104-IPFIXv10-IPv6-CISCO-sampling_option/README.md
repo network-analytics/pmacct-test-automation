@@ -4,20 +4,20 @@ IPFIX v10 from CISCO ASR9k IOS XR with IPFIX Data Template 342 and option 257 (c
 
 ### Provided files:
 
-- traffic-00.pcap              pcap file (for traffic generator)
-- traffic-reproducer-00.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
+- 104_test.py                               pytest file defining test execution
 
-- nfacctd-00.conf              nfacctd daemon configuration file
-- librdkafka-00.conf           librdkafka configuration for nfacctd
+- traffic-00.pcap                           pcap file (for traffic generator)
+- traffic-reproducer-00.conf                traffic replay function config file
 
-- pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- custom-primitives-00.lst     list of custom primitives for nfacctd
+- nfacctd-00.conf                           nfacctd daemon configuration file
 
-- output-flow-00.json          desired nfacctd kafka output [daisy.flow topic] containing json messages
+- pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+
+- output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
 
 ### Test timeline:
 
-pcap file time duration: 
 t=0s --> the first full minute after starting the traffic generator
 
 - t=2s:   IPFIX option-template and option packets sent

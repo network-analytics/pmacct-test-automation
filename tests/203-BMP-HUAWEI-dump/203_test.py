@@ -32,4 +32,4 @@ def main(consumers):
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 180, 10)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp.dump'), testParams,
-        'bmp-01', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
+        'bmp-dump-00', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
