@@ -21,7 +21,7 @@ def main(consumers):
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bgp'),
         testParams, 'bgp-00',
-        ['seq', 'timestamp', 'timestamp_arrival', 'peer_tcp_port', 'bgp_nexthop'])
+        ['seq', 'timestamp', 'timestamp_arrival', 'peer_tcp_port'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
@@ -33,7 +33,7 @@ def main(consumers):
     assert scripts.stop_and_remove_traffic_container(0)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bgp'),
-        testParams, 'bgp-01', ['seq', 'timestamp', 'timestamp_arrival', 'peer_tcp_port', 'bgp_nexthop'])
+        testParams, 'bgp-01', ['seq', 'timestamp', 'timestamp_arrival', 'peer_tcp_port'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-01')

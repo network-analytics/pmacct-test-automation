@@ -22,7 +22,7 @@ def main(consumer):
         assert scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bmp-00',
-        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop is wrong (?)
+        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')

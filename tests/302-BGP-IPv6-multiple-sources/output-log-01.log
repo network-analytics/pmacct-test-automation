@@ -1,3 +1,6 @@
-${TIMESTAMP} WARN ( nfacctd_core/core/BGP ): [${bgp_id}] Refusing new connection from existing peer (residual holdtime: ${RANDOM}).
-${TIMESTAMP} INFO ( nfacctd_core/core/BGP ): [${bgp_id}] BGP connection reset by peer (104).
+${TIMESTAMP} INFO ( nfacctd_core/core/BGP ): [${bgp_id}] BGP connection reset by peer (${RANDOM}).
+${TIMESTAMP} WARNING ( nfacctd_core/core/BGP ): Unable to get kafka_host: ${repro_ip}
+${TIMESTAMP} INFO ( nfacctd_core/core/BGP ): [${bgp_id}] BGP connection reset by peer (${RANDOM}).
+${TIMESTAMP} WARNING ( nfacctd_core/core/BGP ): Unable to get kafka_host: ${repro_ip}
+${TIMESTAMP} INFO ( nfacctd_core/core/BGP ): [${bgp_id}] BGP connection reset by peer (${RANDOM}).
 ${TIMESTAMP} WARNING ( nfacctd_core/core/BGP ): Unable to get kafka_host: ${repro_ip}

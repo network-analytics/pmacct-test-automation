@@ -4,16 +4,18 @@ Testing with kafka: losing kafka connection.
 
 ### Provided files:
 
-- traffic-reproducer-00.conf     traffic replay function config file          HINT: you'll have to adjust repro_ip
-- traffic-00.pcap                pcap file (for traffic generator)
+- 900_test.py                               pytest file defining test execution
 
-- nfacctd-00.conf                nfacctd daemon configuration file
-- librdkafka-00.conf             librdkafka configuration for nfacctd
+- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-00.pcap                           pcap file (for traffic generator)
 
-- pretag-00.map                  pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+- nfacctd-00.conf                           nfacctd daemon configuration file
 
-- output-log-00.log              log messages that need to be in the logfile                                  HINT: contains variable parameters
-- output-log-01.log              log messages that need to be in the logfile                                  HINT: contains variable parameters
+- pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+
+- output-log-00.log                         log messages that need to be in the logfile
+- output-log-01.log                         log messages that need to be in the logfile
 
 ### Test timeline:
 t=0s --> the first full minute after starting the traffic generator

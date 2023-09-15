@@ -4,11 +4,12 @@ Testing with redis: losing redis connection.
 
 ### Provided files:
 
-- nfacctd-00.conf                nfacctd daemon configuration file            HINT: you might want to change redis_ip
-- librdkafka-00.conf             librdkafka configuration for nfacctd
+- 901_test.py                    pytest file defining test execution
 
-- output-log-00.log            log messages that need to be in the logfile                                  HINT: contains variable parameters
-- output-log-01.log            log messages that need to be in the logfile                                  HINT: contains variable parameters
+- nfacctd-00.conf                nfacctd daemon configuration file            HINT: you might want to change redis_ip
+
+- output-log-00.log              log messages that need to be in the logfile
+- output-log-01.log              log messages that need to be in the logfile
 
 ### Test execution and results:
 

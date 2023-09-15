@@ -6,27 +6,27 @@ Testing with BMP traffic from 3 different source IPs.
 
 ### Provided files:
 
-- traffic-00.pcap              pcap file 1 (for traffic generator)
-- traffic-01.pcap              pcap file 2 (for traffic generator)
-- traffic-02.pcap              pcap file 3 (for traffic generator)
-- traffic-reproducer-00.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
-- traffic-reproducer-01.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
-- traffic-reproducer-02.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
+- 202_test.py                               pytest file defining test execution
 
-- pmbmpd-00.conf               pmbmpd daemon configuration file
-- librdkafka-00.conf           librdkafka configuration for pmbmpd
+- traffic-00.pcap                           pcap file 1 (for traffic generator)
+- traffic-01.pcap                           pcap file 2 (for traffic generator)
+- traffic-02.pcap                           pcap file 3 (for traffic generator)
+- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-01.conf                traffic replay function config file
+- traffic-reproducer-02.conf                traffic replay function config file
 
-- pretag-00.map                pretag mapping file for pmbmpd              HINT: IPs need to match with repro_ips
+- pmbmpd-00.conf                            pmbmpd daemon configuration file
 
-- output-bmp-00.json           desired pmbmpd kafka output [daisy.bgp topic] containing json messages [before closing sockets]
-- output-log-00.log            log messages that need to be in the logfile [before closing sockets]          HINT: contains variable parameters
-- output-log-01.log            log messages that need to be in the logfile [after closing socket]            HINT: contains variable parameters
+- pmacct_mount/pretag-00.map                pretag mapping file for pmbmpd              HINT: IPs need to match with repro_ips
+
+- output-bmp-00.json                        desired pmbmpd kafka output [daisy.bmp topic] containing json messages [before closing sockets]
+- output-log-00.log                         log messages that need to be in the logfile [before closing sockets]
+- output-log-01.log                         log messages that need to be in the logfile [after closing socket] 
 
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator
 
-pcaps file time duration: 
 - t=1-3s: BMP packets sent (from all 4 reproducers)
 
 ### Test execution and results:
@@ -41,7 +41,7 @@ After reproducing all the packet, the traffic generators do not exit (thanks to 
 - The timestamp values will change between runs.
 - Order of the json messages could change (this means you also have to ignore any sequence numbers when comparing the json output!)
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
-- HINT: ${repro_ip} can be one of the 3 repro-ips used by the reproducers!
+- HINT: for this specific test, as the traffic reproducers are started concurrently, the order of the logs messages for the 3 ${repro_ip} could change. Important is that all 3 repro_ips are there in the logs, no matter for which peer number.
 - Excluding the ones present in the output-log-00.log file, no additional ERROR or WARN/WARNING messages are present in the logfile
 
 2. Part 2: 

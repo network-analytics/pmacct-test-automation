@@ -4,20 +4,20 @@ BMP test with pcap from Huawei VRP 8.210 (daisy-61 IETF lab) [with global and lo
 
 ### Provided files:
 
-- traffic-00.pcap              pcap file (for traffic generator)
-- traffic-reproducer-00.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
+- 200_test.py                               pytest file defining test execution
 
-- nfacctd-00.conf              nfacctd daemon configuration file
-- librdkafka-00.conf           librdkafka configuration for nfacctd
+- traffic-00.pcap                           pcap file (for traffic generator)
+- traffic-reproducer-00.conf                traffic replay function config file
 
-- pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+- nfacctd-00.conf                           nfacctd daemon configuration file
 
-- output-bmp-00.json           desired nfacctd kafka output [daisy.bgp topic] containing json messages
-- output-log-00.log            log messages that need to be in the logfile                                  HINT: contains variable parameters
+- pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+
+- output-bmp-00.json                        desired nfacctd kafka output [daisy.bmp topic] containing json messages
+- output-log-00.log                         log messages that need to be in the logfile
 
 ### Test timeline:
 
-pcap file time duration: 
 t=0s --> the first full minute after starting the traffic generator
 
 - t=5s: BMP packets sent 

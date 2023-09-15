@@ -2,26 +2,24 @@
 
 IPFIX v10 + BMP global instance with IPV6 transport from CISCO IOS XR 7.8.2. Data-templates 266 and 342. Options Templates 334, 338, 256, 257.
 
-TODO (daisy side): test to be updated in the future once correlation is fixed.
-
 ### Provided files:
 
-- traffic-00.pcap              pcap file (for traffic generator)
-- traffic-reproducer-00.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
+- 401_test.py                               pytest file defining test execution
 
-- nfacctd-00.conf              nfacctd daemon configuration file
-- librdkafka-00.conf           librdkafka configuration for nfacctd
+- traffic-00.pcap                           pcap file (for traffic generator)
+- traffic-reproducer-00.conf                traffic replay function config file
 
-- pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- custom-primitives-00.lst     list of custom primitives for nfacctd
+- nfacctd-00.conf                           nfacctd daemon configuration file
 
-- output-flow-00.json          desired nfacctd kafka output [daisy.flow topic] containing json messages
-- output-bmp-00.json           desired nfacctd kafka output [daisy.bgp topic] containing json messages
-- output-log-00.log            log messages that need to be in the logfile                                  HINT: contains variable parameters
+- pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
+- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+
+- output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
+- output-bmp-00.json                        desired nfacctd kafka output [daisy.bmp topic] containing json messages
+- output-log-00.log                         log messages that need to be in the logfile
 
 ### Test timeline:
 
-pcap file time duration: 
 t=0s --> the first full minute after starting the traffic generator
 
 - t=1s: BMP Open

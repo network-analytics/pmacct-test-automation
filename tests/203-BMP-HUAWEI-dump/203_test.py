@@ -16,7 +16,7 @@ def main(consumers):
     assert repro_info
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'), testParams,
-        'bmp-00', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
+        'bmp-00', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port']) 
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
@@ -32,4 +32,4 @@ def main(consumers):
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 180, 10)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp.dump'), testParams,
-        'bmp-01', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'bgp_nexthop'])  # bgp_nexthop ?)
+        'bmp-dump-00', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])

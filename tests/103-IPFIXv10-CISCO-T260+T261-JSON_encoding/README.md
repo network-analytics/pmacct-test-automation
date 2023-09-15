@@ -6,17 +6,18 @@ Otherwise this is the same test as 100: IPFIX v10 from CISCO ASR9k IOS XR 7.5.2 
 
 ### Provided files:
 
+- 103_test.py                  pytest file defining test execution
+
 - traffic-00.pcap              pcap file (for traffic generator)
-- traffic-reproducer-00.conf   traffic replay function config file          HINT: you'll have to adjust repro_ip
+- traffic-reproducer-00.conf   traffic replay function config file
 
 - nfacctd-00.conf              nfacctd daemon configuration file
-- librdkafka-00.conf           librdkafka configuration for nfacctd
 
-- output-00.json               desired nfacctd kafka output [daisy.flow_json topic] containing json messages
+- output-flow-00.json          desired nfacctd kafka output [daisy.flow topic] containing json messages
+- output-log-00.log            log messages that need to be in the logfile
 
 ### Test timeline:
 
-pcap file time duration: ~20s
 t=0s --> the first full minute after starting the traffic generator
 
 - t=0s:   IPFIX Data-Template packets sent
