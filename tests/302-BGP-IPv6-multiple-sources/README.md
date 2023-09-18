@@ -2,6 +2,8 @@
 
 Testing with BGP traffic from 4 senders (mix ipv4 and ipv6), with 3 different source IPs. 2 senders have same IP and send the same BGP packets: pmacct will refuse the second connection. Testing also pretag with mix ipv4 and ipv6.
 
+TODO (daisy): this test is not stable most likely due to the traffic reproducers (sometimes duplicated connection is not attempted) --> investigate
+
 ### Provided files:
 
 - 302_test.py                               pytest file defining test execution
