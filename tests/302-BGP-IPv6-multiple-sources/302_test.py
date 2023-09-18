@@ -29,6 +29,7 @@ def main(consumer):
         wait_sec = 25 - curr_sec
         logger.debug('Waiting ' + str(wait_sec) + ' seconds')
         time.sleep(wait_sec)
+    # Make sure that traffic reproducers do not start in different minutes
     elif curr_sec > 55:
         wait_sec = 85 - curr_sec
         logger.debug('Waiting ' + str(wait_sec) + ' seconds')
@@ -52,6 +53,7 @@ def main(consumer):
         ['seq', 'timestamp', 'peer_tcp_port'], 90)
 
     # Wait to ensure traffic-reproducer-03 has attempted the connection
+    logger.debug('Waiting 25 seconds to ensure duplicated connection is attempted...')
     time.sleep(25)
 
     logfile = testParams.log_files.getFileLike('log-00')

@@ -2,7 +2,7 @@
 from library.py.setup_tools import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import logging, pytest, sys
+import logging, pytest, sys, time, datetime
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
@@ -12,6 +12,14 @@ def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
 def main(consumer):
+    # Make sure that traffic reproducers do not start in different minutes
+    curr_sec = datetime.datetime.now().second
+    logger.info('Minute seconds: ' + str(curr_sec))
+    if curr_sec > 55:
+        wait_sec = 85 - curr_sec
+        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
+        time.sleep(wait_sec)
+
     assert scripts.replay_pcap_detached(testParams.pcap_folders[0], 0)
     assert scripts.replay_pcap_detached(testParams.pcap_folders[1], 1)
 
