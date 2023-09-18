@@ -40,15 +40,18 @@ lsout="$( ls | tr '\n' ' ')"
 if [[ "$myarg" == "$lsout"  ]]; then
   # argument was an asterisk
   test_files="$( ls -d tests/**/*test*.py 2>/dev/null )"
-  test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
+  #test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
 else
   # argument was not an asterisk
   test_files=""
   for arg in "$@"; do
     test_files="$test_files $( ls -d tests/${arg}*/*test*.py 2>/dev/null )"
   done
-  test_files="${test_files## }"
+  #test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
+  #test_files="${test_files## }"
 fi
+test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
+test_files="${test_files## }"
 
 count="$( echo "$test_files" | wc -w )"
 
@@ -63,6 +66,7 @@ echo "Selected: $test_files"
 
 if [ $count -eq 1 ]; then
   test="${test_files:6:3}"
+  echo "Single test run: ${test}"
   testdir=$( dirname $test_files )
   cmd="python3 -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
   if [[ "$DRY_RUN" == "TRUE" ]]; then
@@ -77,6 +81,7 @@ if [ $count -eq 1 ]; then
   rm -rf ${testdir/tests/results}/assets
   mv results/assets ${testdir/tests/results}/
 else
+  echo "Multiple test run"
   rm -rf results/assets
   rm -f results/report.html
   echo "Multiple files"

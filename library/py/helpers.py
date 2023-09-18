@@ -142,6 +142,7 @@ def read_config_file(filename):
                 conf_data[key] = value
     return conf_data
 
+# Loads container resources information into a list of strings, for display
 def container_resources_string(json_str: str) -> List:
     dct = json.loads(json_str)
     ret = []
@@ -151,3 +152,15 @@ def container_resources_string(json_str: str) -> List:
     ret.append('Host CPU consumption: ' + dct['CPUPerc'])
     ret.append('Host memory consumption: ' + dct['MemPerc'])
     return ret
+
+# Returns the version of pmacct from the fist log line
+def read_pmacct_version(logfile: str) -> str:
+    with open(logfile) as f:
+        lines = f.read().splitlines()
+    if len(lines)<1:
+        return None
+    parts = lines[0].split('): ')
+    if len(parts)<2:
+        return None
+    return parts[1]
+

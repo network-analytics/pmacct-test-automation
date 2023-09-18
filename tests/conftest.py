@@ -46,9 +46,12 @@ def setup_pmacct(request):
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
     def checkfunction():
         return os.path.isfile(params.pmacct_log_file) and \
-            helpers.check_regex_sequence_in_file(params.pmacct_log_file, \
+            helpers.check_regex_sequence_in_file(params.pmacct_log_file,
                 ['_core/core .+ waiting for .+ data on interface'])
     assert helpers.retry_until_true('Pmacct first log line', checkfunction, 30, 5)
+    params.pmacct_version = helpers.read_pmacct_version(params.pmacct_log_file)
+    assert params.pmacct_version
+    logger.info('Pmacct version: ' + params.pmacct_version)
 
 
 @pytest.fixture(scope="module")
