@@ -125,6 +125,13 @@ class KFileList(list):
                 return filename
         return None
 
+def fix_repro_ip_in_config(ip_subnet, config, fw_ip):
+    if len(ip_subnet) < 1:
+        logger.info('Reference subnet not set, assuming traffic reproduction IP from framework subnet')
+    else:
+        logger.info('Reference subnet set, setting traffic reproduction IP to framework subnet')
+        config['network']['map'][0]['repro_ip'] = config['network']['map'][0]['repro_ip']. \
+            replace(ip_subnet, fw_ip)
 
 # RUNS AFTER PMACCT IS RUN
 # Prepares json output, log, pcap and pcap-config files
@@ -170,15 +177,9 @@ def prepare_pcap(_module):
                 data[k]['collector']['ip'] = pmacct_ip
 
         if isIPv6:
-            if len(params.test_subnet_ipv6)<1:
-                raise Exception('IPv6 used, but subnet not set in test case')
-            data['network']['map'][0]['repro_ip'] = data['network']['map'][0]['repro_ip'].\
-                replace(params.test_subnet_ipv6, 'fd25::10')
+            fix_repro_ip_in_config(params.test_subnet_ipv6, data, 'fd25::10')
         else:
-            if len(params.test_subnet_ipv4)<1:
-                raise Exception('IPv4 used, but subnet not set in test case')
-            data['network']['map'][0]['repro_ip'] = data['network']['map'][0]['repro_ip'].\
-                replace(params.test_subnet_ipv4, '172.21.1.10')
+            fix_repro_ip_in_config(params.test_subnet_ipv4, data, '172.21.1.10')
 
         with open(results_pcap_folder + '/traffic-reproducer.conf', 'w') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
