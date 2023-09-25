@@ -7,12 +7,31 @@
 
 #!/bin/bash
 
+function stop_monitor()
+{
+  echo "Called stop_monitor"
+  if [ -n "$MONITOR_PID" ]; then
+    echo "Stopping pmacct monitor with pid $MONITOR_PID"
+    kill -9 $MONITOR_PID
+  fi
+}
+
+function handle_interrupt()
+{
+  echo "Called handle_interrupt"
+  stop_monitor
+  tools/stop_all.sh
+}
+
+# trapping the SIGINT signal
+trap handle_interrupt SIGINT
+
 # exit if there is no argument
 if [ -z "$1" ]; then
-    echo "No argument supplied"
-    echo "Usage:   ./runtest.sh [--loglevel=<log level>] [--dry] <test case number> [<test_case_number> ...]"
-    echo "Example: ./runtest.sh --loglevel=DEBUG 103 202"
-    exit 1
+  echo "No argument supplied"
+  echo "Usage:   ./runtest.sh [--loglevel=<log level>] [--dry] <test case number> [<test_case_number> ...]"
+  echo "Example: ./runtest.sh --loglevel=DEBUG 103 202"
+  exit 1
 fi
 
 if [[ "${PWD##*/}" != "net_ana" ]]; then
@@ -38,17 +57,14 @@ myarg="$( echo "$@ " )"
 lsout="$( ls | tr '\n' ' ')"
 
 if [[ "$myarg" == "$lsout"  ]]; then
-  # argument was an asterisk
+  # argument was a plain asterisk
   test_files="$( ls -d tests/**/*test*.py 2>/dev/null )"
-  #test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
 else
   # argument was not an asterisk
   test_files=""
   for arg in "$@"; do
     test_files="$test_files $( ls -d tests/${arg}*/*test*.py 2>/dev/null )"
   done
-  #test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
-  #test_files="${test_files## }"
 fi
 test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
 test_files="${test_files## }"
@@ -64,22 +80,36 @@ echo "Will run $count test files"
 
 echo "Selected: $test_files"
 
+rndnum=$RANDOM
+tools/monitor.sh results/monitor_${rndnum}.log &
+MONITOR_PID=$!
+echo "Started pmacct monitor with pid $MONITOR_PID dumping to file results/monitor_${rndnum}.log"
+
 if [ $count -eq 1 ]; then
   test="${test_files:6:3}"
   echo "Single test run: ${test}"
   testdir=$( dirname $test_files )
+  resultsdir=${testdir/tests/results}
   cmd="python3 -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
   if [[ "$DRY_RUN" == "TRUE" ]]; then
     echo "$cmd"
     exit 0
   fi
+
   eval "$cmd"
   retCode=$?
-  echo "Moving report to the test case specific folder"
-  mv results/pytestlog${test}.log ${testdir/tests/results}/
-  mv results/report${test}.html ${testdir/tests/results}/
-  rm -rf ${testdir/tests/results}/assets
-  mv results/assets ${testdir/tests/results}/
+  # if retCode==2, then pytest has received SIGINT signal, and therefore runtest will receive it, too
+  if [ $retCode -ne 2 ]; then
+    stop_monitor
+  fi
+  if [ -d $resultstestdir ]; then
+    echo "Moving files to the test case specific folder"
+    mv results/pytestlog${test}.log ${$resultstestdir}/
+    mv results/report${test}.html ${$resultstestdir}/
+    rm -rf ${$resultstestdir}/assets
+    mv results/assets ${$resultstestdir}/
+    mv results/monitor_${rndnum}.log ${$resultstestdir}/
+  fi
 else
   echo "Multiple test run"
   rm -rf results/assets
@@ -92,6 +122,9 @@ else
   fi
   eval "$cmd"
   retCode=$?
+  # if retCode==2, then pytest has received SIGINT signal, and therefore runtest will receive it, too
+  if [ $retCode -ne 2 ]; then
+    stop_monitor
+  fi
 fi
 exit "$retCode"
-
