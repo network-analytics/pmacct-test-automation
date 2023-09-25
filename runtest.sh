@@ -29,12 +29,15 @@ trap handle_interrupt SIGINT
 # exit if there is no argument
 if [ -z "$1" ]; then
   echo "No argument supplied"
-  echo "Usage:   ./runtest.sh [--loglevel=<log level>] [--dry] <test case number> [<test_case_number> ...]"
+  echo "Usage:   ./runtest.sh [--dry] [--loglevel=<log level>] [--mark=<expression>] [--key=<expression>] \
+      <test case number> [<test_case_number> ...]"
   echo "Example: ./runtest.sh --loglevel=DEBUG 103 202"
   exit 1
 fi
 
-if [[ "${PWD##*/}" != "net_ana" ]]; then
+lsout="$( ls | tr '\n' ' ')"
+
+if [[ "$lsout" != *"library"*"pytest.ini"*"settings.conf"*"tests"*"tools"* ]]; then
   echo "Script not run from net_ana root directory"
   exit 1
 fi
@@ -45,16 +48,29 @@ if [[ "$1" == "--dry" ]]; then
   shift
 fi
 
-
-source ./settings.conf
-#LOG_LEVEL="INFO"
+source ./settings.conf # getting default LOG_LEVEL
 if [[ "$1" == "--loglevel="* ]]; then
   LOG_LEVEL=${1/--loglevel=/}
   shift
 fi
 
+MARKERS=
+if [[ "$1" == "--mark="* ]]; then
+  echo "1: $1"
+  MARKERS="-m \"${1/--mark=/}\""
+  echo "Markers: $MARKERS"
+  shift
+fi
+
+KEYS=
+if [[ "$1" == "--key="* ]]; then
+  echo "1: $1"
+  KEYS="-k \"${1/--key=/}\""
+  echo "Markers: $KEYS"
+  shift
+fi
+
 myarg="$( echo "$@ " )"
-lsout="$( ls | tr '\n' ' ')"
 
 if [[ "$myarg" == "$lsout"  ]]; then
   # argument was a plain asterisk
@@ -78,7 +94,7 @@ fi
 
 echo "Will run $count test files"
 
-echo "Selected: $test_files"
+echo "Test files: $test_files"
 
 rndnum=$RANDOM
 tools/monitor.sh results/monitor_${rndnum}.log &
@@ -90,12 +106,11 @@ if [ $count -eq 1 ]; then
   echo "Single test run: ${test}"
   testdir=$( dirname $test_files )
   resultsdir=${testdir/tests/results}
-  cmd="python3 -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
+  cmd="python3 -m pytest $MARKERS $KEYS $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
   if [[ "$DRY_RUN" == "TRUE" ]]; then
     echo "$cmd"
     exit 0
   fi
-
   eval "$cmd"
   retCode=$?
   # if retCode==2, then pytest has received SIGINT signal, and therefore runtest will receive it, too
@@ -115,9 +130,14 @@ else
   rm -rf results/assets
   rm -f results/report.html
   echo "Multiple files"
-  cmd="python3 -m pytest $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog.log --html=results/report.html"
+  cmd="python3 -m pytest $MARKERS $KEYS $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog.log --html=results/report.html"
   if [[ "$DRY_RUN" == "TRUE" ]]; then
+    echo
+    echo "Command to execute:"
     echo "$cmd"
+    echo
+    echo "pytest dry run (collection-only):"
+    eval "$cmd --collect-only"
     exit 0
   fi
   eval "$cmd"

@@ -5,7 +5,7 @@ OUTPUT_FILE=$1
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 
 rm -f ${OUTPUT_FILE}
-touch ${OUTPUT_FILE}
+#touch ${OUTPUT_FILE}
 
 while true; do
   if docker inspect pmacct >/dev/null 2>&1; then

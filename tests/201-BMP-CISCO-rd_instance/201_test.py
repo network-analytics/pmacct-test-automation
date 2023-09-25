@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
+@pytest.mark.cisco
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
