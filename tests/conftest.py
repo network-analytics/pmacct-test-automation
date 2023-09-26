@@ -38,7 +38,7 @@ def setup_pmacct(request):
     assert os.path.isfile(params.results_conf_file)
     for topic in list(params.kafka_topics.values()):
         assert scripts.create_or_clear_kafka_topic(topic)
-    img_var_name = 'PMACCT_' + params.daemon.upper()
+    img_var_name = 'PMACCT_' + params.daemon.upper() + '_IMG'
     config = helpers.read_config_file(params.root_folder + '/settings.conf')
     pmacct_img = config.get(img_var_name)
     assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder, params.daemon,

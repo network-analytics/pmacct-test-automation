@@ -46,7 +46,6 @@ fi
 
 MARKERS=
 if [[ "$1" == "--mark="* ]]; then
-  echo "1: $1"
   MARKERS="-m \"${1/--mark=/}\""
   echo "Markers: $MARKERS"
   shift
@@ -54,7 +53,6 @@ fi
 
 KEYS=
 if [[ "$1" == "--key="* ]]; then
-  echo "1: $1"
   KEYS="-k \"${1/--key=/}\""
   echo "Markers: $KEYS"
   shift

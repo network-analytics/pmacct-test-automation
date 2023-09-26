@@ -17,7 +17,7 @@ echo "Installing python library requirements"
 pip install -r requirements.txt || exit $?
 
 echo "Pulling docker images from repository"
-cat settings.conf | awk -F '=' '{print $2}' | while read -r value; do
+cat settings.conf | grep -v "#" | grep "_IMG=" | awk -F '=' '{print $2}' | while read -r value; do
   if [ ! -z $value ]; then
     docker pull "$value"
   fi
