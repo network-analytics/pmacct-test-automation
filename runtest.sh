@@ -33,30 +33,19 @@ if [[ "$lsout" != *"library"*"pytest.ini"*"settings.conf"*"tests"*"tools"* ]]; t
 fi
 
 DRY_RUN="FALSE"
-if [[ "$1" == "--dry" ]]; then
-  DRY_RUN="TRUE"
-  shift
-fi
-
 source ./settings.conf # getting default LOG_LEVEL
-if [[ "$1" == "--loglevel="* ]]; then
-  LOG_LEVEL=${1/--loglevel=/}
-  shift
-fi
-
 MARKERS=
-if [[ "$1" == "--mark="* ]]; then
-  MARKERS="-m \"${1/--mark=/}\""
-  echo "Markers: $MARKERS"
-  shift
-fi
-
 KEYS=
-if [[ "$1" == "--key="* ]]; then
-  KEYS="-k \"${1/--key=/}\""
-  echo "Markers: $KEYS"
-  shift
-fi
+for arg in "$@"
+  do
+    case $arg in
+      '--dry') DRY_RUN="TRUE" ; shift;;
+      '--loglevel='*) LOG_LEVEL=${arg/--loglevel=/} ; shift;;
+      '--mark='*) MARKERS=" -m \"${arg/--mark=/}\"" ; shift;;
+      '--key='*) KEYS=" -k \"${arg/--key=/}\"" ; shift;;
+      *) ;;
+    esac
+  done
 
 myarg="$( echo "$@ " )"
 if [[ "$myarg" == "$lsout"  ]]; then
@@ -70,10 +59,8 @@ else
   done
 fi
 
-test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | sed 's/ $/\n/' )
-while [[ "$test_files" == " "* ]]; do # remove leading spaces
-  test_files="${test_files## }"
-done
+# make a one-line list with single space between filenames
+test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | xargs )
 
 count="$( echo "$test_files" | wc -w )"
 if [ $count -lt 1 ]; then
@@ -84,18 +71,21 @@ fi
 echo "Will run $count test files"
 echo "Test files: $test_files"
 
+function run_pytest() {
+  cmd="python3 -m pytest${MARKERS}${KEYS} $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
+  if [[ "$DRY_RUN" == "TRUE" ]]; then
+    echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
+    cmd="$cmd --collect-only"
+  fi
+  eval "$cmd"
+}
+
 if [ $count -eq 1 ]; then
   test="${test_files:6:3}"
   echo "Single test run: ${test}"
   testdir=$( dirname $test_files )
   resultstestdir=${testdir/tests/results}
-  cmd="python3 -m pytest $MARKERS $KEYS $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
-  if [[ "$DRY_RUN" == "TRUE" ]]; then
-    echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
-    eval "$cmd --collect-only"
-    exit 0
-  fi
-  eval "$cmd"
+  run_pytest
   retCode=$?
   if [ -d $resultstestdir ]; then
     echo "Moving files to the test case specific folder: $resultstestdir/"
@@ -105,17 +95,11 @@ if [ $count -eq 1 ]; then
     mv results/assets ${resultstestdir}/
   fi
 else
+  test=""
   echo "Multiple test run"
   rm -rf results/assets
   rm -f results/report.html
-  echo "Multiple files"
-  cmd="python3 -m pytest $MARKERS $KEYS $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog.log --html=results/report.html"
-  if [[ "$DRY_RUN" == "TRUE" ]]; then
-    echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
-    eval "$cmd --collect-only"
-    exit 0
-  fi
-  eval "$cmd"
+  run_pytest
   retCode=$?
 fi
 exit "$retCode"
