@@ -99,10 +99,10 @@ if [ $count -eq 1 ]; then
   retCode=$?
   if [ -d $resultstestdir ]; then
     echo "Moving files to the test case specific folder: $resultstestdir/"
-    mv results/pytestlog${test}.log ${$resultstestdir}/
-    mv results/report${test}.html ${$resultstestdir}/
-    rm -rf ${$resultstestdir}/assets
-    mv results/assets ${$resultstestdir}/
+    mv results/pytestlog${test}.log ${resultstestdir}/
+    mv results/report${test}.html ${resultstestdir}/
+    rm -rf ${resultstestdir}/assets
+    mv results/assets ${resultstestdir}/
   fi
 else
   echo "Multiple test run"
