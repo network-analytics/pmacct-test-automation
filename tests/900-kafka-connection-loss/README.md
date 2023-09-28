@@ -30,7 +30,7 @@ pcap traffic-00.pcap file time duration:
 
 - start nfacctd and kafka normally
 - check log messages in "output-log-00.log" and verify that they are present in the logfile (order of appearence preserved, but there could/will be other logs in between) --> as long as this is successful you can proceed to part 2
-- No ERROR or WARN/WARNING messages are present in the logfile
+- No ERROR or WARN messages are present in the logfile
 
 2. Part 2:
 

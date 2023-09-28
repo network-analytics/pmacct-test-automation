@@ -28,7 +28,7 @@ def main(consumers):
     logfile = testParams.log_files.getFileLike('log-00')
     test_tools.transform_log_file(logfile, repro_info['repro_ip'])
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN(?!.*Unable to get kafka_host)'])
 
     logger.info('Stopping traffic container (closing TCP connections)')
     assert scripts.stop_and_remove_traffic_container(0)
@@ -41,4 +41,4 @@ def main(consumers):
     logfile = testParams.log_files.getFileLike('log-01')
     test_tools.transform_log_file(logfile, repro_info['repro_ip'])
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN(?!.*Unable to get kafka_host)'])

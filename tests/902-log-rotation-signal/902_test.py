@@ -17,7 +17,7 @@ def main(consumer):
     logfile = testParams.log_files.getFileLike('log-00')
     test_tools.transform_log_file(logfile)
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
 
     os.rename(testParams.pmacct_log_file, testParams.pmacct_log_file + '.bak')
     assert not os.path.isfile(testParams.pmacct_log_file)

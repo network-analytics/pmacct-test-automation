@@ -27,4 +27,4 @@ def main(consumer):
         ['timestamp_max', 'timestamp_arrival', 'stamp_inserted',
          'timestamp_min', 'stamp_updated', 'timestamp_start', 'timestamp_end'])
 
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])

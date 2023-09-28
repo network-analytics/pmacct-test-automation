@@ -18,7 +18,7 @@ def main(consumer):
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 5)
     #assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
 
     consumer.disconnect() # For the Kafka consumer not to hang when Kafka is killed
     # Kafka infrastructure is stopped

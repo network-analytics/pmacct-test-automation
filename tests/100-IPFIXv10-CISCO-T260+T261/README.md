@@ -29,4 +29,4 @@ After nfacctd produced to kafka (t=60s), check the following:
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json". 
 - The timestamp values will change between runs, with the only exceptions being timestamp_start and timestamp_end, which come from IPFIX v10 fields and will stay the same.
 - Order of the json messages could change
-- No ERROR or WARN/WARNING messages are present in the logfile
+- No ERROR or WARN messages are present in the logfile

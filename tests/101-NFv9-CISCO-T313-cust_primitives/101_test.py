@@ -26,5 +26,5 @@ def main(consumer):
     # retry needed for the last message ('Purging cache - END (PID: xx, QN: 51/51, ET: 0)') to exist in logs
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
 

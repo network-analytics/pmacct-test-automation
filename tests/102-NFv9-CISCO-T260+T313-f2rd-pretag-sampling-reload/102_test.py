@@ -28,7 +28,7 @@ def main(consumer):
     logfile = testParams.log_files.getFileLike('log-00')
     transform_log_file(logfile)
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
 
     # Replace -00 maps with -01 maps
     for filename in [testParams.results_mount_folder + '/' + mf for mf in ['f2rd', 'pretag', 'sampling']]:
@@ -48,4 +48,4 @@ def main(consumer):
     logfile = testParams.log_files.getFileLike('log-01')
     transform_log_file(logfile)
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])

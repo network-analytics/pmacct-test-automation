@@ -45,7 +45,7 @@ After nfacctd produced to kafka (t=60s), check the following:
 - The timestamp values will change between runs, with the only exceptions being timestamp_start and timestamp_end, which come from IPFIX fields and will stay the same.
 - Order of the json messages could change (this means you also have to ignore any sequence numbers when comparing the json output!)
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
-- No ERROR or WARN/WARNING messages are present in the logfile
+- No ERROR or WARN messages are present in the logfile
 
 2. Part 2: 
 
@@ -54,4 +54,4 @@ Then check the following:
 
 - The (new) nfacctd kafka output messages in topic daisy.bmp need to match with the json messages in "output-bmp-01.json".
 - Log messages in "output-log-01.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
-- Excluding the ones present in the output-log-01.log file, no additional ERROR or WARN/WARNING messages are present in the logfile
+- Excluding the ones present in the output-log-01.log file, no additional ERROR or WARN messages are present in the logfile
