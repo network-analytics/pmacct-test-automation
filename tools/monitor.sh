@@ -7,7 +7,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 rm -f ${OUTPUT_FILE}
 #touch ${OUTPUT_FILE}
 
-echo "Monitor -- outputting to file: $OUTPUT_FILE"
+echo "Monitoring pmacct container resource needs -- outputting to file: $OUTPUT_FILE"
 
 while true; do
   if docker inspect pmacct >/dev/null 2>&1; then

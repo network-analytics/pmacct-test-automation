@@ -51,7 +51,7 @@ def create_mount_and_output_folders(params: KModuleParams):
     _mask = os.umask(0)
     os.makedirs(params.results_output_folder, 0o770)
     os.umask(_mask)
-    open(params.results_output_folder + '/pmacctd.log', 'w').close()
+    #open(params.results_output_folder + '/pmacctd.log', 'w').close()
     logger.debug('Mount and output folders created')
 
 # Files in mounted folder, for pmacct to read
@@ -99,6 +99,8 @@ def prepare_test_env(_module):
 
     edit_conf_mount_folder(config, params)
     edit_conf_output_folder(config, params)
+    config.replace_value_of_key_ending_with('avro_schema_file', params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
+    config.replace_value_of_key_ending_with('avro_schema_output_file', params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
     config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key_ending_with('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
     config.replace_value_of_key_ending_with('kafka_avro_schema_registry', 'http://schema-registry:8081')

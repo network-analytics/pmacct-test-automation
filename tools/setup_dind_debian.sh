@@ -18,7 +18,7 @@ echo "Installing python library requirements"
 pip install -r requirements.txt || exit $?
 
 echo "Pulling docker images from repository"
-cat settings.conf | awk -F '=' '{print $2}' | while read -r value; do
+cat settings.conf | grep -v "#" | grep "_IMG=" | awk -F '=' '{print $2}' | while read -r value; do
   if [ ! -z $value ]; then
     docker pull "$value"
   fi
@@ -26,5 +26,5 @@ done
 
 echo "Building traffic reproducer docker images"
 cd tools/pcap_player
-docker build -t traffic-reproducer -f single/Dockerfile_debian . || exit $?
-docker build -t traffic-reproducer-multi -f multi/Dockerfile_debian . || exit $?
+docker build -t traffic-reproducer -f single/Dockerfile . || exit $?
+docker build -t traffic-reproducer-multi -f multi/Dockerfile . || exit $?
