@@ -42,7 +42,7 @@ After reproducing all the packet, the traffic generators do not exit (thanks to 
 - Order of the json messages could change (this means you also have to ignore any sequence numbers when comparing the json output!)
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - HINT: for this specific test, as the traffic reproducers are started concurrently, the order of the logs messages for the 3 ${repro_ip} could change. Important is that all 3 repro_ips are there in the logs, no matter for which peer number.
-- Excluding the ones present in the output-log-00.log file, no additional ERROR or WARN/WARNING messages are present in the logfile
+- Excluding the ones present in the output-log-00.log file, no additional ERROR or WARN messages are present in the logfile
 
 2. Part 2: 
 
@@ -50,4 +50,4 @@ Now kill the traffic reproducer (e.g. with CTRL-C). This will close the TCP sock
 Then check the following:
 
 - Log messages in "output-log-01.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
-- Excluding the ones present in the output-log-01.log file, no additional ERROR or WARN/WARNING messages are present in the logfile
+- Excluding the ones present in the output-log-01.log file, no additional ERROR or WARN messages are present in the logfile

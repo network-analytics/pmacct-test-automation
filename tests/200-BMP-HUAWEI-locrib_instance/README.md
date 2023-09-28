@@ -31,4 +31,4 @@ After nfacctd produced to kafka, check the following:
 - The timestamp values will change between runs.
 - Order of the json messages could change (this means you also have to ignore any sequence numbers when comparing the json output!)
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
-- Excluding the ones present in the output-log-00.log file, no additional ERROR or WARN/WARNING messages are present in the logfile
+- Excluding the ones present in the output-log-00.log file, no additional ERROR or WARN messages are present in the logfile

@@ -33,4 +33,4 @@ After nfacctd produced to kafka (t=60s), check the following:
 - The timestamp values will change between runs, with the only exceptions being timestamp_start and timestamp_end, which come from IPFIX fields and will stay the same.
 - Order of the json messages could change
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
-- No ERROR or WARN/WARNING messages are present in the logfile
+- No ERROR or WARN messages are present in the logfile

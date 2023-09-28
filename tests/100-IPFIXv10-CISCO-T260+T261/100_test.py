@@ -1,5 +1,6 @@
 
 from library.py.setup_tools import KModuleParams
+import library.py.helpers as helpers
 import library.py.scripts as scripts
 import library.py.test_tools as test_tools
 import logging, pytest, sys
@@ -15,3 +16,5 @@ def main(consumer):
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
         ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
+    
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])

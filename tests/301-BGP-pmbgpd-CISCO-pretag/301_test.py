@@ -23,4 +23,4 @@ def main(consumer):
     test_tools.transform_log_file(logfile, repro_info['repro_ip'], repro_info['bgp_id'])
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN(?!.*Unable to get kafka_host)'])
