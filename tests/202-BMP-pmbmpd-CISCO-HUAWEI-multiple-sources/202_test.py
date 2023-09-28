@@ -31,7 +31,7 @@ def main(consumer):
     assert helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['\\[172\\.21\\.1\\.101] BMP peers usage'])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['\\[172\\.21\\.1\\.102] BMP peers usage'])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['\\[172\\.21\\.1\\.103] BMP peers usage'])
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN(?!.*Unable to get kafka_host)'])
 
     for i in range(len(testParams.pcap_folders)):
         scripts.stop_and_remove_traffic_container(i)
@@ -39,7 +39,8 @@ def main(consumer):
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-01')
     transform_log_file(logfile)
-    # Retry needed for the last regex (WARNING) to be found in the logs!
+
+    # Retry needed for the last regex (WARN) to be found in the logs!
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARNING(?!.*Unable to get kafka_host)'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN(?!.*Unable to get kafka_host)'])

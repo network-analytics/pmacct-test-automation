@@ -38,4 +38,4 @@ After nfacctd produced to kafka (t=60s), check the following:
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
 - The timestamp values will change between runs (since we have NFv9 in this test, timestamp_start and timestamp_end also change between runs).
 - Order of the json messages could change
-- No ERROR or WARN/WARNING messages are present in the logfile
+- No ERROR or WARN messages are present in the logfile

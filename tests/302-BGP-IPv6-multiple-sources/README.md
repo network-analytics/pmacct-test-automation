@@ -46,7 +46,7 @@ Check the following at t=60s:
 - Order of the json messages could change (this means you also have to ignore any sequence numbers when comparing the json output!)
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - HINT: ${repro_ip} and ${bgp_id} can be one of the 4 used by the reproducers!
-- Excluding the ones present in the output-log-00.log file, no additional ERROR or WARN/WARNING messages are present in the logfile
+- Excluding the ones present in the output-log-00.log file, no additional ERROR or WARN messages are present in the logfile
 
 2. Part 2: 
 
@@ -54,4 +54,4 @@ Now kill the traffic reproducers (e.g. with CTRL-C). This will close the TCP soc
 Then check the following:
 
 - Log messages in "output-log-01.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
-- Excluding the ones present in the output-log-01.log file, no additional ERROR or WARN/WARNING messages are present in the logfile
+- Excluding the ones present in the output-log-01.log file, no additional ERROR or WARN messages are present in the logfile
