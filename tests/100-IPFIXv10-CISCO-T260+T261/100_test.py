@@ -1,5 +1,6 @@
 
 from library.py.setup_tools import KModuleParams
+import library.py.helpers as helpers
 import library.py.scripts as scripts
 import library.py.test_tools as test_tools
 import logging, pytest, sys
