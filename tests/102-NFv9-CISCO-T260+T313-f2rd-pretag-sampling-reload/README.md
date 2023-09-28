@@ -41,7 +41,7 @@ t=0s --> the first full minute after starting the traffic generator
 After nfacctd produced to kafka (t=60s), check the following:
 
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
-- The timestamp values will change between runs (since we have NFv9 in this test, timestamp_start and timestamp_end also change between runs).
+- The timestamp values will change between runs, with the only exceptions being timestamp_export, timestamp_start, and timestamp_end, which come from IPFIX/NFv9 fields and will stay the same.
 - Order of the json messages could change
 - Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - No ERROR or WARN messages are present in the logfile
@@ -57,7 +57,7 @@ After nfacctd produced to kafka (t=60s), check the following:
 After nfacctd produced again to kafka, check the following:
 
 - The (new) nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-01.json".
-- The timestamp values will change between runs (since we have NFv9 in this test, timestamp_start and timestamp_end also change between runs).
+- The timestamp values will change between runs, with the only exceptions being timestamp_export, timestamp_start, and timestamp_end, which come from IPFIX/NFv9 fields and will stay the same.
 - Order of the json messages could change
 - Log messages (new) in "output-log-01.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - No ERROR or WARN messages are present in the logfile

@@ -21,8 +21,7 @@ def main(consumer):
     assert scripts.replay_pcap(testParams.pcap_folders[0])
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
-        ['timestamp_start', 'timestamp_end', 'timestamp_arrival',
-         'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
+        ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')
@@ -41,8 +40,7 @@ def main(consumer):
     assert scripts.replay_pcap(testParams.pcap_folders[0])
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-01',
-        ['timestamp_start', 'timestamp_end', 'timestamp_arrival',
-         'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
+        ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-01')
