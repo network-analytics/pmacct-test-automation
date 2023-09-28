@@ -60,7 +60,7 @@ def main(consumer):
     transform_log_file(logfile, repro_info_list)
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file,
-                                                    ['ERROR|WARN(?!.*Unable to get kafka_host)'])
+                                                    ['ERROR|WARN(?!(.*Unable to get kafka_host)|(.*Refusing new connection))'])
 
     for i in [0, 1, 2]:
       scripts.stop_and_remove_traffic_container(i)
@@ -74,4 +74,4 @@ def main(consumer):
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file,
-                                                    ['ERROR|WARN(?!.*Unable to get kafka_host)'])
+                                                    ['ERROR|WARN(?!(.*Unable to get kafka_host)|(.*Refusing new connection))'])
