@@ -15,6 +15,6 @@ def main(consumer):
     assert scripts.replay_pcap(testParams.pcap_folders[0])
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
-        ['timestamp_max', 'timestamp_arrival', 'stamp_inserted', 'timestamp_min', 'stamp_updated'])
+        ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
 
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
