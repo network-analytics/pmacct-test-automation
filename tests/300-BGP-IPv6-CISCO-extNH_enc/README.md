@@ -7,7 +7,7 @@ BGP from IOS XR 7.8.2 (ipt-zhh921-b-des-01) containing multi-protocol, route-ref
 - 300_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
@@ -29,7 +29,7 @@ t=0s --> the first full minute after starting the traffic generator
 
 IMPORTANT: do not kill the traffic reproducer process!
 
-After reproducing all the packet, the traffic generator does not exit (thanks to keep_open: true in traffic-reproducer-00.conf), and thus the TCP sockets with nfacctd thus remain open. 
+After reproducing all the packet, the traffic generator does not exit (thanks to keep_open: true in traffic-reproducer-00.yml ), and thus the TCP sockets with nfacctd thus remain open. 
 Check the following:
 
 - The nfacctd kafka output messages in topic daisy.bgp need to match with  the json messages in "output-bgp-00.json".

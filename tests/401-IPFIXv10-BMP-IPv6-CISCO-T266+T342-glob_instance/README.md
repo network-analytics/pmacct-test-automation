@@ -7,7 +7,7 @@ IPFIX v10 + BMP global instance with IPV6 transport from CISCO IOS XR 7.8.2. Dat
 - 401_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 

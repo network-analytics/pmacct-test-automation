@@ -9,9 +9,9 @@ Test with ipfix only from 3 different source IPs (pcaps from tests 100, 101 and 
 - traffic-00.pcap                           pcap file 1 (for traffic generator)
 - traffic-01.pcap                           pcap file 2 (for traffic generator)
 - traffic-02.pcap                           pcap file 3 (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file
-- traffic-reproducer-01.conf                traffic replay function config file
-- traffic-reproducer-02.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
+- traffic-reproducer-01.yml                 traffic replay function config file
+- traffic-reproducer-02.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 

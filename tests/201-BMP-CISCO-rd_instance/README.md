@@ -7,7 +7,7 @@ BMP test with pcap from IOS XR 7.4.1 (daisy-55 IETF lab) [with rd instance peers
 - 201_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 

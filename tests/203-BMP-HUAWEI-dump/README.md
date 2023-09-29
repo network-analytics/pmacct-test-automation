@@ -7,7 +7,7 @@ Test for verifying BMP regular dump feature. Pcap taken from test 200: Huawei VR
 - 203_test.py                  pytest file defining test execution
 
 - traffic-00.pcap              pcap file (for traffic generator)
-- traffic-reproducer-00.conf   traffic replay function config file
+- traffic-reproducer-00.yml    traffic replay function config file
 
 - nfacctd-00.conf              nfacctd daemon configuration file
 
@@ -28,7 +28,7 @@ Part 1: Start traffic reproducer with provided config.
 
 IMPORTANT: do not kill the traffic reproducer process!
 
-After reproducing all the packet, the traffic generator does not exit (thanks to keep_open: true in traffic-reproducer-00.conf), and thus the TCP sockets with nfacctd thus remain open. 
+After reproducing all the packet, the traffic generator does not exit (thanks to keep_open: true in traffic-reproducer-00.yml ), and thus the TCP sockets with nfacctd thus remain open. 
 Check the following:
 
 - The nfacctd kafka output messages in topic daisy.bmp need to match with  the json messages in "output-bmp-00.json".

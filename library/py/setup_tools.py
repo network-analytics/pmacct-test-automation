@@ -161,7 +161,7 @@ def fix_repro_ip_in_config(ip_subnet, config, fw_ip):
 # Prepares json output, log, pcap and pcap-config files
 def prepare_pcap(_module):
     params = _module.testParams
-    test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\\d+.conf$')
+    test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\\d+.yml$')
     test_pcap_files = select_files(params.test_folder, 'traffic.*-\\d+.pcap$')
     assert len(test_pcap_files)==len(test_config_files)
 
@@ -170,10 +170,10 @@ def prepare_pcap(_module):
         os.makedirs(results_pcap_folder)
         logger.debug('Created folder ' + short_name(results_pcap_folder))
         params.pcap_folders.append(results_pcap_folder)
-        shutil.copy(params.test_folder + '/' + test_config_files[i], results_pcap_folder + '/traffic-reproducer.conf')
+        shutil.copy(params.test_folder + '/' + test_config_files[i], results_pcap_folder + '/traffic-reproducer.yml')
         shutil.copy(params.test_folder + '/' + test_pcap_files[i], results_pcap_folder + '/traffic.pcap')
 
-        with open(results_pcap_folder + '/traffic-reproducer.conf') as f:
+        with open(results_pcap_folder + '/traffic-reproducer.yml') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
         data['pcap'] = '/pcap/traffic.pcap'
 
@@ -190,5 +190,5 @@ def prepare_pcap(_module):
         else:
             fix_repro_ip_in_config(params.test_subnet_ipv4, data, '172.21.1.10')
 
-        with open(results_pcap_folder + '/traffic-reproducer.conf', 'w') as f:
+        with open(results_pcap_folder + '/traffic-reproducer.yml', 'w') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)

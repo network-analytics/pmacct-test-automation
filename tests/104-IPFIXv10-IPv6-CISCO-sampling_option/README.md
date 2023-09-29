@@ -7,7 +7,7 @@ IPFIX v10 from CISCO ASR9k IOS XR with IPFIX Data Template 342 and option 257 (c
 - 104_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 

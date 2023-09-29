@@ -2,12 +2,17 @@
 
 NetFlow v9 from CISCO ASR9k IOS XR with IPFIX data only (template 313).
 
+### Scenarios:
+
+- scenario 1: DEFAULT, basic nfacctd config
+- scenario 2: nfacctd_pre_processing_checks enabled (regression test to check that we don't lose data with the new checks)
+
 ### Provided files:
 
 - 101_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 

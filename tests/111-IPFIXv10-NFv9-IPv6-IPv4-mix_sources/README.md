@@ -8,8 +8,8 @@ Test with IPFIX and NFv9 from 2 different source IPs, one ipv4 and the other ipv
 
 - traffic-00.pcap                           pcap file (for traffic generator)
 - traffic-01.pcap                           pcap file (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file      
-- traffic-reproducer-01.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file      
+- traffic-reproducer-01.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 

@@ -11,7 +11,7 @@ IPFIX and BGP from IOS XR 7.8.2 with IPv6 transport. BGP with ext-NH encoding (i
 - 501_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 

@@ -6,7 +6,7 @@ Testing with kafka: losing kafka connection.
 
 - 900_test.py                               pytest file defining test execution
 
-- traffic-reproducer-00.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
 - traffic-00.pcap                           pcap file (for traffic generator)
 
 - nfacctd-00.conf                           nfacctd daemon configuration file

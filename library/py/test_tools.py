@@ -48,7 +48,7 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
     logger.info('Creating common mount pcap folder for folders: ' + folder_names)
 
     def getREPROIPandBGPID(pcap_mount_folder):
-        with open(pcap_mount_folder + '/traffic-reproducer.conf') as f:
+        with open(pcap_mount_folder + '/traffic-reproducer.yml') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
         repro_info = [data['network']['map'][0]['repro_ip'], None]
         if 'bgp_id' in data['network']['map'][0]:
@@ -70,7 +70,7 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
     for i in range(len(pcap_mount_folders)):
         dst = pcap_folder + '/pcap' + str(i)
         shutil.copytree(pcap_mount_folders[i], dst)
-        helpers.replace_in_file(dst + '/traffic-reproducer.conf', '/pcap/traffic.pcap',
+        helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/traffic.pcap',
                                 '/pcap/pcap' + str(i) + '/traffic.pcap')
 
     return pcap_folder

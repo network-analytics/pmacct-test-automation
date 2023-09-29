@@ -2,7 +2,8 @@
 
 Testing with BGP traffic from 4 senders (mix ipv4 and ipv6), with 3 different source IPs. 2 senders have same IP and send the same BGP packets: pmacct will refuse the second connection. Testing also pretag with mix ipv4 and ipv6.
 
-TODO (daisy): this test is not stable most likely due to the traffic reproducers (sometimes duplicated connection is not attempted) --> investigate
+TODO (daisy): this test is not stable most likely due to the traffic reproducers (sometimes duplicated connection is not attempted)
+              --> lately it has always been stable... (maybe resolved by timing constraints?)
 
 ### Provided files:
 
@@ -12,10 +13,10 @@ TODO (daisy): this test is not stable most likely due to the traffic reproducers
 - traffic-02.pcap                           pcap file (for traffic reproducer)
 - traffic-02.pcap                           pcap file (for traffic reproducer)
 - traffic-03.pcap                           pcap file (for traffic reproducer)
-- traffic-reproducer-00.conf                traffic replay function config file
-- traffic-reproducer-01.conf                traffic replay function config file
-- traffic-reproducer-02.conf                traffic replay function config file
-- traffic-reproducer-03.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
+- traffic-reproducer-01.yml                 traffic replay function config file
+- traffic-reproducer-02.yml                 traffic replay function config file
+- traffic-reproducer-03.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
