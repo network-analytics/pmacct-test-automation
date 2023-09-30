@@ -37,6 +37,19 @@ def kafka_infra_setup():
     setup_kafka_infra()
 
 
+@pytest.fixture(scope="module")
+def pmacct_logcheck(request):
+    params = request.module.testParams
+    def checkfunction():
+        return os.path.isfile(params.pmacct_log_file) and \
+            helpers.check_regex_sequence_in_file(params.pmacct_log_file,
+                ['_core/core .+ waiting for .+ data on interface'])
+    assert helpers.retry_until_true('Pmacct first log line', checkfunction, 30, 5)
+    params.pmacct_version = helpers.read_pmacct_version(params.pmacct_log_file)
+    assert params.pmacct_version
+    logger.info('Pmacct version: ' + params.pmacct_version)
+
+
 def setup_pmacct(request):
     params = request.module.testParams
     assert os.path.isfile(params.results_conf_file)
@@ -48,14 +61,6 @@ def setup_pmacct(request):
     assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder, params.daemon,
         pmacct_img)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
-    def checkfunction():
-        return os.path.isfile(params.pmacct_log_file) and \
-            helpers.check_regex_sequence_in_file(params.pmacct_log_file,
-                ['_core/core .+ waiting for .+ data on interface'])
-    assert helpers.retry_until_true('Pmacct first log line', checkfunction, 30, 5)
-    params.pmacct_version = helpers.read_pmacct_version(params.pmacct_log_file)
-    assert params.pmacct_version
-    logger.info('Pmacct version: ' + params.pmacct_version)
 
 
 @pytest.fixture(scope="module")
@@ -158,5 +163,5 @@ def test_name_logging(request):
 # Abstract fixture, which incorporates all common (core) fixtures
 @pytest.fixture(scope="module")
 def test_core(check_root_dir, kafka_infra_setup_teardown, test_name_logging, prepare_test, pmacct_setup_teardown,
-              prepare_pcap):
+              pmacct_logcheck, prepare_pcap):
     pass
