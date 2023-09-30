@@ -10,4 +10,4 @@ assets/*
 results_working
 **/*.tmp
 tests/*/tmp.py
-
+**/*.bak

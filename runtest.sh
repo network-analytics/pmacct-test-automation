@@ -21,11 +21,13 @@ trap handle_interrupt SIGINT
 if [ -z "$1" ]; then
   echo "No argument supplied"
   echo "Usage:   ./runtest.sh [--dry] [--loglevel=<log level>] [--mark=<expression>] [--key=<expression>] \
-      <test case number> [<test_case_number> ...]"
+[--scenario=<scenario>] <test case number> [<test_case_number> ...]"
   echo "Example: ./runtest.sh --loglevel=DEBUG 103 202"
+  echo "         ./runtest.sh --dry 103 202 --key=cisco"
   exit 1
 fi
 
+init_args="$@"
 lsout="$( ls | tr '\n' ' ')"
 if [[ "$lsout" != *"library"*"pytest.ini"*"settings.conf"*"tests"*"tools"* ]]; then
   echo "Script not run from net_ana root directory"
@@ -36,6 +38,8 @@ DRY_RUN="FALSE"
 source ./settings.conf # getting default LOG_LEVEL
 MARKERS=
 KEYS=
+SCENARIO=
+TESTS=()
 for arg in "$@"
   do
     case $arg in
@@ -43,36 +47,33 @@ for arg in "$@"
       '--loglevel='*) LOG_LEVEL=${arg/--loglevel=/} ; shift;;
       '--mark='*) MARKERS=" -m \"${arg/--mark=/}\"" ; shift;;
       '--key='*) KEYS=" -k \"${arg/--key=/}\"" ; shift;;
-      *) ;;
+      '--scenario='*) SCENARIO=" --scenario ${arg/--scenario=/}" ; shift;;
+      *) TESTS+=(${arg});;
     esac
   done
 
-myarg="$( echo "$@ " )"
-if [[ "$myarg" == "$lsout"  ]]; then
-  # argument was a plain asterisk
-  test_files="$( ls -d tests/**/*test*.py 2>/dev/null )"
+if [[ "${TESTS[@]} " == "$lsout"  ]]; then
+  # argument was an asterisk
+  test_files=($( ls -d tests/**/*test*.py 2>/dev/null ))
 else
   # argument was not an asterisk
-  test_files=""
-  for arg in "$@"; do
-    test_files="$test_files $( ls -d tests/${arg}*/*test*.py 2>/dev/null )"
+  test_files=()
+  for arg in "${TESTS[@]}"; do
+    test_files+=( $( ls -d tests/${arg}*/*test*.py 2>/dev/null ))
   done
 fi
 
-# make a one-line list with single space between filenames
-test_files=$( echo "$test_files" | awk '{printf "%s ", $0}' | tr -d '\n' | xargs )
-
-count="$( echo "$test_files" | wc -w )"
+count=${#test_files[@]}
 if [ $count -lt 1 ]; then
-  echo "No test case(s) found for: $myarg"
+  echo "No test case(s) found for: $init_args"
   exit 1
 fi
 
 echo "Will run $count test files"
-echo "Test files: $test_files"
+echo "Test files: ${test_files[@]}"
 
 function run_pytest() {
-  cmd="python3 -m pytest${MARKERS}${KEYS} $test_files --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
+  cmd="python3 -m pytest${MARKERS}${KEYS}${SCENARIO} ${test_files[@]} --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
   if [[ "$DRY_RUN" == "TRUE" ]]; then
     echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
     cmd="$cmd --collect-only"
@@ -81,9 +82,10 @@ function run_pytest() {
 }
 
 if [ $count -eq 1 ]; then
-  test="${test_files:6:3}"
+  test_file=${test_files[0]}
+  test="${test_file:6:3}"
   echo "Single test run: ${test}"
-  testdir=$( dirname $test_files )
+  testdir=$( dirname $test_file )
   resultstestdir=${testdir/tests/results}
   run_pytest
   retCode=$?
@@ -95,6 +97,10 @@ if [ $count -eq 1 ]; then
     mv results/assets ${resultstestdir}/
   fi
 else
+  if [ ! -z "$SCENARIO" ]; then
+    echo "Scenario not supported in multi-test-case runs"
+    exit 1
+  fi
   test=""
   echo "Multiple test run"
   rm -rf results/assets

@@ -12,6 +12,10 @@ from library.py.kafka_consumer import KMessageReaderAvro, KMessageReaderPlainJso
 logger = logging.getLogger(__name__)
 
 
+def pytest_addoption(parser):
+    parser.addoption("--scenario", action="store", default="default")
+
+
 def setup_kafka_infra():
     assert not scripts.check_broker_running()
     assert scripts.create_test_network()
@@ -121,7 +125,9 @@ def consumer_setup_teardown(request):
 # Prepares results folder to receive logs and output from pmacct
 @pytest.fixture(scope="module")
 def prepare_test(request):
-    setup_tools.prepare_test_env(request.module)
+    scenario = request.config.getoption('--scenario')
+    logger.info('Scenario selected: ' + scenario)
+    setup_tools.prepare_test_env(request.module, scenario)
 
 
 # Prepares folders with pcap information for traffic-reproduction containers to mount

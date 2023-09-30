@@ -26,17 +26,28 @@ class KModuleParams:
         self.test_mount_folder = self.test_folder + '/pmacct_mount'
         self.pmacct_mount_folder = '/var/log/pmacct'
         self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
-        self.test_conf_file = self.test_folder + '/' + self.daemon + '-00.conf'
+        self.test_conf_file = '' # self.test_folder + '/' + self.daemon + '-00.conf'
         self.results_folder = os.getcwd() + '/results/' + self.test_name
         self.results_conf_file = self.results_folder + '/' + self.daemon + '.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
-        self.pcap_folders = []
+        self.pcap_folders = self.output_files = self.log_files = []
+        self.test_output_files = self.test_log_files = []
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         self.kafka_topics = {}
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
-        self.output_files = []
-        self.log_files = []
-        #self.bgp_id = None
+
+    def build_dynamic_params(self, scenario):
+        if scenario=='default':
+            self.test_conf_file = self.test_folder + '/' + self.daemon + '-00.conf'
+            self.test_output_files = select_files(self.test_folder, 'output.*-\\d+.json$')
+            self.test_log_files = select_files(self.test_folder, 'output.*-\\d+.log$')
+        else:
+            self.test_conf_file = self.test_folder + '/' + scenario + '/' + self.daemon + '-00.conf'
+            self.test_output_files = select_files(self.test_folder + '/' + scenario, 'output.*-\\d+.json$')
+            self.test_log_files = select_files(self.test_folder + '/' + scenario, 'output.*-\\d+.log$')
+        logger.debug('Test config file: ' + self.test_conf_file)
+        logger.debug('Test output files: ' + str(self.test_output_files))
+        logger.debug('Test log files: ' + str(self.test_log_files))
 
     def replace_IPs(self, filename: str):
         if self.test_subnet_ipv4!='' and file_contains_string(filename, self.test_subnet_ipv4):
@@ -81,8 +92,9 @@ def copy_files_in_mount_folder(params: KModuleParams):
 
 # RUNS BEFORE PMACCT IS RUN
 # Prepares results folder to receive logs and output from pmacct
-def prepare_test_env(_module):
+def prepare_test_env(_module, scenario):
     params = _module.testParams
+    params.build_dynamic_params(scenario) # selects the right files from test folder, as per scenario
     config = KConfigurationFile(_module.testParams.test_conf_file)
 
     topicsDict = config.get_kafka_topics()
@@ -117,6 +129,16 @@ def prepare_test_env(_module):
 
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
+    def copyList(filelist):
+        retVal = KFileList()
+        for filename in filelist:
+            retVal.append(params.results_folder + '/' + filename)
+            scenarioFolder = '' if scenario=='default' else scenario + '/'
+            shutil.copy(params.test_folder + '/' + scenarioFolder + filename, params.results_folder + '/' + filename)
+        return retVal
+    params.output_files = copyList(params.test_output_files)
+    params.log_files = copyList(params.test_log_files)
+
 
 class KFileList(list):
 
@@ -141,22 +163,7 @@ def prepare_pcap(_module):
     params = _module.testParams
     test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\\d+.conf$')
     test_pcap_files = select_files(params.test_folder, 'traffic.*-\\d+.pcap$')
-    test_output_files = select_files(params.test_folder, 'output.*-\\d+.json$')
-    test_log_files = select_files(params.test_folder, 'output.*-\\d+.log$')
-
-    # assert len(test_pcap_files)>0
     assert len(test_pcap_files)==len(test_config_files)
-    # assert len(test_output_files)>0 Not needed in TC 900
-
-    def copyList(filelist):
-        retVal = KFileList()
-        for filename in filelist:
-            retVal.append(params.results_folder + '/' + filename)
-            shutil.copy(params.test_folder + '/' + filename, params.results_folder + '/' + filename)
-        return retVal
-
-    params.output_files = copyList(test_output_files)
-    params.log_files = copyList(test_log_files)
 
     for i in range(len(test_config_files)):
         results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
