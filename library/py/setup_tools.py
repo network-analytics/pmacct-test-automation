@@ -110,6 +110,7 @@ def prepare_test_env(_module, scenario):
 
     edit_conf_mount_folder(config, params)
     edit_conf_output_folder(config, params)
+    config.replace_value_of_key('bgp_neighbors_file', params.pmacct_output_folder + '/nfacctd_bgp_neighbors.lst')
     config.replace_value_of_key_ending_with('avro_schema_file', params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
     config.replace_value_of_key_ending_with('avro_schema_output_file', params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
     config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
