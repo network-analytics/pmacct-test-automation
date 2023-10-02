@@ -40,11 +40,11 @@ class KModuleParams:
         if scenario=='default':
             self.test_conf_file = self.test_folder + '/' + self.daemon + '-00.conf'
             self.test_output_files = select_files(self.test_folder, 'output.*-\\d+.json$')
-            self.test_log_files = select_files(self.test_folder, 'output.*-\\d+.log$')
+            self.test_log_files = select_files(self.test_folder, 'output.*-\\d+.txt$')
         else:
             self.test_conf_file = self.test_folder + '/' + scenario + '/' + self.daemon + '-00.conf'
             self.test_output_files = select_files(self.test_folder + '/' + scenario, 'output.*-\\d+.json$')
-            self.test_log_files = select_files(self.test_folder + '/' + scenario, 'output.*-\\d+.log$')
+            self.test_log_files = select_files(self.test_folder + '/' + scenario, 'output.*-\\d+.txt$')
         logger.debug('Test config file: ' + self.test_conf_file)
         logger.debug('Test output files: ' + str(self.test_output_files))
         logger.debug('Test log files: ' + str(self.test_log_files))

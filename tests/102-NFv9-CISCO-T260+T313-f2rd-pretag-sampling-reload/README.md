@@ -23,9 +23,9 @@ f2rd_map is used to set MPLS VPN RD. Pretag map is used as well. Map reload is a
 - pmacct_mount/sampling-01.map            [for reload] sampling mapping file for nfacctd            HINT: IPs need to match with repro_ips
 
 - output-flow-00.json                     desired nfacctd kafka output [daisy.flow topic] containing json messages
-- output-log-00.log                       log messages that need to be in the logfile
+- output-log-00.txt                       log messages that need to be in the logfile
 - output-flow-01.json                     desired nfacctd kafka output [daisy.flow topic] containing json messages
-- output-log-01.log                       log messages that need to be in the logfile
+- output-log-01.txt                       log messages that need to be in the logfile
 
 ### Test timeline:
 
@@ -43,7 +43,7 @@ After nfacctd produced to kafka (t=60s), check the following:
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
 - The timestamp values will change between runs, with the only exceptions being timestamp_export, timestamp_start, and timestamp_end, which come from IPFIX/NFv9 fields and will stay the same.
 - Order of the json messages could change
-- Log messages in "output-log-00.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
+- Log messages in "output-log-00.txt" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - No ERROR or WARN messages are present in the logfile
 
 2. Reloading maps
@@ -59,5 +59,5 @@ After nfacctd produced again to kafka, check the following:
 - The (new) nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-01.json".
 - The timestamp values will change between runs, with the only exceptions being timestamp_export, timestamp_start, and timestamp_end, which come from IPFIX/NFv9 fields and will stay the same.
 - Order of the json messages could change
-- Log messages (new) in "output-log-01.log" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
+- Log messages (new) in "output-log-01.txt" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - No ERROR or WARN messages are present in the logfile

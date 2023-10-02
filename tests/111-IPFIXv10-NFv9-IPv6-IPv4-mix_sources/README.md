@@ -17,7 +17,7 @@ Test with IPFIX and NFv9 from 2 different source IPs, one ipv4 and the other ipv
 - pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
 
 - output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
-- output-log-00.log                         log messages that need to be in the logfile
+- output-log-00.txt                         log messages that need to be in the logfile
 
 ### Test timeline:
 t=0s --> the first full minute after starting the traffic generator
