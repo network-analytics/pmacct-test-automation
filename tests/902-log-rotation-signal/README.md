@@ -10,15 +10,15 @@ Testing log rotation functionality: when logfile is moved to another location (e
 
 - nfacctd-00.conf                nfacctd daemon configuration file            HINT: you might want to change redis_ip
 
-- output-log-00.log              log messages that need to be in the logfile
-- output-log-01.log              log messages that need to be in the logfile
+- output-log-00.txt              log messages that need to be in the logfile
+- output-log-01.txt              log messages that need to be in the logfile
 
 ### Test proceeding and result:
 
 1. Part 1: 
 
 - start nfacctd normally
-- check log messages in "output-log-00.log" and verify that they are present in the logfile (order of appearence preserved, but there could/will be other logs in between) --> as long as this is successful you can proceed to part 2
+- check log messages in "output-log-00.txt" and verify that they are present in the logfile (order of appearence preserved, but there could/will be other logs in between) --> as long as this is successful you can proceed to part 2
 - No ERROR or WARN messages are present in the logfile
 
 2. Part 2:
@@ -31,4 +31,4 @@ Testing log rotation functionality: when logfile is moved to another location (e
 Then verify the following:
 
 - Log file was successfully recreated
-- Log messages in "output-log-00.log" are also present in the re-created logfile (order of appearence preserved, but there could/will be other logs in between)
+- Log messages in "output-log-00.txt" are also present in the re-created logfile (order of appearence preserved, but there could/will be other logs in between)

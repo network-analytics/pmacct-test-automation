@@ -17,7 +17,7 @@ def main(consumer):
     assert scripts.replay_pcap(testParams.pcap_folders[0])
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
-        ['timestamp_start', 'timestamp_end', 'timestamp_arrival', 'timestamp_min', 'timestamp_max',
+        ['timestamp_arrival', 'timestamp_min', 'timestamp_max',
          'stamp_inserted', 'stamp_updated'])
 
     # Make sure the expected logs exist in pmacct log
@@ -27,4 +27,3 @@ def main(consumer):
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
-

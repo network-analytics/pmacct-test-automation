@@ -1,0 +1,3 @@
+[submodule "tools/pcap_player/traffic-reproducer"]
+	path = tools/pcap_player/traffic-reproducer
+	url = https://github.com/network-analytics/traffic-reproducer.git

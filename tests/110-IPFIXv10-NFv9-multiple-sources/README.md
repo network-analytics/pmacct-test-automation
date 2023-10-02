@@ -9,9 +9,9 @@ Test with ipfix only from 3 different source IPs (pcaps from tests 100, 101 and 
 - traffic-00.pcap                           pcap file 1 (for traffic generator)
 - traffic-01.pcap                           pcap file 2 (for traffic generator)
 - traffic-02.pcap                           pcap file 3 (for traffic generator)
-- traffic-reproducer-00.conf                traffic replay function config file
-- traffic-reproducer-01.conf                traffic replay function config file
-- traffic-reproducer-02.conf                traffic replay function config file
+- traffic-reproducer-00.yml                 traffic replay function config file
+- traffic-reproducer-01.yml                 traffic replay function config file
+- traffic-reproducer-02.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
@@ -33,6 +33,6 @@ Start the 3 traffic reproducers with provided configs. When finished producing m
 After nfacctd produced to kafka (t=60s), check the following:
 
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
-- The timestamp values will change between runs (since we have NFv9 in this test, timestamp_start and timestamp_end also change between runs).
+- The timestamp values will change between runs, with the only exceptions being timestamp_export, timestamp_start, and timestamp_end, which come from IPFIX/NFv9 fields and will stay the same.
 - Order of the json messages could change
 - No ERROR or WARN messages are present in the logfile

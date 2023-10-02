@@ -6,7 +6,7 @@ import logging, pytest, sys, time, datetime
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
+testParams = KModuleParams(sys.modules[__name__])
 
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
@@ -24,7 +24,6 @@ def main(consumer):
         assert scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
-        ['timestamp_max', 'timestamp_arrival', 'stamp_inserted',
-         'timestamp_min', 'stamp_updated', 'timestamp_start', 'timestamp_end'])
+        ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
 
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])

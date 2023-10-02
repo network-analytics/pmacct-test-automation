@@ -139,10 +139,11 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
 def replay_pcap(pcap_mount_folder: str) -> bool:
     logger.info('Replaying pcap file from ' + pcap_mount_folder)
 
-    with open(pcap_mount_folder + '/traffic-reproducer.conf') as f:
+    with open(pcap_mount_folder + '/traffic-reproducer.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
     repro_info = data['network']['map'][0]
     logger.info('Pcap player repro info: ' + str(repro_info))
+
     args = ['./library/sh/traffic_docker/start.sh', pcap_mount_folder, repro_info['repro_ip']]
 
     success, output, error = run_script(args)
@@ -165,10 +166,11 @@ def replay_pcap(pcap_mount_folder: str) -> bool:
 def replay_pcap_detached(pcap_mount_folder: str, player_id: int):
     logger.info('Replaying pcap file from ' + helpers.short_name(pcap_mount_folder) + ' with DETACHED docker container')
 
-    with open(pcap_mount_folder + '/traffic-reproducer.conf') as f:
+    with open(pcap_mount_folder + '/traffic-reproducer.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
     repro_info = data['network']['map'][0]
     logger.info('Pcap player repro info: ' + str(repro_info))
+
     args = ['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id), repro_info['repro_ip']]
 
     success = run_script(args)[0]
@@ -184,10 +186,11 @@ def replay_pcap_detached_multi(pcap_mount_folder: str, player_id: int):
     logger.debug('Multiple processes are spawned on the container')
 
     # Reading the repro_info of the FIRST pcap_folder
-    with open(pcap_mount_folder + '/pcap0/traffic-reproducer.conf') as f:
+    with open(pcap_mount_folder + '/pcap0/traffic-reproducer.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
     repro_info = data['network']['map'][0]
     logger.info('Pcap player repro info: ' + str(repro_info))
+
     args = ['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id),
             repro_info['repro_ip'], '-multi']
 
