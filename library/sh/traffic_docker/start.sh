@@ -2,6 +2,13 @@
 
 PCAP_MOUNT_DIR="$1"
 IP_ADDRESS="$2"
+if [ -z "$2" ]; then
+  echo "Bad arguments supplied"
+  exit 1
+fi
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/../../../settings.conf
 
 IP_OPT="--ip"
 if [[ "$IP_ADDRESS" == *"::"* ]]; then
@@ -20,4 +27,4 @@ docker run -v ${PCAP_MOUNT_DIR}:/pcap \
           --network pmacct_test_network \
           $IP_OPT $IP_ADDRESS \
           --name traffic-reproducer-0 \
-          traffic-reproducer
+          $TRAFFIC_REPRO_IMG

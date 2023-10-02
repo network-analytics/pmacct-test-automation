@@ -192,7 +192,7 @@ def replay_pcap_detached_multi(pcap_mount_folder: str, player_id: int):
     logger.info('Pcap player repro info: ' + str(repro_info))
 
     args = ['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id),
-            repro_info['repro_ip'], '-multi']
+            repro_info['repro_ip'], 'multi']
 
     success = run_script(args)[0]
 
