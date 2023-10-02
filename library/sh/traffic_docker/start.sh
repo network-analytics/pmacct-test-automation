@@ -9,17 +9,15 @@ if [[ "$IP_ADDRESS" == *"::"* ]]; then
 fi
 
 # Runs a traffic reproducer container synchronously
+
 if docker inspect traffic-reproducer-0 >/dev/null 2>&1; then
     echo "Container exists, removing it"
     docker rm traffic-reproducer-0
 fi
-
-# TMP: hardcode traffic-repro image here until we figure out a way to pass it as argument...
-TRAFFIC_REPRO_IMAGE="traffic-reproducer:local"
 
 echo "Starting traffic container with mounted folder: $1"
 docker run -v ${PCAP_MOUNT_DIR}:/pcap \
           --network pmacct_test_network \
           $IP_OPT $IP_ADDRESS \
           --name traffic-reproducer-0 \
-          $TRAFFIC_REPRO_IMAGE
+          traffic-reproducer
