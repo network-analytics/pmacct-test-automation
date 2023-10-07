@@ -1,11 +1,19 @@
 #!/bin/bash
 
+function handle_message()
+{
+  echo "Received SIGUSR1, exiting"
+  exit 0
+}
+
+# trapping the SIGINT signal
+trap handle_message SIGUSR1
+
 OUTPUT_FILE=$1
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 
 rm -f ${OUTPUT_FILE}
-#touch ${OUTPUT_FILE}
 
 echo "Monitoring pmacct container resource needs -- outputting to file: $OUTPUT_FILE"
 

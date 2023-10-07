@@ -17,6 +17,35 @@ function handle_interrupt()
 # trapping the SIGINT signal
 trap handle_interrupt SIGINT
 
+function start_monitor()
+{
+  monitor_log="results/monitor.log"
+  tools/monitor.sh $monitor_log &
+  MONITOR_PID=$!
+  echo "Started pmacct monitor with pid $MONITOR_PID dumping to file $monitor_log"
+}
+
+function stop_monitor() {
+  kill -SIGUSR1 $MONITOR_PID
+  echo "Stopping pmacct monitor with pid $MONITOR_PID... "
+  wait $MONITOR_PID
+  echo "Pmacct monitor stopped"
+}
+
+function run_pytest() {
+  cmd="python3 -m pytest${MARKERS}${KEYS}${SCENARIO} ${test_files[@]} --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
+  if [ "$DRY_RUN" = "TRUE" ]; then
+    echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
+    cmd="$cmd --collect-only"
+  else
+    start_monitor
+  fi
+  eval "$cmd"
+  retCode=$?
+  [ "$DRY_RUN" = "TRUE" ] || stop_monitor
+  return $retCode
+}
+
 # exit if there is no argument
 if [ -z "$1" ]; then
   echo "No argument supplied"
@@ -71,16 +100,6 @@ fi
 
 echo "Will run $count test files"
 echo "Test files: ${test_files[@]}"
-
-function run_pytest() {
-  cmd="python3 -m pytest${MARKERS}${KEYS}${SCENARIO} ${test_files[@]} --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
-  if [[ "$DRY_RUN" == "TRUE" ]]; then
-    echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
-    cmd="$cmd --collect-only"
-  fi
-  eval "$cmd"
-}
-
 if [ $count -eq 1 ]; then
   test_file=${test_files[0]}
   test="${test_file:6:3}"
@@ -89,22 +108,16 @@ if [ $count -eq 1 ]; then
   resultstestdir=${testdir/tests/results}
   run_pytest
   retCode=$?
-  if [ -d $resultstestdir ]; then
-    echo "Moving files to the test case specific folder: $resultstestdir/"
-    mv results/pytestlog${test}.log ${resultstestdir}/
-    mv results/report${test}.html ${resultstestdir}/
-    rm -rf ${resultstestdir}/assets
-    mv results/assets ${resultstestdir}/
-  fi
+  rm -rf ${resultstestdir}/assets
+  mv results/pytestlog${test}.log results/report${test}.html results/assets $monitor_log ${resultstestdir}/ > /dev/null 2>&1
 else
   if [ ! -z "$SCENARIO" ]; then
-    echo "Scenario not supported in multi-test-case runs"
+    echo "Scenarios not supported in multi-test-case runs"
     exit 1
   fi
   test=""
   echo "Multiple test run"
-  rm -rf results/assets
-  rm -f results/report.html
+  rm -rf results/assets results/report.html
   run_pytest
   retCode=$?
 fi
