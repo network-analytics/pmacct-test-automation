@@ -155,9 +155,13 @@ def test_name_logging(request):
         txts = ['*'*len(msg), '*'*len(msg), msg, '*'*len(msg), '*'*len(msg)]
         for txt in txts:
             logger.info(txt)
-    logMessage('** Starting test: ' + params.test_name + ' **')
+    logMessage('** Starting test: ' + params.test_name + ' **\n')
+    # Since this is module-level scope setup, pmacct is not yet running, therefore no concurrency
+    # issues with monitor.sh are expected, even though logging to the same file
+    with open(request.module.testParams.monitor_file, 'a') as f:
+        f.write('** Starting test: ' + params.test_name + ' **\n')
     yield
-    logMessage('** Finishing test: ' + params.test_name + ' **')
+    logMessage('** Finishing test: ' + params.test_name + ' **\n')
 
 
 # Abstract fixture, which incorporates all common (core) fixtures

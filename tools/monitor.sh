@@ -17,6 +17,8 @@ rm -f ${OUTPUT_FILE}
 
 echo "Monitoring pmacct container resource needs -- outputting to file: $OUTPUT_FILE"
 
+# No concurrency issues with test_name_logging fixture are expected, even though logging to the same file,
+# because that fixture only logs before pmacct is deployed (since its scope is module)
 while true; do
   if docker inspect pmacct >/dev/null 2>&1; then
     dte=$( date )

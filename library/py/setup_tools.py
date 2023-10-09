@@ -28,6 +28,7 @@ class KModuleParams:
         self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
         self.test_conf_file = '' # self.test_folder + '/' + self.daemon + '-00.conf'
         self.results_folder = os.getcwd() + '/results/' + self.test_name
+        self.monitor_file = self.root_folder + '/results/monitor.log'
         self.results_conf_file = self.results_folder + '/' + self.daemon + '.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
         self.pcap_folders = self.output_files = self.log_files = []
