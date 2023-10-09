@@ -2,6 +2,8 @@
 
 Testing with kafka: losing kafka connection.
 
+TODO Daisy: investigate this as I found it sometimes fails because it gives a different LOG instead the expected one when losing kafka connection
+
 ### Provided files:
 
 - 900_test.py                               pytest file defining test execution
