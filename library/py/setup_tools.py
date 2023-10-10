@@ -80,11 +80,24 @@ def edit_conf_mount_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('flow_to_rd_map', params.pmacct_mount_folder + '/f2rd-00.map')
     config.replace_value_of_key('sampling_map', params.pmacct_mount_folder + '/sampling-00.map')
     config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.lst')
+    config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
+    config.replace_value_of_key_ending_with('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
 
 # Files in output folder, for pmacct to write
 def edit_conf_output_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('logfile', params.pmacct_output_folder + '/pmacctd.log')
     config.replace_value_of_key('pidfile', params.pmacct_output_folder + '/pmacctd.pid')
+    config.replace_value_of_key('bgp_neighbors_file', params.pmacct_output_folder + '/nfacctd_bgp_neighbors.lst')
+    config.replace_value_of_key_ending_with('avro_schema_file',
+                                            params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
+    config.replace_value_of_key_ending_with('avro_schema_output_file',
+                                            params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
+
+def edit_config_with_framework_params(config: KConfigurationFile, params: KModuleParams):
+    edit_conf_mount_folder(config, params)
+    edit_conf_output_folder(config, params)
+    config.replace_value_of_key_ending_with('kafka_avro_schema_registry', 'http://schema-registry:8081')
+    config.replace_value_of_key('redis_host', '172.21.1.14:6379')
 
 # Copy existing files in pmacct_mount to result (=actual) mounted folder
 def copy_files_in_mount_folder(params: KModuleParams):
@@ -118,30 +131,17 @@ def prepare_test_env(_module, scenario):
         logger.debug('Results folder exists, deleting folder ' + short_name(params.results_folder))
         shutil.rmtree(params.results_folder)
         assert not os.path.exists(params.results_folder)
+
     create_mount_and_output_folders(params)
-
-    edit_conf_mount_folder(config, params)
-    edit_conf_output_folder(config, params)
-    config.replace_value_of_key('bgp_neighbors_file', params.pmacct_output_folder + '/nfacctd_bgp_neighbors.lst')
-    config.replace_value_of_key_ending_with('avro_schema_file', params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
-    config.replace_value_of_key_ending_with('avro_schema_output_file', params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
-    config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
-    config.replace_value_of_key_ending_with('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
-    config.replace_value_of_key_ending_with('kafka_avro_schema_registry', 'http://schema-registry:8081')
-    config.replace_value_of_key('redis_host', '172.21.1.14:6379')
-
-    # Output to new conf file in mount folder
+    edit_config_with_framework_params(config, params)
     config.print_to_file(params.results_conf_file)
 
     copy_files_in_mount_folder(params)
-    # copy scenario-specific map files to results mount folder
-    if scenario!='default':
+    if scenario!='default': # copy scenario-specific map files to results mount folder
         for map_file in select_files(params.test_folder + '/' + scenario, '.+\\.map$'):
             shutil.copy(map_file, params.results_mount_folder)
-
     for results_pretag_file in select_files(params.results_mount_folder, '.+\\.map$'):
         params.replace_IPs(results_pretag_file)
-
     shutil.copy(params.root_folder + '/library/librdkafka.conf', params.results_mount_folder)
 
     def copyList(filelist):
