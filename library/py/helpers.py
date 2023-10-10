@@ -104,7 +104,7 @@ def select_files(folder_path: str, regex_pattern: str) -> List[str]:
     for file_name in files:
         if regex.match(file_name):
             selected_files.append(file_name)
-    return sorted(selected_files)
+    return [folder_path + '/' + fn for fn in sorted(selected_files)]
 
 # Counts non-empty lines in file "file_path"
 def count_non_empty_lines(file_path: str) -> int:

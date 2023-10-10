@@ -27,6 +27,7 @@ def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: 
                            pmacct_daemon_name: str, pmacct_image: str) -> bool:
     logger.info("Starting pmacct container, daemon: " + pmacct_daemon_name)
     logger.info("Using docker image: " + pmacct_image)
+    logger.info("Pmacct config: " + pmacct_conf_file)
     return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath,
                        pmacct_daemon_name, pmacct_image])[0]
 
