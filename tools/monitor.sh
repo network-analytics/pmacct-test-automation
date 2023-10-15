@@ -2,7 +2,7 @@
 
 function handle_message()
 {
-  echo "Received SIGUSR1, exiting"
+  echo "Resource monitor received SIGUSR1, exiting"
   exit 0
 }
 
@@ -22,7 +22,7 @@ echo "Monitoring pmacct container resource needs -- outputting to file: $OUTPUT_
 while true; do
   if docker inspect pmacct >/dev/null 2>&1; then
     dte=$( date )
-    msg=$( docker stats pmacct --no-stream --format '{{ json . }}' )
+    msg=$( docker stats pmacct --no-stream --format '{{ json . }}' 2>/dev/null )
     if [ $? -eq 0 ]; then
       echo "$dte $msg" >> ${OUTPUT_FILE}
     fi

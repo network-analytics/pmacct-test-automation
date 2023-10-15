@@ -33,7 +33,8 @@ function stop_monitor() {
 }
 
 function run_pytest() {
-  cmd="python3 -m pytest${MARKERS}${KEYS}${SCENARIO} ${test_files[@]} --log-cli-level=$LOG_LEVEL --log-file=results/pytestlog${test}.log --html=results/report${test}.html"
+  cmd="python3 -m pytest${MARKERS}${KEYS} ${test_files[@]} --runconfig $RUNCONFIG --log-cli-level=$LOG_LEVEL \
+--log-file=results/pytestlog${test}.log --html=results/report${test}.html"
   if [ "$DRY_RUN" = "TRUE" ]; then
     echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
     cmd="$cmd --collect-only"
@@ -50,24 +51,24 @@ function run_pytest() {
 if [ -z "$1" ]; then
   echo "No argument supplied"
   echo "Usage:   ./runtest.sh [--dry] [--loglevel=<log level>] [--mark=<expression>] [--key=<expression>] \
-[--scenario=<scenario>] <test case number> [<test_case_number> ...]"
+<test case number or wildcard>[:<scenario or wildcard>] [<TC number or wildcard>[:<scenario or wildcard>] ...]"
   echo "Example: ./runtest.sh --loglevel=DEBUG 103 202"
-  echo "         ./runtest.sh --dry 103 202 --key=cisco"
+  echo "         ./runtest.sh --dry 103:01 202:01 --key=cisco"
   exit 1
 fi
 
 init_args="$@"
 lsout="$( ls | tr '\n' ' ')"
 if [[ "$lsout" != *"library"*"pytest.ini"*"settings.conf"*"tests"*"tools"* ]]; then
-  echo "Script not run from net_ana root directory"
+  echo "Script not run from framework's root directory"
   exit 1
 fi
 
+arg_was_asterisk=1; [[ "$@ " == *"$lsout"* ]] && arg_was_asterisk=0
 DRY_RUN="FALSE"
 source ./settings.conf # getting default LOG_LEVEL
 MARKERS=
 KEYS=
-SCENARIO=
 TESTS=()
 for arg in "$@"
   do
@@ -76,46 +77,40 @@ for arg in "$@"
       '--loglevel='*) LOG_LEVEL=${arg/--loglevel=/} ; shift;;
       '--mark='*) MARKERS=" -m \"${arg/--mark=/}\"" ; shift;;
       '--key='*) KEYS=" -k \"${arg/--key=/}\"" ; shift;;
-      '--scenario='*) SCENARIO=" --scenario ${arg/--scenario=/}" ; shift;;
-      *) TESTS+=(${arg});;
+      *) if [[ "$arg_was_asterisk" != "0" ]] || [[ "$lsout" != *"$arg "* ]]; then echo "Adding: $arg"; TESTS+=(${arg}); fi;;
     esac
   done
 
-if [[ "${TESTS[@]} " == "$lsout"  ]]; then
-  # argument was an asterisk
-  test_files=($( ls -d tests/**/*test*.py 2>/dev/null ))
-else
-  # argument was not an asterisk
-  test_files=()
-  for arg in "${TESTS[@]}"; do
-    test_files+=( $( ls -d tests/${arg}*/*test*.py 2>/dev/null ))
-  done
-fi
+[[ "$arg_was_asterisk" == "0" ]] && TESTS+=("*:*")
 
-count=${#test_files[@]}
+args="${TESTS[@]}"
+RUNCONFIG="${args// /_}"
+
+test_files=()
+for arg in "${TESTS[@]}"; do
+  arg="${arg%%:*}*"
+  test_files+=( "tests/${arg/\*\*/*}" )
+done
+
+count=${#TESTS[@]}
 if [ $count -lt 1 ]; then
-  echo "No test case(s) found for: $init_args"
+  echo "No tests found for arguments: $init_args"
   exit 1
 fi
 
-echo "Will run $count test files"
-echo "Test files: ${test_files[@]}"
-if [ $count -eq 1 ]; then
-  test_file=${test_files[0]}
-  test="${test_file:6:3}"
-  echo "Single test run: ${test}"
-  testdir=$( dirname $test_file )
-  resultstestdir=${testdir/tests/results}
+if [[ "$count" == "1" ]] && [[ "${TESTS[@]}" =~ ^[0-9]{3}:[0-9]{2}$ ]]; then
+  echo "Single test run"
+  testandscenario="${TESTS[@]}"
+  test="${testandscenario:0:3}"
+  scenario="${testandscenario:4:2}"
+  testdir=$( ls -d tests/*/ | grep "${test}-" | sed 's#/$##' )
+  resultstestdir="${testdir/tests/results}"
+  [[ "$scenario" != "00" ]] && resultstestdir="${resultstestdir}__scenario-$scenario"
   run_pytest
   retCode=$?
   rm -rf ${resultstestdir}/assets
   mv results/pytestlog${test}.log results/report${test}.html results/assets $monitor_log ${resultstestdir}/ > /dev/null 2>&1
 else
-  if [ ! -z "$SCENARIO" ]; then
-    echo "Scenarios not supported in multi-test-case runs"
-    exit 1
-  fi
-  test=""
   echo "Multiple test run"
   rm -rf results/assets results/report.html
   run_pytest
