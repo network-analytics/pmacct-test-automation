@@ -7,9 +7,7 @@
 
 #!/bin/bash
 
-
-function handle_interrupt()
-{
+function handle_interrupt() {
   echo "Called handle_interrupt"
   tools/stop_all.sh
 }
@@ -17,24 +15,32 @@ function handle_interrupt()
 # trapping the SIGINT signal
 trap handle_interrupt SIGINT
 
-function start_monitor()
-{
-  monitor_log="results/monitor.log"
-  tools/monitor.sh $monitor_log &
+function print_help() {
+  echo "Usage:   ./runtest.sh [--dry] [--loglevel=<log level>] [--mark=<expression>] [--key=<expression>] \
+<test case number or wildcard>[:<scenario or wildcard>] [<TC number or wildcard>[:<scenario or wildcard>] ...]"
+  echo
+  echo "Examples: ./runtest.sh --loglevel=DEBUG 103 202"
+  echo "          ./runtest.sh --dry 103:01 202:01 --key=cisco"
+  echo
+  echo "Script needs to be run from the top level directory of the testing framework"
+}
+
+function start_monitor() {
+  tools/monitor.sh results/monitor.log $LOG_LEVEL &
   MONITOR_PID=$!
-  echo "Started pmacct monitor with pid $MONITOR_PID dumping to file $monitor_log"
+  [ "$LOG_LEVEL" = "DEBUG" ] && echo "Started pmacct monitor with pid $MONITOR_PID dumping to file results/monitor.log"
 }
 
 function stop_monitor() {
   kill -SIGUSR1 $MONITOR_PID
-  echo "Stopping pmacct monitor with pid $MONITOR_PID... "
+  [ "$LOG_LEVEL" = "DEBUG" ] && echo "Stopping pmacct monitor with pid $MONITOR_PID... "
   wait $MONITOR_PID
-  echo "Pmacct monitor stopped"
+  [ "$LOG_LEVEL" = "DEBUG" ] && echo "Pmacct monitor stopped"
 }
 
 function run_pytest() {
-  cmd="python3 -m pytest${MARKERS}${KEYS} ${test_files[@]} --runconfig $RUNCONFIG --log-cli-level=$LOG_LEVEL \
---log-file=results/pytestlog${test}.log --html=results/report${test}.html"
+  cmd="python3 -m pytest${MARKERS}${KEYS} ${test_files[@]} --runconfig=$RUNCONFIG --log-cli-level=$LOG_LEVEL \
+--log-file=results/pytestlog.log --html=results/report.html"
   if [ "$DRY_RUN" = "TRUE" ]; then
     echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
     cmd="$cmd --collect-only"
@@ -47,24 +53,14 @@ function run_pytest() {
   return $retCode
 }
 
-# exit if there is no argument
-if [ -z "$1" ]; then
-  echo "No argument supplied"
-  echo "Usage:   ./runtest.sh [--dry] [--loglevel=<log level>] [--mark=<expression>] [--key=<expression>] \
-<test case number or wildcard>[:<scenario or wildcard>] [<TC number or wildcard>[:<scenario or wildcard>] ...]"
-  echo "Example: ./runtest.sh --loglevel=DEBUG 103 202"
-  echo "         ./runtest.sh --dry 103:01 202:01 --key=cisco"
-  exit 1
-fi
-
-init_args="$@"
 lsout="$( ls | tr '\n' ' ')"
 if [[ "$lsout" != *"library"*"pytest.ini"*"settings.conf"*"tests"*"tools"* ]]; then
   echo "Script not run from framework's root directory"
+  print_help
   exit 1
 fi
 
-arg_was_asterisk=1; [[ "$@ " == *"$lsout"* ]] && arg_was_asterisk=0
+arg_was_asterisk=1; [[ "$@ " == *"$lsout"* ]] && arg_was_asterisk=0 # space after $@ needed!
 DRY_RUN="FALSE"
 source ./settings.conf # getting default LOG_LEVEL
 MARKERS=
@@ -73,11 +69,12 @@ TESTS=()
 for arg in "$@"
   do
     case $arg in
-      '--dry') DRY_RUN="TRUE" ; shift;;
-      '--loglevel='*) LOG_LEVEL=${arg/--loglevel=/} ; shift;;
-      '--mark='*) MARKERS=" -m \"${arg/--mark=/}\"" ; shift;;
-      '--key='*) KEYS=" -k \"${arg/--key=/}\"" ; shift;;
-      *) if [[ "$arg_was_asterisk" != "0" ]] || [[ "$lsout" != *"$arg "* ]]; then echo "Adding: $arg"; TESTS+=(${arg}); fi;;
+      '--help'|'-h') print_help; exit 0;;
+      '--dry') DRY_RUN="TRUE";;
+      '--loglevel='*) LOG_LEVEL=${arg/--loglevel=/};;
+      '--mark='*) MARKERS=" -m \"${arg/--mark=/}\"";;
+      '--key='*) KEYS=" -k \"${arg/--key=/}\"";;
+      *) if [[ "$arg_was_asterisk" != "0" ]] || [[ "$lsout" != *"$arg "* ]]; then TESTS+=(${arg}); fi;;
     esac
   done
 
@@ -87,19 +84,20 @@ args="${TESTS[@]}"
 RUNCONFIG="${args// /_}"
 
 test_files=()
-for arg in "${TESTS[@]}"; do
+for arg in "${TESTS[@]}"; do # getting the test case part
   arg="${arg%%:*}*"
-  test_files+=( "tests/${arg/\*\*/*}" )
+  test_files+=( "tests/${arg/\*\*/*}" ) # remove double asterisk, just in case
 done
 
 count=${#TESTS[@]}
 if [ $count -lt 1 ]; then
-  echo "No tests found for arguments: $init_args"
+  echo "No tests found for arguments: $@"
+  print_help
   exit 1
 fi
 
-if [[ "$count" == "1" ]] && [[ "${TESTS[@]}" =~ ^[0-9]{3}:[0-9]{2}$ ]]; then
-  echo "Single test run"
+rm -rf results/assets results/report.html results/pytestlog.log results/monitor.log
+if [[ "$count" == "1" ]] && [[ "${TESTS[@]}" =~ ^[0-9]{3}:[0-9]{2}$ ]]; then # single-test run
   testandscenario="${TESTS[@]}"
   test="${testandscenario:0:3}"
   scenario="${testandscenario:4:2}"
@@ -108,11 +106,8 @@ if [[ "$count" == "1" ]] && [[ "${TESTS[@]}" =~ ^[0-9]{3}:[0-9]{2}$ ]]; then
   [[ "$scenario" != "00" ]] && resultstestdir="${resultstestdir}__scenario-$scenario"
   run_pytest
   retCode=$?
-  rm -rf ${resultstestdir}/assets
-  mv results/pytestlog${test}.log results/report${test}.html results/assets $monitor_log ${resultstestdir}/ > /dev/null 2>&1
-else
-  echo "Multiple test run"
-  rm -rf results/assets results/report.html
+  cp -rf results/pytestlog.log results/report.html results/assets results/monitor.log ${resultstestdir}/ > /dev/null 2>&1
+else # multi-test run
   run_pytest
   retCode=$?
 fi

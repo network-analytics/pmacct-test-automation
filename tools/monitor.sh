@@ -2,7 +2,7 @@
 
 function handle_message()
 {
-  echo "Resource monitor received SIGUSR1, exiting"
+  [ "$LOG_LEVEL" = "DEBUG" ] && echo "Resource monitor received SIGUSR1, exiting"
   exit 0
 }
 
@@ -10,6 +10,7 @@ function handle_message()
 trap handle_message SIGUSR1
 
 OUTPUT_FILE=$1
+LOG_LEVEL=$2
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 
