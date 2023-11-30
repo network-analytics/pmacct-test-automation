@@ -10,6 +10,9 @@ import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.', ipv6_subnet='cafe::')
+
+@pytest.mark.bgp
+@pytest.mark.bgp_only
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 

@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(sys.modules[__name__], daemon='pmbgpd', ipv4_subnet='192.168.100.')
 
+@pytest.mark.bgp
+@pytest.mark.bgp_only
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
