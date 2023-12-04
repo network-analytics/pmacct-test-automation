@@ -1,4 +1,8 @@
 #!/bin/bash
 
-# stop redis container, and if successful, remove the container completely
-docker stop redis && docker rm redis
+# find directory, where this script resides
+SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
+
+# undeploy Redis container
+docker-compose --env-file $SCRIPT_DIR/../../../settings.conf -f "$SCRIPT_DIR/docker-compose.yml" down
+# docker compose (two words) does not work on Debian (Jenkins slave)

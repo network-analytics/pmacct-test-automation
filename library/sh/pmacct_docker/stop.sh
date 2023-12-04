@@ -1,4 +1,9 @@
 #!/bin/bash
 
-# stop pmacct container, and if successful, remove the container completely
-docker stop pmacct && docker rm pmacct
+# exit if bad arguments
+if [ -z "$1" ]; then
+    echo "No docker-compose file supplied"
+    exit 1
+fi
+DOCKER_COMPOSE_FILE="$1"
+docker-compose -f $DOCKER_COMPOSE_FILE down

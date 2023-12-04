@@ -1,19 +1,8 @@
 #!/bin/bash
 
-# docker inspect will return 1 if redis container already exists
-# if so, the redis container is removed (before it is deployed next)
-docker inspect --format="{{ .State.Running }}" redis >/dev/null 2>&1
-if [ $? -ne 1 ]; then
-  docker rm redis
-fi
-
-# find directory, where this script resides, and load docker image URLs (REDIS_IMG is defined therein)
+# find directory, where this script resides
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
-source $SCRIPT_DIR/../../../settings.conf # REDIS_IMG defined here
 
-# deploy Redis container
-docker run -d --network pmacct_test_network \
-           --ip 172.21.1.14 \
-           --ip6 fd25::14 \
-           --name redis \
-           $REDIS_IMG
+# deploy Redis by passing the settings file, where docker image URLs are defined
+docker-compose --env-file $SCRIPT_DIR/../../../settings.conf -f "$SCRIPT_DIR/docker-compose.yml" up -d
+# docker compose (two words) does not work on Debian (Jenkins slave)

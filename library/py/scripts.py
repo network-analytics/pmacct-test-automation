@@ -20,16 +20,9 @@ def start_kafka_containers() -> bool:
     logger.info("Starting Kafka containers")
     return run_script(['./library/sh/kafka_compose/start.sh'])[0]
 
-# Starts pmacct container using docker run and returns success or not
-# If the pmacct container exists, it removes it using docker rm (pmacct needs to have exited)
-# It gets as input the full-path filename of the pmacct configuration file
-def start_pmacct_container(pmacct_conf_file: str, pmacct_mount_folder_fullpath: str,
-                           pmacct_daemon_name: str, pmacct_image: str) -> bool:
-    logger.info("Starting pmacct container, daemon: " + pmacct_daemon_name)
-    logger.info("Using docker image: " + pmacct_image)
-    logger.info("Pmacct config: " + pmacct_conf_file)
-    return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_conf_file, pmacct_mount_folder_fullpath,
-                       pmacct_daemon_name, pmacct_image])[0]
+def start_pmacct_container(pmacct_docker_compose_file: str) -> bool:
+    logger.info("Starting pmacct container")
+    return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_docker_compose_file])[0]
 
 # Starts Redis container
 def start_redis_container() -> bool:
@@ -55,9 +48,9 @@ def get_pmacct_stats() -> str:
     return ret[1]
 
 # Stops pmacct container using docker stop and docker rm and returns success or not
-def stop_and_remove_pmacct_container() -> bool:
+def stop_and_remove_pmacct_container(pmacct_docker_compose_file: str) -> bool:
     logger.info("Stopping and removing pmacct container")
-    return run_script(['./library/sh/pmacct_docker/stop.sh'])[0]
+    return run_script(['./library/sh/pmacct_docker/stop.sh', pmacct_docker_compose_file])[0]
 
 # Stops and removes Redis container
 def stop_and_remove_redis_container() -> bool:

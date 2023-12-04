@@ -28,6 +28,7 @@ class KModuleParams:
         self.pmacct_mount_folder = '/var/log/pmacct'
         self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
         self.monitor_file = self.root_folder + '/results/monitor.log'
+        # by default no scenario set (may be overriden later in build_dynamic_params
         self.results_folder = os.getcwd() + '/results/' + self.test_name
         self.set_results_folders()
 
@@ -39,6 +40,7 @@ class KModuleParams:
         self.test_log_files = select_files(self.test_folder, 'output.*-\\d+.txt$')
 
     def set_results_folders(self):
+        self.pmacct_docker_compose_file = self.results_folder + '/docker-compose-pmacct.yml'
         self.results_conf_file = self.results_folder + '/' + self.daemon + '.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
@@ -65,6 +67,22 @@ class KModuleParams:
             replace_in_file(filename, self.test_subnet_ipv4, '172.21.1.10')
         if self.test_subnet_ipv6!='' and file_contains_string(filename, self.test_subnet_ipv6):
             replace_in_file(filename, self.test_subnet_ipv6, 'fd25::10')
+
+    def create_pmacct_compose_file(self):
+        img_var_name = 'PMACCT_' + self.daemon.upper() + '_IMG'
+        config = read_config_file(self.root_folder + '/settings.conf')
+        pmacct_img = config.get(img_var_name)
+        with open(self.root_folder + '/library/sh/pmacct_docker/docker-compose-template.yml') as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+        data['services']['pmacct']['image'] = pmacct_img
+        vols = data['services']['pmacct']['volumes']
+        for i in range(len(vols)):
+            vols[i] = vols[i].replace('${PMACCT_CONF}', self.results_conf_file)
+            vols[i] = vols[i].replace('${PMACCT_DAEMON}', self.daemon)
+            vols[i] = vols[i].replace('${PMACCT_MOUNT}', self.results_mount_folder)
+        with open(self.pmacct_docker_compose_file, 'w') as f:
+            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+
 
 def create_mount_and_output_folders(params: KModuleParams):
     logger.info('Creating test mount folder: ' + short_name(params.results_mount_folder))

@@ -88,30 +88,27 @@ def pmacct_logcheck(request):
     logger.info('Pmacct version: ' + params.pmacct_version)
 
 
-def setup_pmacct(request):
-    params = request.module.testParams
+def setup_pmacct(params):
     assert os.path.isfile(params.results_conf_file)
     for topic in list(params.kafka_topics.values()):
         assert scripts.create_or_clear_kafka_topic(topic)
-    img_var_name = 'PMACCT_' + params.daemon.upper() + '_IMG'
-    config = helpers.read_config_file(params.root_folder + '/settings.conf')
-    pmacct_img = config.get(img_var_name)
-    assert scripts.start_pmacct_container(params.results_conf_file, params.results_mount_folder, params.daemon,
-        pmacct_img)
+    params.create_pmacct_compose_file()
+    assert scripts.start_pmacct_container(params.pmacct_docker_compose_file)
     assert scripts.wait_pmacct_running(5)  # wait 5 seconds
 
 
 @pytest.fixture(scope="function")
 def pmacct_setup_teardown(prepare_test, request):
+    params = request.module.testParams
     scenario = prepare_test
-    setup_pmacct(request)
+    setup_pmacct(params)
     yield scenario
     scripts.stop_and_remove_all_traffic_containers()
     rsc_msg = ['Pmacct container resources:']
     rsc_msg += [' '+x for x in helpers.container_resources_string(scripts.get_pmacct_stats())]
     for msg in rsc_msg:
         logger.info(msg)
-    scripts.stop_and_remove_pmacct_container()
+    scripts.stop_and_remove_pmacct_container(params.pmacct_docker_compose_file)
 
 
 @pytest.fixture(scope="function")
@@ -169,7 +166,7 @@ def consumer_setup_teardown(request):
 # Prepares results folder to receive logs and output from pmacct
 @pytest.fixture(scope="function")
 def prepare_test(test_name_logging, request):
-    scenario = test_name_logging #request.param # request.config.getoption('--scenario')
+    scenario = test_name_logging
     logger.info('Scenario selected: ' + scenario)
     setup_tools.prepare_test_env(request.module, scenario)
     yield scenario
