@@ -55,6 +55,7 @@ class KMessageReader(ABC):
         self.disconnect()
 
 
+    # Dump (appending) json message to the default dump file
     def dump_if_needed(self, msgval: str):
         if not self.dumpfile:
             return
@@ -109,6 +110,46 @@ class KMessageReader(ABC):
         while msg and not msg.error() and (maxcount<0 or len(messages)<maxcount):
             messages.append(self.get_json_dict(msg))
             msg = self.consumer.poll(5)
+        return messages
+
+    # Dump (appending) json message to a specified output_file
+    def dump_to_file(self, msgval: str, output_file: str):
+        if not output_file:
+            return
+        with open(output_file, 'a') as f:
+            f.write(msgval + '\n')
+
+    # Returns a list of dictionaries representing the messages received within 
+    #   max_time_seconds or none if no messages at all were received
+    def get_all_messages_wait_time(self, max_time_seconds: int, output_file: str) -> List[dict]:
+        messages = []
+        time_start = round(time.time())
+        time_now = round(time.time())
+        while  time_now - time_start < max_time_seconds:
+            try:
+                msg = self.consumer.poll(5)
+            except Exception as err:
+                logger.error(str(err))
+                return messages
+            if not msg:
+                logger.debug('No message received from Kafka, waiting (' + str(max_time_seconds-time_now+time_start) +
+                    ' seconds left)')
+            elif msg.error():
+                logger.warning('Erroneous message received from Kafka, waiting (' + str(max_time_seconds - time_now +
+                    time_start) + ' seconds left)')
+            else:
+                msgval = self.get_json_string(msg)
+                msgdict = self.get_json_dict(msg)
+                self.dump_if_needed(msgval)
+                self.dump_to_file(msgval, output_file)
+                logger.debug('Received message: ' + msgval)
+                messages.append(msgdict)
+
+            time_now = round(time.time())
+
+        if len(messages) < 1:
+            logger.warning('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
+
         return messages
 
 

@@ -5,7 +5,7 @@
 # nikolaos.tsokas@swisscom.com 07/07/2023
 ###################################################
 
-import logging, os, secrets, yaml, shutil
+import logging, os, secrets, yaml, shutil, json
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
 import library.py.escape_regex as escape_regex
@@ -42,6 +42,31 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
+
+# Reads all messages from Kafka topic within a specified wait_time
+# (used for test-case development)
+def read_messages_and_generate_output(consumer, params, json_name, wait_time=120):
+
+    # Create/empty the output_json_file
+    output_json_file = params.results_folder + "/output-" + json_name + ".json"
+    file = open(output_json_file, "w")
+    file.close()
+
+    logger.info('Consuming from kafka [wait_time=' + str(wait_time) + 's] and writing messages to ' + output_json_file)
+
+    # Reading messages from Kafka topic
+    # The get_all_messages_wait_time method consumes all messages and returns 
+    # when wait_time (default=120s) have passed
+    messages = consumer.get_all_messages_wait_time(wait_time, output_json_file)
+
+    logger.info('Consumed ' + str(len(messages)) + ' messages')
+    logger.warning('Json comparing disabled (test-case development)!')
+
+    if len(messages) == 0:
+        return False
+
+    return True 
+
 def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
     folder_names = ', '.join([helpers.short_name(folder) for folder in pcap_mount_folders])
     logger.info('Preparing multi-pcap player container...')
@@ -74,7 +99,6 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
                                 '/pcap/pcap' + str(i) + '/traffic.pcap')
 
     return pcap_folder
-
 
 
 # Transforms a provided log file, in terms of regex syntax and IP substitutions

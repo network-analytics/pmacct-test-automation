@@ -178,11 +178,6 @@ def prepare_pcap(request):
     setup_tools.prepare_pcap(request.module)
 
 
-# No teardown - only for debugging
-@pytest.fixture(scope="function")
-def debug_core(check_root_dir, prepare_test, pmacct_setup, prepare_pcap):
-    pass
-
 # This is the top level of function-scoped fixture, therefore it gets the scenario param
 # Adds a banner with the test case name to the logs at the start and the end of the execution
 @pytest.fixture(scope="function")
@@ -201,6 +196,16 @@ def test_name_logging(request):
     yield scenario
     logMessage('** Finishing test: ' + params.test_name + ' **\n')
 
+
+# No kafka and no teardown - only for debugging
+@pytest.fixture(scope="function")
+def debug_core(check_root_dir, prepare_test, pmacct_setup, prepare_pcap):
+    pass
+
+# No kafka (use with kafka already up) - for speeding up in test-case development & demos
+@pytest.fixture(scope="function")
+def test_core_no_kafka(check_root_dir, pmacct_setup_teardown, pmacct_logcheck, prepare_pcap):
+    pass
 
 # Abstract fixture, which incorporates all common (core) fixtures
 @pytest.fixture(scope="function")
