@@ -23,6 +23,7 @@ class KModuleParams:
         self.test_folder = os.path.dirname(filename)
         self.tests_folder = os.path.dirname(self.test_folder)
         self.root_folder = os.path.dirname(self.tests_folder)
+        self.fw_config = read_config_file(self.root_folder + '/settings.conf')
         self.test_name = os.path.basename(self.test_folder)
         self.test_mount_folder = self.test_folder + '/pmacct_mount'
         self.pmacct_mount_folder = '/var/log/pmacct'
@@ -39,6 +40,8 @@ class KModuleParams:
         self.test_output_files = select_files(self.test_folder, 'output.*-\\d+.json$')
         self.test_log_files = select_files(self.test_folder, 'output.*-\\d+.txt$')
 
+    # Sets subfolder of test results folder. This is run once for the deault scenario.
+    # If it is determined that it is about a specific scenario, this function is re-executed (see function below)
     def set_results_folders(self):
         self.pmacct_docker_compose_file = self.results_folder + '/docker-compose-pmacct.yml'
         self.results_conf_file = self.results_folder + '/' + self.daemon + '.conf'
@@ -46,6 +49,8 @@ class KModuleParams:
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
 
+    # Dynamic params are built after it has been determined whether it is about a default
+    # or about a scecific scenario
     def build_dynamic_params(self, scenario):
         self.results_folder = os.getcwd() + '/results/' + self.test_name + '__' + scenario
         self.set_results_folders()
@@ -62,16 +67,18 @@ class KModuleParams:
         logger.debug('Test output files: ' + str(self.test_output_files))
         logger.debug('Test log files: ' + str(self.test_log_files))
 
+    # Replaces IPs in file, so that they reflect the framework subnet (which may or may not be
+    # different than the ones provided with the test case)
     def replace_IPs(self, filename: str):
         if self.test_subnet_ipv4!='' and file_contains_string(filename, self.test_subnet_ipv4):
             replace_in_file(filename, self.test_subnet_ipv4, '172.21.1.10')
         if self.test_subnet_ipv6!='' and file_contains_string(filename, self.test_subnet_ipv6):
             replace_in_file(filename, self.test_subnet_ipv6, 'fd25::10')
 
+    # Creates the docker-compose file for deploying pmacct.
     def create_pmacct_compose_file(self):
         img_var_name = 'PMACCT_' + self.daemon.upper() + '_IMG'
-        config = read_config_file(self.root_folder + '/settings.conf')
-        pmacct_img = config.get(img_var_name)
+        pmacct_img = self.fw_config.get(img_var_name)
         with open(self.root_folder + '/library/sh/pmacct_docker/docker-compose-template.yml') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
         data['services']['pmacct']['image'] = pmacct_img
@@ -84,6 +91,7 @@ class KModuleParams:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
 
+# Creates mount and output subfolders in the test results folder
 def create_mount_and_output_folders(params: KModuleParams):
     logger.info('Creating test mount folder: ' + short_name(params.results_mount_folder))
     os.makedirs(params.results_mount_folder)
@@ -111,6 +119,7 @@ def edit_conf_output_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key_ending_with('avro_schema_output_file',
                                             params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
 
+# Calls above two functions; also, sets the correct schema registry URL and the correct address:port of redis
 def edit_config_with_framework_params(config: KConfigurationFile, params: KModuleParams):
     edit_conf_mount_folder(config, params)
     edit_conf_output_folder(config, params)
@@ -182,13 +191,64 @@ class KFileList(list):
                 return filename
         return None
 
+# Fixes reproduction IP in a config object, if needed (if not, it only produces a log)
 def fix_repro_ip_in_config(ip_subnet, config, fw_ip):
     if len(ip_subnet) < 1:
         logger.info('Reference subnet not set, assuming traffic reproduction IP from framework subnet')
     else:
         logger.info('Reference subnet set, setting traffic reproduction IP to framework subnet')
-        config['network']['map'][0]['repro_ip'] = config['network']['map'][0]['repro_ip']. \
-            replace(ip_subnet, fw_ip)
+        config['network']['map'][0]['repro_ip'] = config['network']['map'][0]['repro_ip'].replace(ip_subnet, fw_ip)
+
+# Creates docker-compose.yml file for a specific traffic-reproducer
+def fill_repro_docker_compose(i, params, repro_ip, isIPv6):
+    with open(params.root_folder + '/library/sh/traffic_docker/docker-compose-template.yml') as f:
+        data_dc = yaml.load(f, Loader=yaml.FullLoader)
+    data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + str(i)
+    data_dc['services']['traffic-reproducer']['image'] = params.fw_config.get('TRAFFIC_REPRO_IMG')
+    results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
+    data_dc['services']['traffic-reproducer']['volumes'][0] = results_pcap_folder + ':/pcap'
+    if isIPv6:
+        data_dc['services']['traffic-reproducer']['networks']['pmacct_test_network']['ipv6_address'] = \
+            repro_ip if len(params.test_subnet_ipv6)<1 else repro_ip.replace(params.test_subnet_ipv6, 'fd25::10')
+        del data_dc['services']['traffic-reproducer']['networks']['pmacct_test_network']['ipv4_address']
+    else:
+        data_dc['services']['traffic-reproducer']['networks']['pmacct_test_network']['ipv4_address'] = \
+            repro_ip if len(params.test_subnet_ipv4)<1 else repro_ip.replace(params.test_subnet_ipv4, '172.21.1.10')
+        del data_dc['services']['traffic-reproducer']['networks']['pmacct_test_network']['ipv6_address']
+    with open(results_pcap_folder + '/docker-compose.yml', 'w') as f:
+        yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
+
+# Creates a pcap folder under the test results folder, where it copies traffic.pcap and traffic-reproducer.yml
+# files. It also changes reproduction IP in traffic-reproducer.yml to that of the network framework and
+# creates the docker-compose.yml for the specific container
+def prepare_pcap_folder(params, i, test_config_file, test_pcap_file):
+    results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
+    os.makedirs(results_pcap_folder)
+    logger.debug('Created folder ' + short_name(results_pcap_folder))
+    params.pcap_folders.append(results_pcap_folder)
+    shutil.copy(test_config_file, results_pcap_folder + '/traffic-reproducer.yml')
+    shutil.copy(test_pcap_file, results_pcap_folder + '/traffic.pcap')
+
+    with open(results_pcap_folder + '/traffic-reproducer.yml') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    data['pcap'] = '/pcap/traffic.pcap'
+
+    # adding pmacct IP address
+    isIPv6 = ':' in data['network']['map'][0]['repro_ip']
+    pmacct_ip = 'fd25::13' if isIPv6 else '172.21.1.13'
+    logger.debug('Traffic uses ' + ('IPv6' if isIPv6 else 'IPv4'))
+    for k in ['bmp', 'bgp', 'ipfix']:
+        if k in data:
+            data[k]['collector']['ip'] = pmacct_ip
+    fill_repro_docker_compose(i, params, data['network']['map'][0]['repro_ip'], isIPv6)
+
+    if isIPv6:
+        fix_repro_ip_in_config(params.test_subnet_ipv6, data, 'fd25::10')
+    else:
+        fix_repro_ip_in_config(params.test_subnet_ipv4, data, '172.21.1.10')
+
+    with open(results_pcap_folder + '/traffic-reproducer.yml', 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
 # RUNS AFTER PMACCT IS RUN
 # Prepares json output, log, pcap and pcap-config files
@@ -200,29 +260,4 @@ def prepare_pcap(_module):
 
     # test_config_files is sorted per basename (filename)
     for i in range(len(test_config_files)):
-        results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
-        os.makedirs(results_pcap_folder)
-        logger.debug('Created folder ' + short_name(results_pcap_folder))
-        params.pcap_folders.append(results_pcap_folder)
-        shutil.copy(test_config_files[i], results_pcap_folder + '/traffic-reproducer.yml')
-        shutil.copy(test_pcap_files[i], results_pcap_folder + '/traffic.pcap')
-
-        with open(results_pcap_folder + '/traffic-reproducer.yml') as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
-        data['pcap'] = '/pcap/traffic.pcap'
-
-        # adding pmacct IP address
-        isIPv6 = ':' in data['network']['map'][0]['repro_ip']
-        pmacct_ip = 'fd25::13' if isIPv6 else '172.21.1.13'
-        logger.debug('Traffic uses ' + ('IPv6' if isIPv6 else 'IPv4'))
-        for k in ['bmp', 'bgp', 'ipfix']:
-            if k in data:
-                data[k]['collector']['ip'] = pmacct_ip
-
-        if isIPv6:
-            fix_repro_ip_in_config(params.test_subnet_ipv6, data, 'fd25::10')
-        else:
-            fix_repro_ip_in_config(params.test_subnet_ipv4, data, '172.21.1.10')
-
-        with open(results_pcap_folder + '/traffic-reproducer.yml', 'w') as f:
-            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        prepare_pcap_folder(params, i, test_config_files[i], test_pcap_files[i])

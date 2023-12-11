@@ -33,8 +33,8 @@ def main(consumer):
     assert helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['\\[172\\.21\\.1\\.103] BMP peers usage'])
     assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN(?!.*Unable to get kafka_host)'])
 
-    for i in range(len(testParams.pcap_folders)):
-        scripts.stop_and_remove_traffic_container(i)
+    for folder in testParams.pcap_folders:
+        scripts.stop_and_remove_traffic_container(folder)
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-01')

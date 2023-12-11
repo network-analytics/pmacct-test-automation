@@ -31,7 +31,7 @@ def main(consumer):
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 90, 10)
 
-    scripts.stop_and_remove_traffic_container(0)
+    scripts.stop_and_remove_traffic_container(testParams.pcap_folders[0])
 
     # We want to leave the Kafka infrastructure running, for the next test case to use, so we re-deploy it
     assert scripts.start_kafka_containers()

@@ -13,8 +13,8 @@ testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.', ip
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
-def transform_log_file_custom(logfile, repro_info_list):
-    repro_ips = [info['repro_ip']  for info in repro_info_list]
+def transform_log_file_custom(logfile, repro_ips):
+    # repro_ips = [info['repro_ip']  for info in repro_info_list]
     token = secrets.token_hex(4)[:8]
     helpers.replace_in_file(logfile, '${repro_ip}', token)
     test_tools.transform_log_file(logfile)  # the usual log transformations
@@ -40,21 +40,20 @@ def main(consumer):
                                          [testParams.pcap_folders[2], testParams.pcap_folders[3]])
     assert pcap_folder
 
-    repro_info_list = []
+    repro_ip_list = []
     for i in [0, 1]:
-        repro_info = scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
-        assert repro_info
-        repro_info_list.append(repro_info)
+        assert scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
+        repro_ip_list.append(helpers.get_repro_ip_from_pcap_folder(testParams.pcap_folders[i]))
 
-    repro_info_multi = scripts.replay_pcap_detached_multi(pcap_folder, 2)
-    assert repro_info_multi
-    repro_info_list.append(repro_info_multi)
+    repro_ip_multi = scripts.replay_pcap_detached_multi(pcap_folder, 2)
+    assert repro_ip_multi
+    repro_ip_list.append(repro_ip_multi)
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-00',
         ['seq', 'timestamp', 'peer_tcp_port'], 90)
 
     logfile = testParams.log_files.getFileLike('log-00')
-    transform_log_file_custom(logfile, repro_info_list)
+    transform_log_file_custom(logfile, repro_ip_list)
     # Check logs --> retry until traffic-reproducer-03 has attempted the connection
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
@@ -68,7 +67,7 @@ def main(consumer):
         assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
 
     for i in [0, 1, 2]:
-      scripts.stop_and_remove_traffic_container(i)
+      scripts.stop_and_remove_traffic_container_byID(i)
 
     # TODO DAISY: - we need to debug why pretag is not working properly on delete messages (bug)
     #                --> until then we check the delete messages excluding the label field
@@ -76,7 +75,7 @@ def main(consumer):
         ['seq', 'timestamp', 'peer_tcp_port', 'label'], 60)
 
     logfile = testParams.log_files.getFileLike('log-04')
-    transform_log_file_custom(logfile, repro_info_list)
+    transform_log_file_custom(logfile, repro_ip_list)
     # Check logs --> retry each 5s for max 30s as it takes some time to stop traffic-repro containers
     assert helpers.retry_until_true('Checking expected logs',
         lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 5)

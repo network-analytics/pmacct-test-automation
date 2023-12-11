@@ -4,9 +4,9 @@
 # nikolaos.tsokas@swisscom.com 26/02/2023
 ###################################################
 
-import os, re, logging, time, json
+import os, re, logging, time, json, yaml
 from typing import Callable
-from typing import List
+from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +132,7 @@ def retry_until_true(checkmessage: str, checkfunc: Callable, max_seconds: int, s
     return True
 
 # Loads a conf file (key=value) into a dictionary
-def read_config_file(filename):
+def read_config_file(filename: str) -> Dict:
     conf_data = {}
     with open(filename, "r") as file:
         for line in file:
@@ -164,3 +164,10 @@ def read_pmacct_version(logfile: str) -> str:
         return None
     return parts[1]
 
+# Takes a input a folder with pcap information and returns the IP address of the traffic reproducer,
+# as found in traffic-reproducer.yml
+def get_repro_ip_from_pcap_folder(pcap_folder: str) -> str:
+    with open(pcap_folder + '/traffic-reproducer.yml') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    repro_info = data['network']['map'][0]
+    return repro_info['repro_ip']
