@@ -26,5 +26,4 @@ done
 
 echo "Building traffic reproducer docker images"
 cd tools/pcap_player
-docker build -t traffic-reproducer -f single/Dockerfile . || exit $?
-docker build -t traffic-reproducer-multi -f multi/Dockerfile . || exit $?
+./build_docker_images.sh

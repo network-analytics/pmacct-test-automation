@@ -122,7 +122,7 @@ def redis_setup_teardown(request):
 # Setup only - for troubleshooting/debugging only!
 @pytest.fixture(scope="function")
 def pmacct_setup(request):
-    setup_pmacct(request)
+    setup_pmacct(request.module.testParams)
 
 
 # Fixture makes sure the framework is run from the right directory
