@@ -1,14 +1,6 @@
 #!/bin/bash
 
-if [ -z "$1" ]; then
-  echo "No argument supplied, assuming alpine as base image"
-  IMG="alpine"
-elif [[ $1 != "alpine" && $1 != "debian" ]]; then
-  echo "Invalid base image, only alpine and debian are available"
-  exit 1
-else
-  IMG="$1"
-fi
+IMG=debian
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 
