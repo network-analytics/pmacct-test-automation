@@ -36,18 +36,17 @@ def main(consumer):
         logger.debug('Waiting ' + str(wait_sec) + ' seconds')
         time.sleep(wait_sec)
 
-    pcap_folder = test_tools.prepare_multi_pcap_player(testParams.results_folder,
-                                         [testParams.pcap_folders[2], testParams.pcap_folders[3]])
-    assert pcap_folder
+    pcap_folder_multi = test_tools.prepare_multi_pcap_player(testParams.results_folder,
+        [testParams.pcap_folders[2], testParams.pcap_folders[3]], 2, testParams.fw_config)
+    assert pcap_folder_multi
 
     repro_ip_list = []
     for i in [0, 1]:
         assert scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
         repro_ip_list.append(helpers.get_repro_ip_from_pcap_folder(testParams.pcap_folders[i]))
 
-    repro_ip_multi = scripts.replay_pcap_detached_multi(pcap_folder, 2)
-    assert repro_ip_multi
-    repro_ip_list.append(repro_ip_multi)
+    assert scripts.replay_pcap_detached(pcap_folder_multi, 2)
+    repro_ip_list.append(helpers.get_repro_ip_from_pcap_folder(testParams.pcap_folders[2])) # needs to find a yml
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-00',
         ['seq', 'timestamp', 'peer_tcp_port'], 90)

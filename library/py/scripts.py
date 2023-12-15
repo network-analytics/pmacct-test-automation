@@ -155,29 +155,11 @@ def replay_pcap(pcap_mount_folder: str) -> bool:
 
 # Spawns a new traffic reproducer container in detached mode and replays traffic from folder pcap_mount_folder
 # player_id is a user-given number used for reference when the container later needs to be stopped
-# pcap_mount_folder is the path of the folder containing traffic reproduction information on the host
-# pcap_mount_folder is mounted to the spawned traffic reproducer container as /pcap
+# pcap_mount_folder is the path of the folder containing the docker-compose.yml file for the conteiner
+# in question; it typically contains also traffic reproduction information
 def replay_pcap_detached(pcap_mount_folder: str, player_id: int):
     logger.info('Replaying pcap file from ' + helpers.short_name(pcap_mount_folder) + ' with DETACHED docker container')
     args = ['./library/sh/traffic_docker/start_docker_compose.sh', pcap_mount_folder + '/docker-compose.yml', '-d']
     success, output, error = run_script(args)
     display_debug_info(success, output, error)
     return success
-
-# Spawns a new traffic reproducer container in detached mode and replays multiple traffic pcap files from different
-# pcap folders mounted on the container at /pcap/pcapN (N=0, 1, ...). For that is spawns multiple processes
-# on the container
-def replay_pcap_detached_multi(pcap_mount_folder: str, player_id: int):
-    logger.info('Replaying multiple pcap files from ' + helpers.short_name(pcap_mount_folder) +
-                ' with DETACHED docker container')
-    logger.debug('Multiple processes are spawned on the container')
-    # Reading the repro_info of the FIRST pcap_folder
-    with open(pcap_mount_folder + '/pcap0/traffic-reproducer.yml') as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
-    repro_info = data['network']['map'][0]
-    logger.info('Pcap player repro info: ' + str(repro_info))
-    args = ['./library/sh/traffic_docker/start_bg.sh', pcap_mount_folder, str(player_id),
-            repro_info['repro_ip'], 'multi']
-    success, output, error = run_script(args)
-    display_debug_info(success, output, error)
-    return repro_info['repro_ip'] if success else None

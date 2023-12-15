@@ -42,7 +42,7 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
-def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
+def prepare_multi_pcap_player(results_folder, pcap_mount_folders, container_id, fw_config):
     folder_names = ', '.join([helpers.short_name(folder) for folder in pcap_mount_folders])
     logger.info('Preparing multi-pcap player container...')
     logger.info('Creating common mount pcap folder for folders: ' + folder_names)
@@ -55,10 +55,12 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
             repro_info[1] = data['network']['map'][0]['bgp_id']
         return repro_info
 
+    # Make sure traffic-reproducer.yml files of all pcap folders refer to the same IP and BGP_ID
+    # Otherwise, it is not possible for a single server (container) to replay these traffic data
     repro_info = getREPROIPandBGPID(pcap_mount_folders[0])
     for i in range(1, len(pcap_mount_folders)):
         if repro_info != getREPROIPandBGPID(pcap_mount_folders[i]):
-            logger.error('IP and/or BGP_ID for the same player do not match!')
+            logger.error('IP and/or BGP_ID for the same traffic reproducer do not match!')
             return None
 
     pcap_folder = results_folder + '/pcap_mount_' + secrets.token_hex(4)[:8]
@@ -72,6 +74,19 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders):
         shutil.copytree(pcap_mount_folders[i], dst)
         helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/traffic.pcap',
                                 '/pcap/pcap' + str(i) + '/traffic.pcap')
+
+    shutil.copy(pcap_folder + '/pcap0/docker-compose.yml', pcap_folder + '/docker-compose.yml')
+    with open(pcap_folder + '/docker-compose.yml') as f:
+        data_dc = yaml.load(f, Loader=yaml.FullLoader)
+    data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + str(container_id)
+    data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
+    data_dc['services']['traffic-reproducer']['volumes'][0] = pcap_folder + ':/pcap'
+    with open(pcap_folder + '/docker-compose.yml', 'w') as f:
+        yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
+    logger.debug('Created traffic-reproducer-multi docker-compose.yml in ' + helpers.short_name(pcap_folder))
+    for i in range(len(pcap_mount_folders)):
+        if os.path.isfile(pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
+            os.remove(pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')
 
     return pcap_folder
 
