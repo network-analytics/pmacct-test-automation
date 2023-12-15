@@ -25,6 +25,8 @@ $ tools/pmacct_build/build_docker_images.sh
 
 ## How To Run
 
+TODO: extend for scenarios
+
 To run one or more test cases:
 ```shell
 $ ./runtest.sh [--dry] [--loglevel=LOGLEVEL] <test case number or wildcard> [<test case number or wildcard> ...]

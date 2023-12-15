@@ -45,7 +45,7 @@ WORKDIR /tmp/pmacct/
 # About to deal with deps installation
 COPY ci/deps.sh ci/
 # Parallelism: 2 looks a reasonable default, and bear in mind CI specs
-ARG NUM_WORKERS=2
+ARG NUM_WORKERS=4
 ENV MAKEFLAGS="-j${NUM_WORKERS}"
 # Do not check certificates in wget for external deps
 ARG DEPS_DONT_CHECK_CERTIFICATE
