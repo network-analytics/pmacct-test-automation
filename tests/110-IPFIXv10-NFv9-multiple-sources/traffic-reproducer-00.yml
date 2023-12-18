@@ -21,7 +21,8 @@ network:
 ipfix:
   select: 
     udp:
-      dport: 9991
+      dport:
+      - 9991
   collector:                                # collector that will receive the reproduced messages
     ip: localhost
     port: 9991
