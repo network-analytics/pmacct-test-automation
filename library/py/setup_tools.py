@@ -254,6 +254,7 @@ def prepare_pcap_folder(params, i, test_config_file, test_pcap_file):
 # Prepares json output, log, pcap and pcap-config files
 def prepare_pcap(_module):
     params = _module.testParams
+    params.pcap_folders.clear()
     test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\\d+.yml$')
     test_pcap_files = select_files(params.test_folder, 'traffic.*-\\d+.pcap$')
     assert len(test_pcap_files)==len(test_config_files)
