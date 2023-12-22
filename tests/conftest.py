@@ -17,14 +17,16 @@ def pytest_addoption(parser):
     parser.addoption("--runconfig", action="store", default="")
 
 
-# Runs for every test case collected by pytest from the files. By parameterizing the top test -level fixture,
-# clones the test case for every possible scenario, i.e., for every scenario, for which a subfolder exists
+# Runs for every test case collected by pytest from the files. By parameterizing the metafunc object, we create
+# clones of the test case for every possible scenario, i.e., for every scenario, for which a subfolder exists.
+# The "scenario_name" parameter is available to all function-level fixtures that need it, just by them declaring it
+# as input parameter along with "request".
 def pytest_generate_tests(metafunc):
     scen_folders = helpers.select_files(metafunc.module.testParams.test_folder, 'scenario-\\d{2}$')
     scenarios = ['default'] + [os.path.basename(s) for s in scen_folders if os.path.isdir(s)]
     logger.debug('Test ' + os.path.basename(os.path.dirname(metafunc.module.__file__)) +
                 ' is cloned for following scenarios: ' + str(scenarios))
-    metafunc.parametrize('test_name_logging', scenarios, scope='function')
+    metafunc.parametrize('scenario_name', scenarios, scope='function')
 
 
 # Runs at the end of the pytest collection process. Restricts test case execution to the selected
@@ -54,6 +56,15 @@ def pytest_collection_modifyitems(config, items):
         logger.info('Skipping ' + str(count_skipped) + ' of ' + str(len(items)) + ' collected items')
 
 
+# Fixture makes sure the framework is run from the right directory
+@pytest.fixture(scope="session")
+def check_root_dir():
+    logger.debug('Framework runs from directory: ' + os.getcwd())
+    assert all(x in os.listdir(os.getcwd()) for x in ['tools', 'tests', 'library', 'pytest.ini', 'settings.conf'])
+    assert os.path.dirname(__file__) == os.getcwd() + '/tests'
+
+
+# The setup part of the Kafka insfrastructure fixture
 def setup_kafka_infra():
     assert not scripts.check_broker_running()
     assert scripts.create_test_network()
@@ -61,6 +72,7 @@ def setup_kafka_infra():
     assert scripts.wait_schemaregistry_healthy(120)
 
 
+# Setup and teardown fixture for Kafka infrastructure (zookeeper, schema-registry and broker)
 @pytest.fixture(scope="session")
 def kafka_infra_setup_teardown():
     setup_kafka_infra()
@@ -69,12 +81,70 @@ def kafka_infra_setup_teardown():
     scripts.delete_test_network()
 
 
-# Setup only - for troubleshooting/debugging only!
+# Setup only fixture - for troubleshooting/debugging only!
 @pytest.fixture(scope="session")
 def kafka_infra_setup():
     setup_kafka_infra()
 
 
+# This is the top level of function-scoped fixture, therefore it gets the scenario param
+# Adds a banner with the test case name to the logs at the start and the end of the execution
+@pytest.fixture(scope="function")
+def log_test_and_scenario(scenario_name, request):
+    params = request.module.testParams
+    def logMessage(msg):
+        txts = ['*'*len(msg), '*'*len(msg), msg, '*'*len(msg), '*'*len(msg)]
+        for txt in txts:
+            logger.info(txt)
+    test_and_scenario = 'test: ' + params.test_name + ', scenario: ' + scenario_name
+    logMessage('** Starting ' + test_and_scenario + ' **')
+    # pmacct is not yet running, therefore no concurrency issues with monitor.sh are expected, even though
+    # logging to the same file
+    with open(request.module.testParams.monitor_file, 'a') as f:
+        f.write('** Starting ' + test_and_scenario + ' **\n')
+    yield
+    logMessage('** Finishing ' + test_and_scenario + ' **')
+
+
+# Prepares results folder to receive logs and output from pmacct
+@pytest.fixture(scope="function")
+def prepare_test(scenario_name, request):
+    logger.info('Scenario selected: ' + scenario_name)
+    setup_tools.prepare_test_env(request.module, scenario_name)
+
+
+# Prepares Kafka topic, creates kafka-compose file for pmacct and deploys pmacct container
+def setup_pmacct(params):
+    assert os.path.isfile(params.results_conf_file)
+    for topic in list(params.kafka_topics.values()):
+        assert scripts.create_or_clear_kafka_topic(topic)
+    params.create_pmacct_compose_file()
+    assert scripts.start_pmacct_container(params.pmacct_docker_compose_file)
+    assert scripts.wait_pmacct_running(5)  # wait 5 seconds
+
+
+# Setup and Teardown fixture for pmacct container
+@pytest.fixture(scope="function")
+def pmacct_setup_teardown(request):
+    params = request.module.testParams
+    setup_pmacct(params)
+    yield
+    scripts.stop_and_remove_all_traffic_containers()
+    rsc_msg = ['Pmacct container resources:']
+    rsc_msg += [' '+x for x in helpers.container_resources_string(scripts.get_pmacct_stats())]
+    for msg in rsc_msg:
+        logger.info(msg)
+    scripts.stop_and_remove_pmacct_container(params.pmacct_docker_compose_file)
+
+
+# Pmacct setup only - for troubleshooting/debugging only!
+@pytest.fixture(scope="function")
+def pmacct_setup(request):
+    setup_pmacct(request.module.testParams)
+
+
+# Waits for the first characteristic lines to appear in pmacct log, to be sure pmacct is running
+# Also the version of pmacct is logged to the test logger.
 @pytest.fixture(scope="function")
 def pmacct_logcheck(request):
     params = request.module.testParams
@@ -88,52 +158,15 @@ def pmacct_logcheck(request):
     logger.info('Pmacct version: ' + params.pmacct_version)
 
 
-def setup_pmacct(params):
-    assert os.path.isfile(params.results_conf_file)
-    for topic in list(params.kafka_topics.values()):
-        assert scripts.create_or_clear_kafka_topic(topic)
-    params.create_pmacct_compose_file()
-    assert scripts.start_pmacct_container(params.pmacct_docker_compose_file)
-    assert scripts.wait_pmacct_running(5)  # wait 5 seconds
-
-
+# Prepares folders with pcap information for traffic-reproduction containers to mount
 @pytest.fixture(scope="function")
-def pmacct_setup_teardown(prepare_test, request):
-    params = request.module.testParams
-    scenario = prepare_test
-    setup_pmacct(params)
-    yield scenario
-    scripts.stop_and_remove_all_traffic_containers()
-    rsc_msg = ['Pmacct container resources:']
-    rsc_msg += [' '+x for x in helpers.container_resources_string(scripts.get_pmacct_stats())]
-    for msg in rsc_msg:
-        logger.info(msg)
-    scripts.stop_and_remove_pmacct_container(params.pmacct_docker_compose_file)
+def prepare_pcap(request):
+    setup_tools.prepare_pcap(request.module)
 
 
-@pytest.fixture(scope="function")
-def redis_setup_teardown(request):
-    assert scripts.start_redis_container()
-    assert scripts.wait_redis_running(5)  # wait up to 5 seconds
-    yield
-    scripts.stop_and_remove_redis_container()
-
-
-# Setup only - for troubleshooting/debugging only!
-@pytest.fixture(scope="function")
-def pmacct_setup(request):
-    setup_pmacct(request.module.testParams)
-
-
-# Fixture makes sure the framework is run from the right directory
-@pytest.fixture(scope="session")
-def check_root_dir():
-    logger.debug('Framework runs from directory: ' + os.getcwd())
-    assert all(x in os.listdir(os.getcwd()) for x in ['tools', 'tests', 'library', 'pytest.ini', 'settings.conf'])
-    assert os.path.dirname(__file__) == os.getcwd() + '/tests'
-
-
-
+# Sets up the Kafka consumers for all Kafka topics mentioned in the pmacct configuration file.
+# By convention, all topics are considered to use avro, unless their name ends with "_json", in
+# which case they are considered plain json.
 def setup_consumers(request):
     params = request.module.testParams
     consumers = KMessageReaderList()
@@ -156,45 +189,21 @@ def teardown_consumers(consumers):
         consumer.disconnect()
 
 
+# Setup and teardown fixture for Kafka consumers
 @pytest.fixture(scope="function")
 def consumer_setup_teardown(request):
-    consumers = setup_consumers(request) # , KMessageReaderAvro)
+    consumers = setup_consumers(request)
     yield consumers
     teardown_consumers(consumers)
 
 
-# Prepares results folder to receive logs and output from pmacct
+# Setup and teardown fixture for Redis
 @pytest.fixture(scope="function")
-def prepare_test(test_name_logging, request):
-    scenario = test_name_logging
-    logger.info('Scenario selected: ' + scenario)
-    setup_tools.prepare_test_env(request.module, scenario)
-    yield scenario
-
-
-# Prepares folders with pcap information for traffic-reproduction containers to mount
-@pytest.fixture(scope="function")
-def prepare_pcap(request):
-    setup_tools.prepare_pcap(request.module)
-
-
-# This is the top level of function-scoped fixture, therefore it gets the scenario param
-# Adds a banner with the test case name to the logs at the start and the end of the execution
-@pytest.fixture(scope="function")
-def test_name_logging(request):
-    scenario = request.param
-    params = request.module.testParams
-    def logMessage(msg):
-        txts = ['*'*len(msg), '*'*len(msg), msg, '*'*len(msg), '*'*len(msg)]
-        for txt in txts:
-            logger.info(txt)
-    logMessage('** Starting test: ' + params.test_name + ' **\n** Scenario:      ' + scenario + '     **\n' )
-    # Since this is module-level scope setup, pmacct is not yet running, therefore no concurrency
-    # issues with monitor.sh are expected, even though logging to the same file
-    with open(request.module.testParams.monitor_file, 'a') as f:
-        f.write('** Starting test: ' + params.test_name + ' **\n')
-    yield scenario
-    logMessage('** Finishing test: ' + params.test_name + ' **\n')
+def redis_setup_teardown(request):
+    assert scripts.start_redis_container()
+    assert scripts.wait_redis_running(5)  # wait up to 5 seconds
+    yield
+    scripts.stop_and_remove_redis_container()
 
 
 # No kafka and no teardown - only for debugging
@@ -209,5 +218,6 @@ def test_core_no_kafka(check_root_dir, pmacct_setup_teardown, pmacct_logcheck, p
 
 # Abstract fixture, which incorporates all common (core) fixtures
 @pytest.fixture(scope="function")
-def test_core(check_root_dir, kafka_infra_setup_teardown, pmacct_setup_teardown, pmacct_logcheck, prepare_pcap):
+def test_core(check_root_dir, kafka_infra_setup_teardown, log_test_and_scenario, prepare_test, pmacct_setup_teardown,
+              pmacct_logcheck, prepare_pcap):
     pass
