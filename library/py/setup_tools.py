@@ -40,12 +40,13 @@ class KModuleParams:
         self.test_output_files = select_files(self.test_folder, 'output.*-\\d+.json$')
         self.test_log_files = select_files(self.test_folder, 'output.*-\\d+.txt$')
 
-    # Sets subfolder of test results folder. This is run once for the deault scenario.
+    # Sets subfolder of test results folder. This is run once for the default scenario.
     # If it is determined that it is about a specific scenario, this function is re-executed (see function below)
     def set_results_folders(self):
         self.pmacct_docker_compose_file = self.results_folder + '/docker-compose-pmacct.yml'
         self.results_conf_file = self.results_folder + '/' + self.daemon + '.conf'
         self.results_mount_folder = self.results_folder + '/pmacct_mount'
+        self.results_dump_folder = self.results_folder + '/kafka_dumps'
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
 

@@ -4,7 +4,9 @@
 # nikolaos.tsokas@swisscom.com 21/02/2023
 ###################################################
 
-from confluent_kafka.avro import AvroConsumer
+from confluent_kafka.serialization import SerializationContext, MessageField
+from confluent_kafka.schema_registry import SchemaRegistryClient
+from confluent_kafka.schema_registry.avro import AvroDeserializer
 from confluent_kafka import Consumer
 import time, logging, json
 from typing import List
@@ -13,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class KMessageReader(ABC):
 
-    def __init__(self, topic: str, dump_to_file: str=None): #, plainJson: bool=False):
+    def __init__(self, topic: str, dump_to_file: str=None):
         self.topic = topic
         self.dumpfile = dump_to_file
         self.consumer = None
@@ -23,12 +25,8 @@ class KMessageReader(ABC):
         raise NotImplementedError("Must override instantiate_consumer")
 
     @abstractmethod
-    def get_json_string(self, prop_dict):
-        raise NotImplementedError("Must override get_json_string")
-
-    @abstractmethod
-    def get_json_dict(self, prop_dict):
-        raise NotImplementedError("Must override get_json_dict")
+    def get_json_string_and_dict(self, message):
+        raise NotImplementedError("Must override get_json_string_and_dict")
 
     def connect(self):
         prop_dict = {
@@ -54,12 +52,19 @@ class KMessageReader(ABC):
         logger.debug('Message reader destructor called')
         self.disconnect()
 
-
-    def dump_if_needed(self, msgval: str):
+    def dump_json_if_needed(self, msgval: str):
         if not self.dumpfile:
             return
-        with open(self.dumpfile, 'a') as f:
+        with open(self.dumpfile + '.json', 'a') as f:
             f.write(msgval + '\n')
+
+    def dump_raw_if_needed(self, msgval):
+        if not self.dumpfile:
+            return
+        with open(self.dumpfile + '.dat', 'ab') as f:
+            f.write(msgval)
+        with open(self.dumpfile + '.txt', 'a') as f:
+            f.write(str(msgval) + '\n')
 
 
     # Receives as input the maximum time to wait and the number of expected messages
@@ -83,9 +88,9 @@ class KMessageReader(ABC):
                 logger.warning('Erroneous message received from Kafka, waiting (' + str(max_time_seconds - time_now +
                     time_start) + ' seconds left)')
             else:
-                msgval = self.get_json_string(msg)
-                msgdict = self.get_json_dict(msg)
-                self.dump_if_needed(msgval)
+                self.dump_raw_if_needed(msg.value())
+                msgval, msgdict = self.get_json_string_and_dict(msg)
+                self.dump_json_if_needed(msgval)
                 logger.debug('Received message: ' + msgval)
                 messages.append(msgdict)
                 messages_expected -= 1
@@ -102,12 +107,13 @@ class KMessageReader(ABC):
             return None
         return messages
 
-    # Returns all available (pending) messages in the Kafka topic
+    # Returns all available (pending) messages in the Kafka topic. Messages are returned as dictionaries.
     def get_all_messages(self, maxcount = -1) -> List[dict]:
         messages = []
         msg = self.consumer.poll(5)
         while msg and not msg.error() and (maxcount<0 or len(messages)<maxcount):
-            messages.append(self.get_json_dict(msg))
+            _, json_dict = self.get_json_string_and_dict(msg)
+            messages.append(json_dict)
             msg = self.consumer.poll(5)
         return messages
 
@@ -119,16 +125,14 @@ class KMessageReaderAvro(KMessageReader):
         super().__init__(topic, dump_to_file)
 
     def instantiate_consumer(self, prop_dict):
-        prop_dict['schema.registry.url'] = 'http://localhost:8081'
-        self.consumer = AvroConsumer(prop_dict)
+        sr_conf = {'url': 'http://localhost:8081'}
+        schema_registry_client = SchemaRegistryClient(sr_conf)
+        self.avro_deserializer = AvroDeserializer(schema_registry_client)
+        self.consumer = Consumer(prop_dict)
 
-    # If avro, message value arrives as json and needs dumping
-    def get_json_string(self, msg):
-        return json.dumps(msg.value())
-
-    # If avro, then msg.value() is a dictionary already
-    def get_json_dict(self, msg):
-        return msg.value()
+    def get_json_string_and_dict(self, msg):
+        deserialized_msg = self.avro_deserializer(msg.value(), SerializationContext(msg.topic(), MessageField.VALUE))
+        return json.dumps(deserialized_msg), deserialized_msg
 
 class KMessageReaderPlainJson(KMessageReader):
 
@@ -139,13 +143,9 @@ class KMessageReaderPlainJson(KMessageReader):
     def instantiate_consumer(self, prop_dict):
         self.consumer = Consumer(prop_dict)
 
-    # If plain json, then message is in byte format and needs decoding
-    def get_json_string(self, msg):
-        return msg.value().decode('utf-8')
-
-    # If plain json, then dictionary is created by loading the decoded value of the message
-    def get_json_dict(self, msg):
-        return json.loads(self.get_json_string(msg))
+    def get_json_string_and_dict(self, msg):
+        decoded_msg = msg.value().decode('utf-8')
+        return decoded_msg, json.loads(decoded_msg)
 
 class KMessageReaderList(list):
 

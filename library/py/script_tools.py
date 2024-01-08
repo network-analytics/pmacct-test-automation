@@ -5,7 +5,7 @@
 # nikolaos.tsokas@swisscom.com 26/02/2023
 ###################################################
 
-import subprocess, time, logging, os, signal
+import subprocess, time, logging
 from typing import List, Callable, Tuple
 logger = logging.getLogger(__name__)
 
