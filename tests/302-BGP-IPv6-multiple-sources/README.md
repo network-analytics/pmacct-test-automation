@@ -13,6 +13,9 @@ TODO (daisy): this test is not stable most likely due to the traffic reproducers
 - traffic-02.pcap                           pcap file (for traffic reproducer)
 - traffic-02.pcap                           pcap file (for traffic reproducer)
 - traffic-03.pcap                           pcap file (for traffic reproducer)
+- traffic-info-00.json                      some info about content of pcap file 0
+- traffic-info-01.json                      some info about content of pcap file 1
+- traffic-info-02.json                      some info about content of pcap file 2 (3)
 - traffic-reproducer-00.yml                 traffic replay function config file
 - traffic-reproducer-01.yml                 traffic replay function config file
 - traffic-reproducer-02.yml                 traffic replay function config file

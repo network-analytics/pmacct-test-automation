@@ -10,6 +10,7 @@ testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
 @pytest.mark.bmp
 @pytest.mark.bmp_only
+@pytest.mark.bmpv3
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
 
@@ -31,7 +32,7 @@ def main(consumers):
     logfile = testParams.log_files.getFileLike('log-01')
     test_tools.transform_log_file(logfile)
     assert helpers.retry_until_true('Checking expected logs',
-        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 180, 10)
+        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 120, 10)
 
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp.dump'), testParams,
         'bmp-dump-00', ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])

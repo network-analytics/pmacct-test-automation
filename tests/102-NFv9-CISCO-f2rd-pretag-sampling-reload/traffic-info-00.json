@@ -1,0 +1,40 @@
+{
+   "IPFIX Information": {
+      "10.10.0.33": {
+         "Version 9": {
+            "ObservationID 2193": {
+               "Template 313": {
+                  "type": "Data Template",
+                  "flowset_id": 0,
+                  "template_length": 132,
+                  "template_field_count": 31,
+                  "data_flowset_counter": 0
+               },
+               "Template 260": {
+                  "type": "Data Template",
+                  "flowset_id": 0,
+                  "template_length": 100,
+                  "template_field_count": 23,
+                  "data_flowset_counter": 6
+               }
+            },
+            "ObservationID 2081": {
+               "Template 313": {
+                  "type": "Data Template",
+                  "flowset_id": 0,
+                  "template_length": 132,
+                  "template_field_count": 31,
+                  "data_flowset_counter": 5
+               },
+               "Template 260": {
+                  "type": "Data Template",
+                  "flowset_id": 0,
+                  "template_length": 100,
+                  "template_field_count": 23,
+                  "data_flowset_counter": 10
+               }
+            }
+         }
+      }
+   }
+}

@@ -1,0 +1,48 @@
+{
+   "IPFIX Information": {
+      "2a02:a90:4007:700::54": {
+         "Version 10": {
+            "ObservationID 0": {
+               "Template 257": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 40,
+                  "template_field_count": 7,
+                  "template_scopes_count": 1,
+                  "template_options_count": 6,
+                  "data_flowset_counter": 1,
+                  "option_description": "sampling"
+               },
+               "Template 339": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 144,
+                  "template_field_count": 34,
+                  "data_flowset_counter": 0
+               },
+               "Template 340": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 148,
+                  "template_field_count": 35,
+                  "data_flowset_counter": 0
+               },
+               "Template 341": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 152,
+                  "template_field_count": 36,
+                  "data_flowset_counter": 0
+               },
+               "Template 342": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 120,
+                  "template_field_count": 28,
+                  "data_flowset_counter": 2
+               }
+            }
+         }
+      }
+   }
+}

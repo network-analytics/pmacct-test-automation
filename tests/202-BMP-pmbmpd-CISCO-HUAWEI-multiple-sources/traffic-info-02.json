@@ -1,0 +1,35 @@
+{
+   "BMP Information": {
+      "198.51.100.44": {
+         "bmp_version": 3,
+         "sysDescr": " 7.5.4.29I",
+         "sysName": "ipf-zbll1312-r-daisy-44",
+         "BGP_Peers": {
+            "192.0.2.53": {
+               "as_number": 65000,
+               "bgp_version": 4,
+               "route_monitoring_counter": 0,
+               "stats_counter": 0
+            },
+            "192.0.2.52": {
+               "as_number": 65536,
+               "bgp_version": 4,
+               "route_monitoring_counter": 0,
+               "stats_counter": 0
+            },
+            "198.51.100.54": {
+               "as_number": 65000,
+               "bgp_version": 4,
+               "route_monitoring_counter": 0,
+               "stats_counter": 0
+            },
+            "198.51.100.44": {
+               "as_number": 65543,
+               "bgp_version": 4,
+               "route_monitoring_counter": 54,
+               "stats_counter": 0
+            }
+         }
+      }
+   }
+}

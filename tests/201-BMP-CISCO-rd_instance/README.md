@@ -7,6 +7,7 @@ BMP test with pcap from IOS XR 7.4.1 (daisy-55 IETF lab) [with rd instance peers
 - 201_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
+- traffic-info-00.json                      some info about content of pcap file 0
 - traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
@@ -20,7 +21,7 @@ BMP test with pcap from IOS XR 7.4.1 (daisy-55 IETF lab) [with rd instance peers
 
 t=0s --> the first full minute after starting the traffic generator
 
-- t=1-4s: BMP packets sent 
+- t=5s: BMP packets sent 
 
 ### Test execution and results:
 

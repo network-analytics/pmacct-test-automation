@@ -10,6 +10,7 @@ testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
 
 @pytest.mark.bmp
 @pytest.mark.bmp_only
+@pytest.mark.bmpv3
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 

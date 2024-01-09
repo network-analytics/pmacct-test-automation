@@ -10,6 +10,8 @@ testParams = KModuleParams(sys.modules[__name__], ipv6_subnet='cafe::')
 
 @pytest.mark.ipfix
 @pytest.mark.ipfix_only
+@pytest.mark.ipfixv10
+@pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 

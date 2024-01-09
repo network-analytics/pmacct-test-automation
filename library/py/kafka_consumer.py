@@ -107,6 +107,38 @@ class KMessageReader(ABC):
             return None
         return messages
 
+    # Returns a list of dictionaries representing the messages received within 
+    #   max_time_seconds or none if no messages at all were received
+    def get_all_messages_timeout(self, max_time_seconds: int) -> List[dict]:
+        messages = []
+        time_start = round(time.time())
+        time_now = round(time.time())
+        while  time_now - time_start < max_time_seconds:
+            try:
+                msg = self.consumer.poll(5)
+            except Exception as err:
+                logger.error(str(err))
+                return messages
+            if not msg:
+                logger.debug('No message received from Kafka, waiting (' + str(max_time_seconds-time_now+time_start) +
+                    ' seconds left)')
+            elif msg.error():
+                logger.warning('Erroneous message received from Kafka, waiting (' + str(max_time_seconds - time_now +
+                    time_start) + ' seconds left)')
+            else:
+                self.dump_raw_if_needed(msg.value())
+                msgval, msgdict = self.get_json_string_and_dict(msg)
+                self.dump_json_if_needed(msgval)
+                logger.debug('Received message: ' + msgval)
+                messages.append(msgdict)
+
+            time_now = round(time.time())
+
+        if len(messages) < 1:
+            logger.warning('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
+
+        return messages
+
     # Returns all available (pending) messages in the Kafka topic. Messages are returned as dictionaries.
     def get_all_messages(self, maxcount = -1) -> List[dict]:
         messages = []

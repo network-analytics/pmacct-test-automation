@@ -214,7 +214,8 @@ def debug_core(check_root_dir, prepare_test, pmacct_setup, prepare_pcap):
 
 # No kafka (use with kafka already up) - for speeding up in test-case development & demos
 @pytest.fixture(scope="function")
-def test_core_no_kafka(check_root_dir, pmacct_setup_teardown, pmacct_logcheck, prepare_pcap):
+def test_core_no_kafka(check_root_dir, log_test_and_scenario, prepare_test, pmacct_setup_teardown,
+                       pmacct_logcheck, prepare_pcap):
     pass
 
 # Abstract fixture, which incorporates all common (core) fixtures

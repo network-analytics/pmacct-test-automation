@@ -23,14 +23,16 @@ Test with ipfix only from 3 different source IPs (pcaps from tests 100, 101 and 
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator
-t=60s --> nfacctd producing flow data to kafka
+
+- t=5-6s:   IPFIXv10 and NFv9 Templates, Option-Records and Data-Records sent
+- t=10s:    nfacctd producing flow data to kafka
 
 (refer to tests 100, 101, 102 for pcap contents)
 
 ### Test execution and results:
 
 Start the 3 traffic reproducers with provided configs. When finished producing messages, the traffic reproducer will exit automatically (keep_open=false). 
-After nfacctd produced to kafka (t=60s), check the following:
+After nfacctd produced to kafka (t=10s), check the following:
 
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
 - The timestamp values will change between runs, with the only exceptions being timestamp_export, timestamp_start, and timestamp_end, which come from IPFIX/NFv9 fields and will stay the same.

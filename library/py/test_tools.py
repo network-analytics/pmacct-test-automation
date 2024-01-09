@@ -42,6 +42,26 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
+
+# Reads all messages from Kafka topic within a specified timeout (wait_time)
+# --> used for test-case development
+def read_messages_dump_only(consumer, params, json_name, ignore_fields, wait_time=120):
+    logger.info('Consuming from kafka [timeout=' + str(wait_time) + 's] and dumping messages in ' + params.results_folder)
+
+    # Reading messages from Kafka topic
+    # The gget_all_messages_timeout method consumes all messages and returns 
+    # when wait_time (default=120s) has passed
+    messages = consumer.get_all_messages_timeout(wait_time)
+
+    logger.info('Consumed ' + str(len(messages)) + ' messages')
+    logger.warning('Json comparing disabled (test-case development)!')
+
+    if len(messages) == 0:
+        return False
+
+    return True 
+
+
 def prepare_multi_pcap_player(results_folder, pcap_mount_folders, container_id, fw_config):
     folder_names = ', '.join([helpers.short_name(folder) for folder in pcap_mount_folders])
     logger.info('Preparing multi-pcap player container...')

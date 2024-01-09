@@ -1,0 +1,107 @@
+{
+   "BGP Information": {
+      "198.51.100.54": {
+         "bgp_version": 4,
+         "bgp_id": "198.51.100.54",
+         "as_number": 65000,
+         "capabilities": [
+            "BGPCapFourBytesASN",
+            "BGPCapMultiprotocol: AFI_1 + SAFI_1",
+            "BGPCapMultiprotocol: AFI_1 + SAFI_128",
+            "BGPCapMultiprotocol: AFI_2 + SAFI_128",
+            "BGPCapGeneric_128",
+            "BGPCapGeneric_2",
+            "BGPCapExtendedNHEnconding"
+         ],
+         "updates_counter": 6,
+         "keepalives_counter": 1
+      }
+   },
+   "IPFIX Information": {
+      "198.51.100.54": {
+         "Version 10": {
+            "ObservationID 0": {
+               "Template 338": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 20,
+                  "template_field_count": 2,
+                  "template_scopes_count": 1,
+                  "template_options_count": 1,
+                  "data_flowset_counter": 1
+               },
+               "Template 334": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 32,
+                  "template_field_count": 5,
+                  "template_scopes_count": 1,
+                  "template_options_count": 4,
+                  "data_flowset_counter": 1
+               },
+               "Template 257": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 28,
+                  "template_field_count": 4,
+                  "template_scopes_count": 1,
+                  "template_options_count": 3,
+                  "data_flowset_counter": 1,
+                  "option_description": "sampling"
+               },
+               "Template 256": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 28,
+                  "template_field_count": 4,
+                  "template_scopes_count": 2,
+                  "template_options_count": 2,
+                  "data_flowset_counter": 1
+               },
+               "Template 266": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 120,
+                  "template_field_count": 28,
+                  "data_flowset_counter": 0
+               },
+               "Template 339": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 144,
+                  "template_field_count": 34,
+                  "data_flowset_counter": 0
+               },
+               "Template 340": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 148,
+                  "template_field_count": 35,
+                  "data_flowset_counter": 4
+               },
+               "Template 341": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 152,
+                  "template_field_count": 36,
+                  "data_flowset_counter": 0
+               },
+               "Template 342": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 120,
+                  "template_field_count": 28,
+                  "data_flowset_counter": 25
+               },
+               "Template 260": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 112,
+                  "template_field_count": 26,
+                  "data_flowset_counter": 2
+               }
+            }
+         }
+      }
+   }
+}
