@@ -6,8 +6,9 @@ import logging, pytest, sys
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__])
+testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd')
 
+@pytest.mark.nfacctd
 @pytest.mark.ipfix
 @pytest.mark.ipfixv10
 @pytest.mark.bmp
@@ -22,13 +23,13 @@ def main(consumers):
     for i in range(len(testParams.pcap_folders)):
         assert scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
 
-    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'),
-        testParams, 'bmp-00',
-        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
-
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.flow'),
         testParams, 'flow-00',
         ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
+
+    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'),
+        testParams, 'bmp-00',
+        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')

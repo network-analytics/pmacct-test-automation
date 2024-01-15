@@ -40,6 +40,3 @@ After nfacctd produced to kafka (t=15s), check the following:
 - The timestamp values will change between runs, with the only exceptions being timestamp_start and timestamp_end, which come from IPFIX fields and will stay the same.
 - Order of the json messages could change (this means you also have to ignore any sequence numbers when comparing the json output!)
 - No ERROR or WARN messages are present in the logfile
-
-
-TODO: recreate pcap with bgp+mpls on new lab! (need to create bgp session towards terra69 and also add ipv6 export!)

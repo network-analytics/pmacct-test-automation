@@ -34,12 +34,10 @@ t=0s --> the first full minute after starting the traffic generator
 ### Test execution and results:
 
 Start traffic reproducer with provided config. When finished producing messages, the traffic reproducer will exit automatically (keep_open=false). 
-After nfacctd produced to kafka (t=15s), check the following:
+After nfacctd produced to kafka (t=30s), check the following:
 
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
 - The nfacctd kafka output messages in topic daisy.bmp need to match with  the json messages in "output-bmp-00.json".
 - The timestamp values will change between runs, with the only exceptions being timestamp_start and timestamp_end, which come from IPFIX fields and will stay the same.
 - Order of the json messages could change (this means you also have to ignore any sequence numbers when comparing the json output!)
 - No ERROR or WARN messages are present in the logfile
-
-TODO: recreate pcap with bmp+mpls on new lab! (need to add ipv6 exports!)

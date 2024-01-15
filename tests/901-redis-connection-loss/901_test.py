@@ -6,9 +6,11 @@ import library.py.helpers as helpers
 import logging, pytest, sys
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
+testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet='192.168.100.')
 
 # added redis fixture below, that's why the test_core fixture is not used here
+@pytest.mark.nfacctd
+@pytest.mark.redis
 def test(check_root_dir, kafka_infra_setup_teardown, prepare_test, redis_setup_teardown, pmacct_setup_teardown,
          prepare_pcap, consumer_setup_teardown):
     main(consumer_setup_teardown[0])

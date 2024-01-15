@@ -1,0 +1,9 @@
+WARNING: [bgp.py] use_2_bytes_asn: True
+Traceback (most recent call last):
+  File "/app/main.py", line 312, in <module>
+    main()
+  File "/app/main.py", line 158, in main
+    config = parse_config_file(args.cfg)
+  File "/app/main.py", line 92, in parse_config_file
+    with open(cfg, "r") as stream:
+FileNotFoundError: [Errno 2] No such file or directory: '/pcap/traffic-reproducer.yml'

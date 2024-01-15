@@ -6,24 +6,25 @@ import logging, pytest, sys
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
+testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet='192.168.100.')
 
+@pytest.mark.nfacctd
 @pytest.mark.ipfix
 @pytest.mark.bgp
-def test(test_core_no_kafka, consumer_setup_teardown):
+def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
 
 def main(consumers):
     assert scripts.replay_pcap_detached(testParams.pcap_folders[0], 0)
     repro_ip = helpers.get_repro_ip_from_pcap_folder(testParams.pcap_folders[0])
 
-    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bgp'),
-        testParams, 'bgp-00',
-        ['seq', 'timestamp', 'timestamp_arrival', 'peer_tcp_port'])
-
     assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.flow'),
         testParams, 'flow-00',
         ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
+
+    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bgp'),
+        testParams, 'bgp-00',
+        ['seq', 'timestamp', 'timestamp_arrival', 'peer_tcp_port'])
 
     # Make sure the expected logs exist in pmacct log
     logfile = testParams.log_files.getFileLike('log-00')

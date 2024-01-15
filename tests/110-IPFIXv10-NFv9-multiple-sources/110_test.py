@@ -6,8 +6,9 @@ import logging, pytest, sys, time, datetime
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__])
+testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd')
 
+@pytest.mark.nfacctd
 @pytest.mark.ipfix
 @pytest.mark.ipfix_only
 @pytest.mark.ipfixv10

@@ -1,0 +1,142 @@
+{
+   "BGP Information": {
+      "2001:db8:90::1": {
+         "bgp_version": 4,
+         "bgp_id": "203.0.113.90",
+         "as_number": 23456,
+         "capabilities": [
+            "BGPCapFourBytesASN",
+            "BGPCapGracefulRestart",
+            "BGPCapMultiprotocol: AFI_1 + SAFI_128",
+            "BGPCapMultiprotocol: AFI_2 + SAFI_128",
+            "BGPCapGeneric_128",
+            "BGPCapGeneric_2",
+            "BGPCapExtendedNHEnconding"
+         ],
+         "updates_counter": 28,
+         "keepalives_counter": 1
+      }
+   },
+   "IPFIX Information": {
+      "2001:db8:90::1": {
+         "Version 10": {
+            "ObservationID 33312": {
+               "Template 338": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 20,
+                  "template_field_count": 2,
+                  "template_scopes_count": 1,
+                  "template_options_count": 1,
+                  "data_flowset_counter": 3
+               },
+               "Template 334": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 32,
+                  "template_field_count": 5,
+                  "template_scopes_count": 1,
+                  "template_options_count": 4,
+                  "data_flowset_counter": 3
+               },
+               "Template 257": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 40,
+                  "template_field_count": 7,
+                  "template_scopes_count": 1,
+                  "template_options_count": 6,
+                  "data_flowset_counter": 3,
+                  "option_description": "sampling"
+               },
+               "Template 256": {
+                  "type": "Option Template",
+                  "flowset_id": 3,
+                  "template_length": 28,
+                  "template_field_count": 4,
+                  "template_scopes_count": 2,
+                  "template_options_count": 2,
+                  "data_flowset_counter": 3
+               },
+               "Template 347": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 136,
+                  "template_field_count": 32,
+                  "data_flowset_counter": 11
+               },
+               "Template 348": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 144,
+                  "template_field_count": 34,
+                  "data_flowset_counter": 11
+               },
+               "Template 313": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 140,
+                  "template_field_count": 33,
+                  "data_flowset_counter": 9
+               },
+               "Template 339": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 144,
+                  "template_field_count": 34,
+                  "data_flowset_counter": 0
+               },
+               "Template 340": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 148,
+                  "template_field_count": 35,
+                  "data_flowset_counter": 0
+               },
+               "Template 341": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 152,
+                  "template_field_count": 36,
+                  "data_flowset_counter": 0
+               },
+               "Template 342": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 120,
+                  "template_field_count": 28,
+                  "data_flowset_counter": 16
+               },
+               "Template 343": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 160,
+                  "template_field_count": 38,
+                  "data_flowset_counter": 0
+               },
+               "Template 344": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 164,
+                  "template_field_count": 39,
+                  "data_flowset_counter": 0
+               },
+               "Template 345": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 168,
+                  "template_field_count": 40,
+                  "data_flowset_counter": 0
+               },
+               "Template 346": {
+                  "type": "Data Template",
+                  "flowset_id": 2,
+                  "template_length": 136,
+                  "template_field_count": 32,
+                  "data_flowset_counter": 0
+               }
+            }
+         }
+      }
+   }
+}

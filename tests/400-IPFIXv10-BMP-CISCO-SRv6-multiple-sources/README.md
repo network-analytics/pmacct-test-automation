@@ -27,9 +27,11 @@ Complete test with IPFIX and BMP from daisy44. Cisco IOS XR 7.10.1. BMP glob-ins
 
 t=0s --> the first full minute after starting the traffic generator
 
-- t=5-6s:     BMP messages sent  
-- t=6-7s      IPFIXv10 Templates, Option-Records and Data-Records sent
-- t=15s:      nfacctd producing flow data to kafka
+- t=5-6s:     [Peer 1] BMP messages sent  
+- t=6-7s      [Peer 1] IPFIXv10 Templates, Option-Records and Data-Records sent
+- t=10-11s:   [Peer 2] BMP messages sent  
+- t=11-12s    [Peer 2] IPFIXv10 Templates, Option-Records and Data-Records sent
+- t=30s:      nfacctd producing flow data to kafka
 
 ### Test execution and results:
 
@@ -38,7 +40,7 @@ t=0s --> the first full minute after starting the traffic generator
 IMPORTANT: do not kill the traffic reproducer process!
 
 After reproducing all the packet, the traffic generator does not exit (thanks to keep_open: true in traffic-reproducer-00.yml ), and thus the TCP sockets with nfacctd thus remain open. 
-After nfacctd produced to kafka (t=15s), check the following:
+After nfacctd produced to kafka (t=30s), check the following:
 
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
 - The nfacctd kafka output messages in topic daisy.bmp need to match with  the json messages in "output-bmp-00.json".
