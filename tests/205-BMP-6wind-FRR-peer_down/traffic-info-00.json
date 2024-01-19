@@ -1,0 +1,47 @@
+{
+   "BMP Information": {
+      "203.0.113.58": {
+         "bmp_version": 3,
+         "sysDescr": "FRRouting 8.0.1 (frr-8.0-vsr-3.7.1-v10)",
+         "sysName": "daisy-ietf-ipf-zbl1843-r-daisy-58",
+         "BGP_Peers": {
+            "203.0.113.58": {
+               "as_number": 0,
+               "bgp_version": 4,
+               "route_monitoring_counter": 90,
+               "stats_counter": 0
+            },
+            "0.0.0.0": {
+               "as_number": 0,
+               "bgp_version": 4,
+               "route_monitoring_counter": 3,
+               "stats_counter": 0
+            },
+            "198.51.100.8": {
+               "as_number": 64496,
+               "bgp_version": 4,
+               "route_monitoring_counter": 47,
+               "stats_counter": 12
+            },
+            "198.51.100.72": {
+               "as_number": 64496,
+               "bgp_version": 4,
+               "route_monitoring_counter": 46,
+               "stats_counter": 12
+            },
+            "203.0.113.28": {
+               "as_number": 64496,
+               "bgp_version": 4,
+               "route_monitoring_counter": 44,
+               "stats_counter": 12
+            },
+            "203.0.113.44": {
+               "as_number": 64496,
+               "bgp_version": 4,
+               "route_monitoring_counter": 221,
+               "stats_counter": 12
+            }
+         }
+      }
+   }
+}
