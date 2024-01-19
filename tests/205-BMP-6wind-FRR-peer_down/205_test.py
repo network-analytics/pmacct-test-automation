@@ -12,7 +12,7 @@ testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet=
 @pytest.mark.bmp
 @pytest.mark.bmp_only
 @pytest.mark.bmpv3
-def test(test_core_no_kafka, consumer_setup_teardown):
+def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
 def main(consumer):
