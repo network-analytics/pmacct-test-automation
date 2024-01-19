@@ -13,6 +13,7 @@ testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet=
 @pytest.mark.ipfix_only
 @pytest.mark.ipfixv10
 @pytest.mark.json
+@pytest.mark.avro
 def test(test_core, consumer_setup_teardown): # Plain Json consumer instantiated for _json topic
     main(consumer_setup_teardown[0])
 

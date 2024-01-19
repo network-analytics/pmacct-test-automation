@@ -21,6 +21,11 @@ IPFIX v10 + BMP with IPV6 transport from CISCO IOS XR 7.10.1. BMP glob-instance 
 - output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
 - output-bmp-00.json                        desired nfacctd kafka output [daisy.bmp topic] containing json messages
 
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as strings
+- Scenario-01: comms, ecomms, as_path, ... are encoded as array
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

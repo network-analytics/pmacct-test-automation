@@ -17,6 +17,12 @@ Otherwise this is the same test as 100: IPFIX v10 from CISCO ASR9k IOS XR 7.5.2 
 - output-flow-00.json          desired nfacctd kafka output [daisy.flow topic] containing json messages
 - output-log-00.txt            log messages that need to be in the logfile
 
+### Scenarios
+
+- Default scenario produces json output with a simple aggregate (no maps)
+- Scenario-01 produces json output with pretag map for labels (label encoded as maps)
+- Scenario-02 produces avro output with pretag map for labels (label encoded as maps)
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

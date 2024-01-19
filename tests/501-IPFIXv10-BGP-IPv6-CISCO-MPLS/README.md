@@ -22,6 +22,11 @@ IPFIX and BGP from IOS XR 7.8.2 with IPv6 transport. BGP with ext-NH encoding (i
 - output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
 - output-bgp-00.json                        desired nfacctd kafka output [daisy.bgp topic] containing json messages
 
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as strings
+- Scenario-01: comms, ecomms, as_path, ... are encoded as array
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

@@ -14,6 +14,10 @@ IPFIX v10 from CISCO ASR9k IOS XR 7.5.2 with IPFIX data only (templates 260 and 
 
 - output-flow-00.json          desired nfacctd kafka output [daisy.flow topic] containing json messages
 
+### Scenarios
+
+- In scenario-01 the flow aggregate contains some additional primitives with respect to the default.
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

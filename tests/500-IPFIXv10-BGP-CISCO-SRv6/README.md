@@ -25,6 +25,11 @@ BGP and IPFIX v10 from CISCO IOS XR 7.8.2 with data [260,340,342] and options [2
 - output-log-00.txt                         log messages that need to be in the logfile [before closing socket]
 - output-log-01.txt                         log messages that need to be in the logfile [after closing socket]
 
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as strings
+- Scenario-01: comms, ecomms, as_path, ... are encoded as array
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

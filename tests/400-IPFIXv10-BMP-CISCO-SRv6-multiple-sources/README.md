@@ -23,6 +23,11 @@ Complete test with IPFIX and BMP from daisy44. Cisco IOS XR 7.10.1. BMP glob-ins
 - output-bmp-01.json                        desired nfacctd kafka output [daisy.bmp topic] containing json messages [after closing socket]
 - output-log-00.txt                         log messages that need to be in the logfile
 
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as strings
+- Scenario-01: comms, ecomms, as_path, ... are encoded as array
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator
