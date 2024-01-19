@@ -15,6 +15,7 @@
 - 202: BMP-CISCO-HUAWEI-multiple-sources
 - 203: BMP-HUAWEI-dump
 - 204: BMP-CISCO-peer_down
+- 205: BMP-6wind-FRR-peer_down
 
 ## 3XX - BGP
 - 300: BGP-IPv6-CISCO-extNH_enc
@@ -28,8 +29,9 @@
 ## 5XX - IPFIX/NFv9 + BGP
 - 500: IPFIXv10-BGP-CISCO-SRv6
 - 501: IPFIXv10-BGP-IPv6-CISCO-MPLS
+- 502: IPFIXv10-BGP-IPv6-lcomms         [TODO: add]
 
 ## 9XX - Miscellaneous
 - 900: kafka-connection-loss
 - 901: redis-connection-loss
-- 902: log-rotation-signal
+- 902: log-rotation-signal              [TODO: fix or remove]
