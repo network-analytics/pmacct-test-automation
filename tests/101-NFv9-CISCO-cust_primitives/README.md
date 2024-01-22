@@ -12,7 +12,7 @@ NetFlow v9 from CISCO ASR9k IOS XR with IPFIX data only (template 313).
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
-- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+- pmacct_mount/custom-primitives-00.map     list of custom primitives for nfacctd
 
 - output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
 - output-log-00.txt                         log messages that need to be in the logfile

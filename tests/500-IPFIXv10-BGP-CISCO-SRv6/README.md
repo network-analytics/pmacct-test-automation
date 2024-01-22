@@ -17,7 +17,7 @@ BGP and IPFIX v10 from CISCO IOS XR 7.8.2 with data [260,340,342] and options [2
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
 - pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+- pmacct_mount/custom-primitives-00.map     list of custom primitives for nfacctd
 
 - output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
 - output-bgp-00.json                        desired nfacctd kafka output [daisy.bgp topic] containing json messages [before closing socket]

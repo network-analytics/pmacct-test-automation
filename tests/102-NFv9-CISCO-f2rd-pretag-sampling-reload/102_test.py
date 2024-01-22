@@ -19,7 +19,7 @@ def test(test_core, consumer_setup_teardown):
 def transform_log_file(logfile):
     helpers.replace_in_file(logfile, '/etc/pmacct', testParams.pmacct_mount_folder, 'Reading configuration file')
     helpers.replace_in_file(logfile, '.map]', '-00.map]')
-    helpers.replace_in_file(logfile, 'primitives.lst', 'primitives-00.lst')
+    helpers.replace_in_file(logfile, 'primitives.map', 'primitives-00.map')
     test_tools.transform_log_file(logfile)
 
 def main(consumer):

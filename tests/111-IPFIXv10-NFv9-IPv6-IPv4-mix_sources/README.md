@@ -14,7 +14,7 @@ Test with IPFIX and NFv9 from 2 different source IPs, one ipv4 and the other ipv
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
 - pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+- pmacct_mount/custom-primitives-00.map     list of custom primitives for nfacctd
 
 - output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
 - output-log-00.txt                         log messages that need to be in the logfile

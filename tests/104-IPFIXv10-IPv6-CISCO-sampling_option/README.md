@@ -13,7 +13,7 @@ IPFIX v10 from CISCO ASR9k IOS XR with IPFIX Data Template 342 and option 257 (c
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
 - pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+- pmacct_mount/custom-primitives-00.map     list of custom primitives for nfacctd
 
 - output-flow-00.json                       desired nfacctd kafka output [daisy.flow topic] containing json messages
 ```

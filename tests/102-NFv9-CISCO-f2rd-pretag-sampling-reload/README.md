@@ -17,7 +17,7 @@ f2rd_map is used to set MPLS VPN RD. Pretag map is used as well. Map reload is a
 - pmacct_mount/pretag-00.map              pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
 - pmacct_mount/f2rd-00.map                flow_to_rd mapping file for nfacctd          HINT: IPs need to match with repro_ips
 - pmacct_mount/sampling-00.map            sampling mapping file for nfacctd            HINT: IPs need to match with repro_ips
-- pmacct_mount/custom-primitives-00.lst   list of custom primitives for nfacctd
+- pmacct_mount/custom-primitives-00.map   list of custom primitives for nfacctd
 
 - pmacct_mount/pretag-01.map              [for reload] pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
 - pmacct_mount/f2rd-01.map                [for reload] flow_to_rd mapping file for nfacctd          HINT: IPs need to match with repro_ips

@@ -3,8 +3,8 @@ ${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/sampling.map] (re)loading 
 ${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/sampling.map] map successfully (re)loaded.
 ${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/f2rd.map] (re)loading map.
 ${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/f2rd.map] map successfully (re)loaded.
-${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/custom-primitives.lst] (re)loading map.
-${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/custom-primitives.lst] map successfully (re)loaded.
+${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/custom-primitives.map] (re)loading map.
+${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/custom-primitives.map] map successfully (re)loaded.
 ${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/pretag.map] (re)loading map.
 ${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/pretag.map] map successfully (re)loaded.
 ${TIMESTAMP} INFO ( nfacctd_core/core ): [/etc/pmacct/pretag.map] (re)loading map.

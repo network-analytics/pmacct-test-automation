@@ -14,7 +14,7 @@ TODO Daisy: investigate this as I found it sometimes fails because it gives a di
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
 - pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+- pmacct_mount/custom-primitives-00.map     list of custom primitives for nfacctd
 
 - output-log-00.txt                         log messages that need to be in the logfile
 - output-log-01.txt                         log messages that need to be in the logfile
