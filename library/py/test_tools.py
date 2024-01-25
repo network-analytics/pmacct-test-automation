@@ -45,11 +45,11 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
 
 # Reads all messages from Kafka topic within a specified timeout (wait_time)
 # --> used for test-case development
-def read_messages_dump_only(consumer, params, json_name, ignore_fields, wait_time=120):
+def read_messages_dump_only(consumer, params, json_name, ignore_fields=[], wait_time=120):
     logger.info('Consuming from kafka [timeout=' + str(wait_time) + 's] and dumping messages in ' + params.results_folder)
 
     # Reading messages from Kafka topic
-    # The gget_all_messages_timeout method consumes all messages and returns 
+    # The get_all_messages_timeout method consumes all messages and returns 
     # when wait_time (default=120s) has passed
     messages = consumer.get_all_messages_timeout(wait_time)
 
