@@ -20,6 +20,11 @@ Testing with BGP ipv4 traffic with RD, comms, ecomms, AS_path. Testing also pret
 - output-log-00.txt                         log messages that need to be in the logfile
 ```
 
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as arrays
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

@@ -24,8 +24,8 @@ IPFIX v10 + BMP with IPV6 transport from CISCO IOS XR 7.10.1. BMP glob-instance 
 
 ### Scenarios
 
-- Default scenario: comms, ecomms, as_path, ... are encoded as strings
-- Scenario-01: comms, ecomms, as_path, ... are encoded as array
+- Default scenario: comms, ecomms, as_path, ... are encoded as array
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
 
 ### Test timeline:
 

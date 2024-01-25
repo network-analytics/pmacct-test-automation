@@ -28,8 +28,8 @@ BGP and IPFIX v10 from CISCO IOS XR 7.8.2 with data [260,340,342] and options [2
 
 ### Scenarios
 
-- Default scenario: comms, ecomms, as_path, ... are encoded as strings
-- Scenario-01: comms, ecomms, as_path, ... are encoded as array
+- Default scenario: comms, ecomms, as_path, ... are encoded as array
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
 
 ### Test timeline:
 

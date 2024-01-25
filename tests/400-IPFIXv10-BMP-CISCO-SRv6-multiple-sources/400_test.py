@@ -16,8 +16,6 @@ testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd')
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
 
-# TODO: commit also the functions to generate dump only in a separate PR
-
 def main(consumers):
     # Reproduce all the pcap files
     for i in range(len(testParams.pcap_folders)):

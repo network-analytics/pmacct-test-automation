@@ -18,6 +18,11 @@ BGP from IOS XR 7.8.2 (ipt-zhh921-b-des-01) containing multi-protocol, route-ref
 - output-log-00.txt                         log messages that need to be in the logfile
 ```
 
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as arrays
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

@@ -18,6 +18,11 @@ BMP test with pcap from Huawei VRP 8.210 (daisy-61 IETF lab) [with global and lo
 - output-log-00.txt                         log messages that need to be in the logfile
 ```
 
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as arrays
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

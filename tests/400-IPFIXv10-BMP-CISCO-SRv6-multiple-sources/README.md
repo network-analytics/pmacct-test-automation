@@ -26,8 +26,8 @@ Complete test with IPFIX and BMP from daisy44. Cisco IOS XR 7.10.1. BMP glob-ins
 
 ### Scenarios
 
-- Default scenario: comms, ecomms, as_path, ... are encoded as strings
-- Scenario-01: comms, ecomms, as_path, ... are encoded as array
+- Default scenario: comms, ecomms, as_path, ... are encoded as array
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
 
 ### Test timeline:
 

@@ -15,6 +15,11 @@ Test with BMP peer-up, route-monitoring, stats and peer-down messages from 6wind
 - output-bmp-00.json           desired nfacctd kafka output [daisy.bmp topic] containing json messages
 ```
 
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as arrays
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator

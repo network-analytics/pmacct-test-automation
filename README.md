@@ -22,6 +22,7 @@ All the components (kafka stack, pmacct daemon, and traffic reproducer) are depl
 - IPFIX / NFv9
 - BMP
 - BGP
+- *sFlow* [**coming soon...**]
 - *YANG Push* [**coming soon...**]
 
 ## 1 - How To Install
@@ -68,18 +69,18 @@ To run one or more test cases:
               [<TC number or wildcard>[:<scenario or wildcard>] ... ]
 
 Examples:
-./runtest.sh 202                      run test 202 with default log level INFO              [all scenarios]
-./runtest.sh 202:**                   run test 202 with default log level INFO              [all scenarios]
-./runtest.sh 202:00                   run test 202 with default log level INFO              [default scenario]
-./runtest.sh 103:02                   run test 202 with default log level INFO              [scenario 2]
-./runtest.sh 101 102 201 301          run tests 101, 102, 201 and 301 with log level INFO   [all scenarios]
-./runtest.sh 1*                       run all 1XX tests with log level INFO                 [all scenarios]
-./runtest.sh 4*:01                    run all 4XX tests with log level INFO                 [scenarios 1]
-./runtest.sh --loglevel=DEBUG 2*      run all 2XX test cases with log level DEBUG           [all scenarios]
-./runtest.sh *                        run all test cases with log level INFO                [all scenarios]
-./runtest.sh *:00                     run all test cases with log level INFO                [default scenarios only]
-./runtest.sh --dry 4*                 dry-run all 4xx test cases                            [all scenarios]  
-./runtest.sh --dry 401:01             dry-run test 401                                      [scenario 1]
+./runtest.sh 202                  run test 202 with default log level INFO            [all scenarios]
+./runtest.sh 202:**               run test 202 with default log level INFO            [all scenarios]
+./runtest.sh 202:00               run test 202 with default log level INFO            [default scenario]
+./runtest.sh 103:02               run test 202 with default log level INFO            [scenario 2]
+./runtest.sh 101 102 201 301      run tests 101, 102, 201 and 301 with log level INFO [all scenarios]
+./runtest.sh 1*                   run all 1XX tests with log level INFO               [all scenarios]
+./runtest.sh 4*:01                run all 4XX tests with log level INFO               [scenarios 1]
+./runtest.sh --loglevel=DEBUG 2*  run all 2XX test cases with log level DEBUG         [all scenarios]
+./runtest.sh *                    run all test cases with log level INFO              [all scenarios]
+./runtest.sh *:00                 run all test cases with log level INFO              [default scenarios only]
+./runtest.sh --dry 4*             dry-run all 4XX test cases                          [all scenarios]  
+./runtest.sh --dry 401:01         dry-run test 401                                    [scenario 1]
 ```
 
 Example (run test case 300 [default scenario] with python without the ./runtest.sh wrapper):

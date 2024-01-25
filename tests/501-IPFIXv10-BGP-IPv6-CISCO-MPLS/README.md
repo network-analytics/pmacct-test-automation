@@ -25,8 +25,8 @@ IPFIX and BGP from IOS XR 7.8.2 with IPv6 transport. BGP with ext-NH encoding (i
 
 ### Scenarios
 
-- Default scenario: comms, ecomms, as_path, ... are encoded as strings
-- Scenario-01: comms, ecomms, as_path, ... are encoded as array
+- Default scenario: comms, ecomms, as_path, ... are encoded as array
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
 
 ### Test timeline:
 
