@@ -220,6 +220,12 @@ def test_core_no_kafka(check_root_dir, log_test_and_scenario, prepare_test, pmac
 
 # Abstract fixture, which incorporates all common (core) fixtures
 @pytest.fixture(scope="function")
-def test_core(check_root_dir, kafka_infra_setup_teardown, log_test_and_scenario, prepare_test, pmacct_setup_teardown,
-              pmacct_logcheck, prepare_pcap):
+def test_core(check_root_dir, kafka_infra_setup_teardown, log_test_and_scenario, prepare_test, 
+              pmacct_setup_teardown, pmacct_logcheck, prepare_pcap):
+    pass
+
+# Abstract fixture, which incorporates all common (core) fixtures and redis
+@pytest.fixture(scope="function")
+def test_core_redis(check_root_dir, kafka_infra_setup_teardown, log_test_and_scenario, prepare_test,
+                    redis_setup_teardown, pmacct_setup_teardown, pmacct_logcheck, prepare_pcap):
     pass
