@@ -1,0 +1,19 @@
+{
+   "BGP Information": {
+      "138.190.129.21": {
+         "bgp_version": 4,
+         "bgp_id": "138.190.129.21",
+         "as_number": 12429,
+         "capabilities": [
+            "BGPCapFourBytesASN",
+            "BGPCapGracefulRestart",
+            "BGPCapMultiprotocol: AFI_1 + SAFI_128",
+            "BGPCapGeneric_128",
+            "BGPCapGeneric_2",
+            "BGPCapExtendedNHEnconding"
+         ],
+         "updates_counter": 21,
+         "keepalives_counter": 1
+      }
+   }
+}

@@ -3,10 +3,11 @@
 BMP test with pcap from Huawei VRP 8.210 (daisy-61 IETF lab) [with global and loc rib instance peers].
 
 ### Provided files:
-
+```
 - 200_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
+- traffic-info-00.json                      some info about content of pcap file 0
 - traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
@@ -15,6 +16,12 @@ BMP test with pcap from Huawei VRP 8.210 (daisy-61 IETF lab) [with global and lo
 
 - output-bmp-00.json                        desired nfacctd kafka output [daisy.bmp topic] containing json messages
 - output-log-00.txt                         log messages that need to be in the logfile
+```
+
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as arrays
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
 
 ### Test timeline:
 

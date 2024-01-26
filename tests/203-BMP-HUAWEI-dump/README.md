@@ -3,7 +3,7 @@
 Test for verifying BMP regular dump feature. Pcap taken from test 200: Huawei VRP 8.210 (daisy-61 IETF lab) [with global and loc rib instance peers].
 
 ### Provided files:
-
+```
 - 203_test.py                  pytest file defining test execution
 
 - traffic-00.pcap              pcap file (for traffic generator)
@@ -15,12 +15,19 @@ Test for verifying BMP regular dump feature. Pcap taken from test 200: Huawei VR
 - output-bmp-dump-00.json      desired nfacctd kafka output [daisy.bmp.dump topic] containing json messages
 - output-log-00.txt            log messages that need to be in the logfile
 - output-log-01.txt            log messages that need to be in the logfile
+```
+
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as arrays
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
 
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator
 
-- t=5s: BMP packets sent 
+- t=5s: BMP packets sent
+- t=60s: BMP table dumped
 
 ### Test execution and results:
 
@@ -37,7 +44,7 @@ Check the following:
 - Log messages in "output-log-00.txt" are present in the logfile (order of appearence preserved, but there could/will be other logs in between)
 - Excluding the ones present in the output-log-00.txt file, no additional ERROR or WARN messages are present in the logfile
 
-Part 2: Now wait until the next BMP dump happens (configured every 2mins). The dump event can be detected by looking for the log message in output-log-01.txt
+Part 2: Now wait until the next BMP dump happens (configured every 60s). The dump event can be detected by looking for the log message in output-log-01.txt
 
 Then check the following: 
 

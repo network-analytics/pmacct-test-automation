@@ -6,10 +6,14 @@ import logging, pytest, sys, time, datetime
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__])
+testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd')
 
+@pytest.mark.nfacctd
 @pytest.mark.ipfix
 @pytest.mark.ipfix_only
+@pytest.mark.ipfixv10
+@pytest.mark.nfv9
+@pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 

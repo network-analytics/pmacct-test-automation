@@ -15,9 +15,13 @@ cd $SCRIPT_DIR/pmacct
 #git checkout master
 #git pull
 
-echo "Building pmacct docker images"
-docker build -t pmacct-base:local -f $SCRIPT_DIR/base/Dockerfile $SCRIPT_DIR/pmacct || exit $?
+# TODO: make it available to change as a script argument (default local)
+# TODO: make also repo url available (default master pmacct)
+TAG='local'
 
-docker build -t nfacctd:local -f $SCRIPT_DIR/nfacctd/Dockerfile_non_root $SCRIPT_DIR/pmacct || exit $?
-docker build -t pmbmpd:local -f $SCRIPT_DIR/pmbmpd/Dockerfile_non_root $SCRIPT_DIR/pmacct || exit $?
-docker build -t pmbgpd:local -f $SCRIPT_DIR/pmbgpd/Dockerfile_non_root $SCRIPT_DIR/pmacct || exit $?
+echo "Building pmacct docker images"
+docker build -t pmacct-base:$TAG -f $SCRIPT_DIR/base/Dockerfile $SCRIPT_DIR/pmacct || exit $?
+
+docker build -t nfacctd:$TAG -f $SCRIPT_DIR/nfacctd/Dockerfile_non_root $SCRIPT_DIR/pmacct || exit $?
+docker build -t pmbmpd:$TAG -f $SCRIPT_DIR/pmbmpd/Dockerfile_non_root $SCRIPT_DIR/pmacct || exit $?
+docker build -t pmbgpd:$TAG -f $SCRIPT_DIR/pmbgpd/Dockerfile_non_root $SCRIPT_DIR/pmacct || exit $?

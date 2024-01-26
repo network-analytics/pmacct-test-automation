@@ -106,7 +106,7 @@ def create_mount_and_output_folders(params: KModuleParams):
 def edit_conf_mount_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('flow_to_rd_map', params.pmacct_mount_folder + '/f2rd-00.map')
     config.replace_value_of_key('sampling_map', params.pmacct_mount_folder + '/sampling-00.map')
-    config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.lst')
+    config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.map')
     config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key_ending_with('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
 

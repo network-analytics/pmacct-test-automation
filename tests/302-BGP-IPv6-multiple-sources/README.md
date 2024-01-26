@@ -6,13 +6,16 @@ TODO (daisy): this test is not stable most likely due to the traffic reproducers
               --> lately it has always been stable... (maybe resolved by timing constraints?)
 
 ### Provided files:
-
+```
 - 302_test.py                               pytest file defining test execution
 
 - traffic-01.pcap                           pcap file (for traffic reproducer)
 - traffic-02.pcap                           pcap file (for traffic reproducer)
 - traffic-02.pcap                           pcap file (for traffic reproducer)
 - traffic-03.pcap                           pcap file (for traffic reproducer)
+- traffic-info-00.json                      some info about content of pcap file 0
+- traffic-info-01.json                      some info about content of pcap file 1
+- traffic-info-02.json                      some info about content of pcap file 2 (3)
 - traffic-reproducer-00.yml                 traffic replay function config file
 - traffic-reproducer-01.yml                 traffic replay function config file
 - traffic-reproducer-02.yml                 traffic replay function config file
@@ -24,6 +27,7 @@ TODO (daisy): this test is not stable most likely due to the traffic reproducers
 
 - output-bgp-00.json                        desired nfacctd kafka output [daisy.bgp topic] containing json messages
 - output-log-[00-04].txt                    log messages that need to be in the logfile
+```
 
 ### Test timeline:
 

@@ -9,8 +9,9 @@ import logging, pytest, sys, time, datetime, secrets
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.', ipv6_subnet='cafe::')
+testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet='192.168.100.', ipv6_subnet='cafe::')
 
+@pytest.mark.nfacctd
 @pytest.mark.bgp
 @pytest.mark.bgp_only
 def test(test_core, consumer_setup_teardown):

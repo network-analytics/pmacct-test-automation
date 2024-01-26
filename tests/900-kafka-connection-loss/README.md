@@ -5,7 +5,7 @@ Testing with kafka: losing kafka connection.
 TODO Daisy: investigate this as I found it sometimes fails because it gives a different LOG instead the expected one when losing kafka connection
 
 ### Provided files:
-
+```
 - 900_test.py                               pytest file defining test execution
 
 - traffic-reproducer-00.yml                 traffic replay function config file
@@ -14,10 +14,11 @@ TODO Daisy: investigate this as I found it sometimes fails because it gives a di
 - nfacctd-00.conf                           nfacctd daemon configuration file
 
 - pmacct_mount/pretag-00.map                pretag mapping file for nfacctd              HINT: IPs need to match with repro_ips
-- pmacct_mount/custom-primitives-00.lst     list of custom primitives for nfacctd
+- pmacct_mount/custom-primitives-00.map     list of custom primitives for nfacctd
 
 - output-log-00.txt                         log messages that need to be in the logfile
 - output-log-01.txt                         log messages that need to be in the logfile
+```
 
 ### Test timeline:
 t=0s --> the first full minute after starting the traffic generator

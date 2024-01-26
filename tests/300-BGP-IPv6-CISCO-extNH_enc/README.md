@@ -3,10 +3,11 @@
 BGP from IOS XR 7.8.2 (ipt-zhh921-b-des-01) containing multi-protocol, route-refresh, 4-byte AS-number, and extended-next-hop-encoding capabilities.
 
 ### Provided files:
-
+```
 - 300_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
+- traffic-info-00.json                      some info about content of pcap file 0
 - traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
@@ -15,13 +16,18 @@ BGP from IOS XR 7.8.2 (ipt-zhh921-b-des-01) containing multi-protocol, route-ref
 
 - output-bgp-00.json                        desired nfacctd kafka output [daisy.bgp topic] containing json messages
 - output-log-00.txt                         log messages that need to be in the logfile
+```
+
+### Scenarios
+
+- Default scenario: comms, ecomms, as_path, ... are encoded as arrays
+- Scenario-01: comms, ecomms, as_path, ... are encoded as strings
 
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator
 
-- t=27-28s: BGP OPEN sent
-- t=31-33s: BGP updates sent
+- t=5-6s: BGP packets sent 
 
 ### Test execution and results:
 

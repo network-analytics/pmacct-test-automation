@@ -6,10 +6,12 @@ import logging, pytest, sys
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], ipv4_subnet='192.168.100.')
+testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet='192.168.100.')
 
+@pytest.mark.nfacctd
 @pytest.mark.bmp
 @pytest.mark.bmp_only
+@pytest.mark.bmpv3
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 

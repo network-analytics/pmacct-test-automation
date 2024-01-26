@@ -5,13 +5,14 @@ IMPORTANT: not working at the moment (SIGHUP signal cannot be delivered to pmacc
 Testing log rotation functionality: when logfile is moved to another location (e.g. to be archived), we need to send a signal to pmacct s.t. it will recreate the logfile and continue writing to it.
 
 ### Provided files:
-
+```
 - 902_test.py                    pytest file defining test execution
 
 - nfacctd-00.conf                nfacctd daemon configuration file            HINT: you might want to change redis_ip
 
 - output-log-00.txt              log messages that need to be in the logfile
 - output-log-01.txt              log messages that need to be in the logfile
+```
 
 ### Test proceeding and result:
 

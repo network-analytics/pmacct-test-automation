@@ -6,10 +6,13 @@ import logging, pytest, sys
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], ipv6_subnet='cafe::')
+testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv6_subnet='cafe::')
 
+@pytest.mark.nfacctd
 @pytest.mark.ipfix
 @pytest.mark.ipfix_only
+@pytest.mark.ipfixv10
+@pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
