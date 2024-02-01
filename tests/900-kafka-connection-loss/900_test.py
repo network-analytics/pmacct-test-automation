@@ -1,5 +1,5 @@
 
-from library.py.setup_tools import KModuleParams
+from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.test_tools as test_tools
 import library.py.helpers as helpers

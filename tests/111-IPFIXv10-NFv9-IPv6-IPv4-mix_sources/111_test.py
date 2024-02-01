@@ -1,5 +1,5 @@
 
-from library.py.setup_tools import KModuleParams
+from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
 import logging, pytest, sys, time, datetime
@@ -27,8 +27,8 @@ def main(consumer):
         logger.debug('Waiting ' + str(wait_sec) + ' seconds')
         time.sleep(wait_sec)
 
-    assert scripts.replay_pcap_detached(testParams.pcap_folders[0], 0)
-    assert scripts.replay_pcap_detached(testParams.pcap_folders[1], 1)
+    assert scripts.replay_pcap_detached(testParams.pcap_folders[0])
+    assert scripts.replay_pcap_detached(testParams.pcap_folders[1])
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
         ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
