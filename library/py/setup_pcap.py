@@ -5,11 +5,10 @@
 # nikolaos.tsokas@swisscom.com 11/05/2023
 ###################################################
 
-import shutil, secrets, logging, os, yaml
-from library.py.configuration_file import KConfigurationFile
-from library.py.test_params import KPmacctParams, KModuleParams
-from typing import List, Dict
-from library.py.helpers import short_name, select_files, replace_IPs, KFileList
+import shutil, logging, os, yaml
+from library.py.test_params import KModuleParams
+from typing import Dict
+from library.py.helpers import short_name, select_files
 logger = logging.getLogger(__name__)
 
 

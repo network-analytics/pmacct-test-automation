@@ -160,3 +160,12 @@ def replace_IPs(params, filename: str):
         replace_in_file(filename, params.test_subnet_ipv4, '172.21.1.10')
     if params.test_subnet_ipv6!='' and file_contains_string(filename, params.test_subnet_ipv6):
         replace_in_file(filename, params.test_subnet_ipv6, 'fd25::10')
+
+# Returns reproduction IP, i.e., IP of the traffic repro container, and BGP ID from a pcap folder
+def get_REPRO_IP_and_BGP_ID(pcap_mount_folder: str):
+    with open(pcap_mount_folder + '/traffic-reproducer.yml') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    repro_info = [data['network']['map'][0]['repro_ip'], None]
+    if 'bgp_id' in data['network']['map'][0]:
+        repro_info[1] = data['network']['map'][0]['bgp_id']
+    return repro_info
