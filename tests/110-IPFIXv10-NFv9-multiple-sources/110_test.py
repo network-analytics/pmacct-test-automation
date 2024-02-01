@@ -26,8 +26,8 @@ def main(consumer):
         logger.debug('Waiting ' + str(wait_sec) + ' seconds')
         time.sleep(wait_sec)
 
-    for i in range(len(testParams.pcap_folders)):
-        assert scripts.replay_pcap_detached(testParams.pcap_folders[i])
+    for pcap_folder in testParams.pcap_folders:
+        assert scripts.replay_pcap_detached(pcap_folder)
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
         ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])

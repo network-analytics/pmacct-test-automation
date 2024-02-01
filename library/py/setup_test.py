@@ -8,7 +8,7 @@
 import shutil, secrets, logging, os, yaml
 from library.py.configuration_file import KConfigurationFile
 from library.py.test_params import KPmacctParams, KModuleParams
-from typing import List, Dict
+from typing import List
 from library.py.helpers import short_name, select_files, replace_IPs, KFileList
 logger = logging.getLogger(__name__)
 
