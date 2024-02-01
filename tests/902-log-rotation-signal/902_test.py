@@ -1,6 +1,6 @@
 import os
 
-from library.py.setup_tools import KModuleParams
+from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
 import time, logging, pytest, sys
@@ -29,7 +29,7 @@ def main(consumer):
     #time.sleep(180)
 
     # Sending the signal to recreate log file
-    assert scripts.send_signal_to_pmacct('SIGHUP')
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[0].name, 'SIGHUP')
 
     logger.debug('Waiting 65 sec')
     time.sleep(65)

@@ -31,7 +31,7 @@ test_dir=$( dirname $test_file)
 test_filename=${test_dir}/tmp.py
 
 cat > $test_filename << EOL
-from library.py.setup_tools import KModuleParams
+from library.py.test_params import KModuleParams
 import sys
 $params_line
 def test(debug_core):

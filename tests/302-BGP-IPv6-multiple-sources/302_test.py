@@ -2,7 +2,7 @@
 # - when multi-config execution is supported), add multiple options with path_id/mpls_vpn_rd
 #   and also different buckets (per/per_peer buckets) [in this test we have 3 sources and lots of RDs!]
 
-from library.py.setup_tools import KModuleParams
+from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
 import logging, pytest, sys, time, datetime, secrets
@@ -46,10 +46,10 @@ def main(consumer):
 
     repro_ip_list = []
     for i in [0, 1]:
-        assert scripts.replay_pcap_detached(testParams.pcap_folders[i], i)
+        assert scripts.replay_pcap_detached(testParams.pcap_folders[i])
         repro_ip_list.append(helpers.get_repro_ip_from_pcap_folder(testParams.pcap_folders[i]))
 
-    assert scripts.replay_pcap_detached(pcap_folder_multi, 2)
+    assert scripts.replay_pcap_detached(pcap_folder_multi)
     repro_ip_list.append(helpers.get_repro_ip_from_pcap_folder(testParams.pcap_folders[2])) # needs to find a yml
 
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-00',
