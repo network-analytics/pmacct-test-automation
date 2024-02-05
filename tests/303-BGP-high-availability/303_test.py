@@ -1,7 +1,7 @@
 
 from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
-import logging, pytest, time, datetime
+import logging, pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
@@ -15,19 +15,20 @@ def test(test_core_redis, consumer_setup_teardown):
     main(consumer_setup_teardown)
 
 def main(consumers):
-    curr_sec = datetime.datetime.now().second
-    logger.info('Minute seconds: ' + str(curr_sec))
-
-    # Timing constraints
-    if curr_sec < 5:
-        wait_sec = 5 - curr_sec
-        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-        time.sleep(wait_sec)
-    # Make sure that traffic reproducers do not start in different minutes
-    elif curr_sec > 55:
-        wait_sec = 65 - curr_sec
-        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-        time.sleep(wait_sec)
+    test_tools.avoid_time_period_in_seconds(5, 10)
+    # curr_sec = datetime.datetime.now().second
+    # logger.info('Minute seconds: ' + str(curr_sec))
+    #
+    # # Timing constraints
+    # if curr_sec < 5:
+    #     wait_sec = 5 - curr_sec
+    #     logger.debug('Waiting ' + str(wait_sec) + ' seconds')
+    #     time.sleep(wait_sec)
+    # # Make sure that traffic reproducers do not start in different minutes
+    # elif curr_sec > 55:
+    #     wait_sec = 65 - curr_sec
+    #     logger.debug('Waiting ' + str(wait_sec) + ' seconds')
+    #     time.sleep(wait_sec)
 
     # Prepare the multicast pcap player (mount points, traffic-repro.yml, docker-compose.yml, etc.)
     pcap_folder_multi = test_tools.prepare_multicast_pcap_player(testParams.results_folder, testParams.pcap_folders[0],

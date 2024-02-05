@@ -5,7 +5,7 @@
 # nikolaos.tsokas@swisscom.com 07/07/2023
 ###################################################
 
-import logging, os, secrets, yaml, shutil
+import logging, os, secrets, yaml, shutil, time, datetime
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
 import library.py.escape_regex as escape_regex
@@ -183,3 +183,32 @@ def transform_log_file(filename, repro_ip=None, bgp_id=None):
         helpers.replace_in_file(filename, token1, '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z')
     if helpers.file_contains_string(filename, token2):
         helpers.replace_in_file(filename, token2, '.+')
+
+
+def avoid_time_period_in_seconds(end_of_period: int, length: int):
+    if length>59:
+        raise Exception('Avoided time period equal or longer than 1 minute')
+
+    curr_sec = datetime.datetime.now().second
+    logger.info('Current minute seconds: ' + str(curr_sec))
+
+    start_of_period = end_of_period - length
+    if start_of_period>=0:
+        if start_of_period <= curr_sec < end_of_period:
+            wait_sec = end_of_period - curr_sec
+        else:
+            wait_sec = 0
+    else:
+        start_of_period += 60
+        if curr_sec < end_of_period:
+            wait_sec = end_of_period - curr_sec
+        elif curr_sec > start_of_period:
+            wait_sec = 60 - curr_sec + end_of_period
+        else:
+            wait_sec = 0
+
+    if wait_sec<1:
+        logger.debug('No need to wait')
+    else:
+        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
+        time.sleep(wait_sec)
