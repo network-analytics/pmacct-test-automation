@@ -7,7 +7,7 @@
 import library.py.scripts as scripts
 import library.py.setup_test as setup_test
 import library.py.setup_pcap as setup_pcap
-import logging, pytest, os
+import logging, pytest, os, time
 import library.py.helpers as helpers
 from library.py.kafka_consumer import KMessageReaderAvro, KMessageReaderPlainJson, KMessageReaderList
 logger = logging.getLogger(__name__)
@@ -114,7 +114,7 @@ def prepare_test(scenario_name, request):
     setup_test.prepare_test_env(request.module.testParams, scenario_name)
 
 
-# Prepares Kafka topic, creates kafka-compose file for pmacct and deploys pmacct container
+# Prepares Kafka topic, creates kafka-compose file for pmacct and deploys pmacct containers
 def setup_pmacct(params):
     assert len(params.pmacct)>0 and os.path.isfile(params.results_conf_file)
     for topic in list(params.kafka_topics.values()):
@@ -123,6 +123,7 @@ def setup_pmacct(params):
     for pmacct in params.pmacct:
         assert scripts.start_pmacct_container(pmacct.name, pmacct.docker_compose_file)
         assert scripts.wait_pmacct_running(pmacct.name, 5)  # wait 5 seconds
+        time.sleep(1)
 
 
 # Setup and Teardown fixture for pmacct container
@@ -147,31 +148,20 @@ def pmacct_setup(request):
     setup_pmacct(request.module.testParams)
 
 
-# Waits for the first characteristic lines to appear in pmacct log, to be sure pmacct is running
-# Also the version of pmacct is logged to the test logger.
+# Waits for the first characteristic lines to appear in pmacct logs, to be sure pmacct instances are running.
+# Also the versions of pmacct are logged to the test logger.
 @pytest.fixture(scope="function")
 def pmacct_logcheck(request):
     params = request.module.testParams
-    def checkfunction():
-        return os.path.isfile(params.pmacct_log_file) and \
-            helpers.check_regex_sequence_in_file(params.pmacct_log_file,
-                ['_core.*/core .+ waiting for .+ data on interface'])
-    assert helpers.retry_until_true('Pmacct first log line', checkfunction, 30, 5)
-    pmacct_version = helpers.read_pmacct_version(params.pmacct_log_file)
-    assert pmacct_version
-    logger.info('Pmacct version: ' + pmacct_version)
+    for pmacct in params.pmacct:
+        assert helpers.retry_until_true('Pmacct first log line',
+            lambda: os.path.isfile(pmacct.pmacct_log_file) and \
+                helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file,
+                ['_core.*/core .+ waiting for .+ data on interface']), 30, 5)
+        pmacct_version = helpers.read_pmacct_version(pmacct.pmacct_log_file)
+        assert pmacct_version
+        logger.info(pmacct.name + ' version: ' + pmacct_version)
 
-# @pytest.fixture(scope="function")
-# def pmacct_logcheck(request):
-#     params = request.module.testParams
-#     def checkfunction():
-#         return os.path.isfile(params.pmacct_log_file) and \
-#             helpers.check_regex_sequence_in_file(params.pmacct_log_file,
-#                 ['_core.*/core .+ waiting for .+ data on interface'])
-#     assert helpers.retry_until_true('Pmacct first log line', checkfunction, 30, 5)
-#     pmacct_version = helpers.read_pmacct_version(params.pmacct_log_file)
-#     assert pmacct_version
-#     logger.info('Pmacct version: ' + pmacct_version)
 
 
 # Prepares folders with pcap information for traffic-reproduction containers to mount
