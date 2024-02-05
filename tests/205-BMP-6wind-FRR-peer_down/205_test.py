@@ -2,11 +2,11 @@
 from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import logging, pytest, sys
+import logging, pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet='192.168.100.')
+testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.')
 
 @pytest.mark.nfacctd
 @pytest.mark.bmp

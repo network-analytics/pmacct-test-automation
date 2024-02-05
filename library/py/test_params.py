@@ -22,11 +22,11 @@ class KPmacctParams:
         self.test_conf_file = None
 
 class KModuleParams:
-    def __init__(self, _module, daemon='nfacctd', ipv4_subnet='', ipv6_subnet=''):
+    def __init__(self, test_file, daemon='nfacctd', ipv4_subnet='', ipv6_subnet=''):
         self.daemon = daemon
         self.test_subnet_ipv4 = ipv4_subnet
         self.test_subnet_ipv6 = ipv6_subnet
-        self.build_static_params(_module.__file__)
+        self.build_static_params(test_file)
 
     def build_static_params(self, filename: str):
         self.test_folder = os.path.dirname(filename)
