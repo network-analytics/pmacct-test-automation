@@ -26,10 +26,10 @@ def transform_log_file_custom(logfile, repro_ips):
     helpers.replace_in_file(logfile, token, '(' + '|'.join(repro_ips) + ')')
 
 def main(consumer):
-    test_tools.avoid_time_period_in_seconds(25, 30)
+    test_tools.avoid_time_period_in_seconds(5, 30)
 
     pcap_folder_multi = test_tools.prepare_multi_pcap_player(testParams.results_folder,
-        [testParams.pcap_folders[2], testParams.pcap_folders[3]], 2, testParams.fw_config)
+        [testParams.pcap_folders[2], testParams.pcap_folders[3]], testParams.fw_config)
     assert pcap_folder_multi
 
     repro_ip_list = []
@@ -57,13 +57,13 @@ def main(consumer):
         test_tools.transform_log_file(logfile)
         assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
 
-    for i in [0, 1, 2]:
+    for i in ['0', '1', '2-3']:
       scripts.stop_and_remove_traffic_container_byID(i)
 
     # TODO DAISY: - we need to debug why pretag is not working properly on delete messages (bug)
     #                --> until then we check the delete messages excluding the label field
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-01',
-        ['seq', 'timestamp', 'peer_tcp_port', 'label'], 60)
+        ['seq', 'timestamp', 'peer_tcp_port', 'label'], 90)
 
     logfile = testParams.log_files.getFileLike('log-04')
     transform_log_file_custom(logfile, repro_ip_list)

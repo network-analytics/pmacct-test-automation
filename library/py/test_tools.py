@@ -80,7 +80,7 @@ def replay_pcap_to_collector(pcap_folder, pmacct, detached=False):
 
 # Clones the traffic files as many times as the number of pmacct instances, replaces in each traffic-repro.yml the
 # corresponding pmacct IP, then mounts the pcap folders to a "multi" traffic reproducer container
-def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct_list, container_id, fw_config):
+def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct_list, fw_config):
     # Make sure traffic-reproducer.yml files of all pcap folders refer to the same IP and BGP_ID
     # Otherwise, it is not possible for a single server (container) to replay these traffic data
     repro_info = helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folder)
@@ -110,7 +110,7 @@ def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct
     shutil.copy(pcap_folder + '/pcap0/docker-compose.yml', pcap_folder + '/docker-compose.yml')
     with open(pcap_folder + '/docker-compose.yml') as f:
         data_dc = yaml.load(f, Loader=yaml.FullLoader)
-    data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + str(container_id)
+    data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + prefix
     data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
     data_dc['services']['traffic-reproducer']['volumes'][0] = pcap_folder + ':/pcap'
     with open(pcap_folder + '/docker-compose.yml', 'w') as f:
@@ -123,7 +123,7 @@ def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct
     return pcap_folder
 
 
-def prepare_multi_pcap_player(results_folder, pcap_mount_folders, container_id, fw_config):
+def prepare_multi_pcap_player(results_folder, pcap_mount_folders, fw_config):
     folder_names = ', '.join([helpers.short_name(folder) for folder in pcap_mount_folders])
     logger.info('Preparing multi-pcap player container...')
     logger.info('Creating common mount pcap folder for folders: ' + folder_names)
@@ -137,7 +137,8 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders, container_id, 
             return None
 
     pcap_folders_indices = [os.path.basename(folder).split('_')[-1] for folder in pcap_mount_folders]
-    pcap_folder = results_folder + '/pcap_mount_' + '+'.join(pcap_folders_indices) + '_multi'
+    prefix = '-'.join(pcap_folders_indices)
+    pcap_folder = results_folder + '/pcap_mount_' + prefix + '_multi'
     os.makedirs(pcap_folder)
     logger.info('Created following common mount pcap folder: ' + helpers.short_name(pcap_folder))
 
@@ -152,7 +153,7 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders, container_id, 
     shutil.copy(pcap_folder + '/pcap0/docker-compose.yml', pcap_folder + '/docker-compose.yml')
     with open(pcap_folder + '/docker-compose.yml') as f:
         data_dc = yaml.load(f, Loader=yaml.FullLoader)
-    data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + str(container_id)
+    data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + prefix
     data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
     data_dc['services']['traffic-reproducer']['volumes'][0] = pcap_folder + ':/pcap'
     with open(pcap_folder + '/docker-compose.yml', 'w') as f:
