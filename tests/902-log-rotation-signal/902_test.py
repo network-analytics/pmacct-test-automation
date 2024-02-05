@@ -1,13 +1,13 @@
 import os
 
-from library.py.setup_tools import KModuleParams
+from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import time, logging, pytest, sys
+import time, logging, pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet='192.168.100.')
+testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.')
 
 @pytest.mark.nfacctd
 @pytest.mark.signals
@@ -29,7 +29,7 @@ def main(consumer):
     #time.sleep(180)
 
     # Sending the signal to recreate log file
-    assert scripts.send_signal_to_pmacct('SIGHUP')
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[0].name, 'SIGHUP')
 
     logger.debug('Waiting 65 sec')
     time.sleep(65)

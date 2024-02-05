@@ -1,12 +1,12 @@
 
-from library.py.setup_tools import KModuleParams
+from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import logging, pytest, sys
+import logging, pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv6_subnet='cafe::')
+testParams = KModuleParams(__file__, daemon='nfacctd', ipv6_subnet='cafe::')
 
 @pytest.mark.nfacctd
 @pytest.mark.ipfix

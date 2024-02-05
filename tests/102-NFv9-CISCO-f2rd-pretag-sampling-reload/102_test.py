@@ -1,12 +1,12 @@
 
-from library.py.setup_tools import KModuleParams
+from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import shutil, logging, pytest, sys
+import shutil, logging, pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
-testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet='192.168.100.')
+testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.')
 
 @pytest.mark.nfacctd
 @pytest.mark.ipfix
@@ -40,7 +40,7 @@ def main(consumer):
         shutil.move(filename + '-01.map', filename + '-00.map')
 
     # Sending the signal to reload maps
-    assert scripts.send_signal_to_pmacct('SIGUSR2')
+    assert scripts.send_signal_to_pmacct(testParams.pmacct_name, 'SIGUSR2')
 
     assert scripts.replay_pcap(testParams.pcap_folders[0])
 

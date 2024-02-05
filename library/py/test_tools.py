@@ -9,6 +9,7 @@ import logging, os, secrets, yaml, shutil
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
 import library.py.escape_regex as escape_regex
+import library.py.scripts as scripts
 logger = logging.getLogger(__name__)
 
 # Reads messages from Kafka topic and compares with given file. First argument is the Kafka consumer object,
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_time=120):
     # Replacing IP addresses in output json file with the ones anticipated from pmacct
     output_json_file = params.output_files.getFileLike(json_name)
-    params.replace_IPs(output_json_file)
+    helpers.replace_IPs(params, output_json_file)
 
     # Counting non empty json lines in output file, so that we know the number of anticipated messages
     line_count = helpers.count_non_empty_lines(output_json_file)
@@ -45,8 +46,8 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
 
 # Reads all messages from Kafka topic within a specified timeout (wait_time)
 # --> used for test-case development
-def read_messages_dump_only(consumer, params, json_name, ignore_fields=[], wait_time=120):
-    logger.info('Consuming from kafka [timeout=' + str(wait_time) + 's] and dumping messages in ' + params.results_folder)
+def read_messages_dump_only(consumer, params, wait_time=120):
+    logger.info('Consuming from kafka [timeout=' + str(wait_time) + 's] and dumping messages in ' + params.results_dump_folder)
 
     # Reading messages from Kafka topic
     # The get_all_messages_timeout method consumes all messages and returns 
@@ -61,25 +62,76 @@ def read_messages_dump_only(consumer, params, json_name, ignore_fields=[], wait_
 
     return True 
 
+# Replays traffic from a pcap folder to a specific running instance of pmacct. It can either run the traffic
+# container in detached mode or not (default)
+def replay_pcap_to_collector(pcap_folder, pmacct, detached=False):
+    with open(pcap_folder + '/traffic-reproducer.yml') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    # adding pmacct IP address
+    isIPv6 = ':' in data['network']['map'][0]['repro_ip']
+    pmacct_ip = pmacct.ipv6 if isIPv6 else pmacct.ipv4
+    for k in ['bmp', 'bgp', 'ipfix']:
+        if k in data:
+            data[k]['collector']['ip'] = pmacct_ip
+    with open(pcap_folder + '/traffic-reproducer.yml', 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    logger.info('Edited traffic-reproducer.yml with collector IP: ' + pmacct_ip)
+    return scripts.replay_pcap(pcap_folder) if detached==False else scripts.replay_pcap_detached(pcap_folder, 0)
+
+# Clones the traffic files as many times as the number of pmacct instances, replaces in each traffic-repro.yml the
+# corresponding pmacct IP, then mounts the pcap folders to a "multi" traffic reproducer container
+def prepare_multicast_pcap_player(results_folder, pcap_mount_folder, pmacct_list, container_id, fw_config):
+    # Make sure traffic-reproducer.yml files of all pcap folders refer to the same IP and BGP_ID
+    # Otherwise, it is not possible for a single server (container) to replay these traffic data
+    repro_info = helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folder) # getREPROIPandBGPID(pcap_mount_folder)
+    pcap_folder = results_folder + '/pcap_mount_' + secrets.token_hex(4)[:8]
+    os.makedirs(pcap_folder)
+    logger.info('Created following common mount pcap folder: ' + helpers.short_name(pcap_folder))
+
+    logger.info('Pcap player repro info: ' + str(repro_info))
+    logger.debug('Editing pcap folders and copying them together')
+    for i in range(len(pmacct_list)):
+        dst = pcap_folder + '/pcap' + str(i)
+        shutil.copytree(pcap_mount_folder, dst)
+        with open(dst + '/traffic-reproducer.yml') as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+        # adding pmacct IP address
+        isIPv6 = ':' in data['network']['map'][0]['repro_ip']
+        pmacct_ip = pmacct_list[i].ipv6 if isIPv6 else pmacct_list[i].ipv4
+        for k in ['bmp', 'bgp', 'ipfix']:
+            if k in data:
+                data[k]['collector']['ip'] = pmacct_ip
+        with open(dst + '/traffic-reproducer.yml', 'w') as f:
+            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/traffic.pcap',
+                                '/pcap/pcap' + str(i) + '/traffic.pcap')
+
+    shutil.copy(pcap_folder + '/pcap0/docker-compose.yml', pcap_folder + '/docker-compose.yml')
+    with open(pcap_folder + '/docker-compose.yml') as f:
+        data_dc = yaml.load(f, Loader=yaml.FullLoader)
+    data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + str(container_id)
+    data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
+    data_dc['services']['traffic-reproducer']['volumes'][0] = pcap_folder + ':/pcap'
+    with open(pcap_folder + '/docker-compose.yml', 'w') as f:
+        yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
+    logger.debug('Created traffic-reproducer-multi docker-compose.yml in ' + helpers.short_name(pcap_folder))
+    for i in range(len(pmacct_list)):
+        if os.path.isfile(pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
+            os.remove(pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')
+
+    return pcap_folder
+
 
 def prepare_multi_pcap_player(results_folder, pcap_mount_folders, container_id, fw_config):
     folder_names = ', '.join([helpers.short_name(folder) for folder in pcap_mount_folders])
     logger.info('Preparing multi-pcap player container...')
     logger.info('Creating common mount pcap folder for folders: ' + folder_names)
 
-    def getREPROIPandBGPID(pcap_mount_folder):
-        with open(pcap_mount_folder + '/traffic-reproducer.yml') as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
-        repro_info = [data['network']['map'][0]['repro_ip'], None]
-        if 'bgp_id' in data['network']['map'][0]:
-            repro_info[1] = data['network']['map'][0]['bgp_id']
-        return repro_info
-
     # Make sure traffic-reproducer.yml files of all pcap folders refer to the same IP and BGP_ID
     # Otherwise, it is not possible for a single server (container) to replay these traffic data
-    repro_info = getREPROIPandBGPID(pcap_mount_folders[0])
+    repro_info = helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folders[0]) #getREPROIPandBGPID(pcap_mount_folders[0])
     for i in range(1, len(pcap_mount_folders)):
-        if repro_info != getREPROIPandBGPID(pcap_mount_folders[i]):
+        if repro_info != helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folders[i]): # getREPROIPandBGPID(pcap_mount_folders[i]):
             logger.error('IP and/or BGP_ID for the same traffic reproducer do not match!')
             return None
 

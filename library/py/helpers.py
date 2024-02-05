@@ -11,6 +11,14 @@ from typing import List, Dict
 logger = logging.getLogger(__name__)
 
 
+class KFileList(list):
+    def getFileLike(self, txt):
+        for filename in self:
+            basename = os.path.basename(filename)
+            if txt in basename:
+                return filename
+        return None
+
 # Returns true if "text" exists anywhere in the "file_path" file, false otherwise
 def file_contains_string(file_path: str, text: str) -> bool:
     retVal = False
@@ -35,22 +43,6 @@ def check_regex_sequence_in_file(file_path: str, regexes: List[str]) -> bool:
             start = match.end()
         return True
 
-# Untested
-# def check_string_sequence_in_file(file_path: str, strings: List[str]) -> bool:
-#     logger.debug('Checking file ' + file_path + ' for patterns ' + str(strings))
-#     with open(file_path, 'r') as file:
-#         text = file.read()
-#         start = 0
-#         for pattern in strings:
-#             logger.debug('Checking string: ' + pattern)
-#             idx = text[start:].find(pattern)
-#             if idx<0:
-#                 logger.debug('No match')
-#                 return False
-#             logger.debug('Matched')
-#             start = idx + len(pattern)
-#         return True
-
 # File "file_regexes" is supposed to be a file, whose lines are regular expressions
 # Returns true if all regular expressions in file are matched against the content of file "file_path"
 # in the given order, false otherwise
@@ -63,17 +55,6 @@ def check_file_regex_sequence_in_file(file_path: str, file_regexes: str) -> bool
     if retval:
         logger.info('All regexes found!')
     return retval
-
-# Untested
-# def check_file_string_sequence_in_file(file_path: str, file_strings: str) -> bool:
-#     with open(file_strings) as f:
-#         strings = f.read().split('\n')
-#     strings = [_string for _string in strings if len(_string)>0 and not _string.startswith('#')]
-#     logger.info('Checking for ' + str(len(strings)) + ' regexes')
-#     retval = check_string_sequence_in_file(file_path, strings)
-#     if retval:
-#         logger.info('All strings found!')
-#     return retval
 
 # Returns a short version of the file path, that is only the parent folder and the filename itself
 def short_name(filename: str) -> str:
@@ -164,10 +145,27 @@ def read_pmacct_version(logfile: str) -> str:
         return None
     return parts[1]
 
-# Takes a input a folder with pcap information and returns the IP address of the traffic reproducer,
+# Takes a folder with pcap information and returns the IP address of the traffic reproducer,
 # as found in traffic-reproducer.yml
 def get_repro_ip_from_pcap_folder(pcap_folder: str) -> str:
     with open(pcap_folder + '/traffic-reproducer.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
     repro_info = data['network']['map'][0]
     return repro_info['repro_ip']
+
+# Replaces IPs in file, so that they reflect the framework subnet (which may or may not be
+# different than the ones provided with the test case)
+def replace_IPs(params, filename: str):
+    if params.test_subnet_ipv4!='' and file_contains_string(filename, params.test_subnet_ipv4):
+        replace_in_file(filename, params.test_subnet_ipv4, '172.21.1.10')
+    if params.test_subnet_ipv6!='' and file_contains_string(filename, params.test_subnet_ipv6):
+        replace_in_file(filename, params.test_subnet_ipv6, 'fd25::10')
+
+# Returns reproduction IP, i.e., IP of the traffic repro container, and BGP ID from a pcap folder
+def get_REPRO_IP_and_BGP_ID(pcap_mount_folder: str):
+    with open(pcap_mount_folder + '/traffic-reproducer.yml') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    repro_info = [data['network']['map'][0]['repro_ip'], None]
+    if 'bgp_id' in data['network']['map'][0]:
+        repro_info[1] = data['network']['map'][0]['bgp_id']
+    return repro_info

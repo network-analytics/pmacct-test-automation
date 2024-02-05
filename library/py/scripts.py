@@ -7,7 +7,7 @@
 
 from library.py.script_tools import *
 from library.py import helpers
-import logging, yaml
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -20,8 +20,8 @@ def start_kafka_containers() -> bool:
     logger.info("Starting Kafka containers")
     return run_script(['./library/sh/kafka_compose/start.sh'])[0]
 
-def start_pmacct_container(pmacct_docker_compose_file: str) -> bool:
-    logger.info("Starting pmacct container")
+def start_pmacct_container(pmacct_name, pmacct_docker_compose_file: str) -> bool:
+    logger.info("Starting pmacct container " + pmacct_name)
     return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_docker_compose_file])[0]
 
 # Starts Redis container
@@ -40,16 +40,16 @@ def stop_and_remove_kafka_containers() -> bool:
     return run_script(['./library/sh/kafka_compose/stop.sh'])[0]
 
 # Gets pmacct container stats
-def get_pmacct_stats() -> str:
-    logger.info("Getting pmacct stats from docker")
-    ret = run_script(['./library/sh/docker_tools/get-container-stats.sh', 'pmacct'])
+def get_pmacct_stats(pmacct_name: str) -> str:
+    logger.info("Getting pmacct stats from docker for: " + pmacct_name)
+    ret = run_script(['./library/sh/docker_tools/get-container-stats.sh', pmacct_name])
     if not ret[0]:
         return ret[2]
     return ret[1]
 
 # Stops pmacct container using docker stop and docker rm and returns success or not
-def stop_and_remove_pmacct_container(pmacct_docker_compose_file: str) -> bool:
-    logger.info("Stopping and removing pmacct container")
+def stop_and_remove_pmacct_container(pmacct_name, pmacct_docker_compose_file: str) -> bool:
+    logger.info("Stopping and removing pmacct container " + pmacct_name)
     return run_script(['./library/sh/pmacct_docker/stop.sh', pmacct_docker_compose_file])[0]
 
 # Stops and removes Redis container
@@ -74,10 +74,10 @@ def stop_and_remove_all_traffic_containers() -> bool:
 
 # Waits for pmacct container to be reported as running and return success or not
 # seconds: maximum time to wait for pmacct
-def wait_pmacct_running(seconds: int) -> bool:
+def wait_pmacct_running(pmacct_name: str, seconds: int) -> bool:
     def checkfunction(out):
         return out[0] and not 'false' in out[1].lower()
-    return wait_for_container('./library/sh/docker_tools/check-container-running.sh', 'pmacct', checkfunction, seconds)
+    return wait_for_container('./library/sh/docker_tools/check-container-running.sh', pmacct_name, checkfunction, seconds)
 
 # Waits for redis container to be reported as running and return success or not
 # seconds: maximum time to wait for pmacct
@@ -92,9 +92,9 @@ def check_broker_running() -> bool:
     return run_script(['./library/sh/docker_tools/check-container-running.sh', 'broker'])[0]
 
 # Sends signal to container
-def send_signal_to_pmacct(sig: str) -> bool:
-    logger.info("Sending signal " + sig + " to pmacct")
-    return run_script(['./library/sh/docker_tools/send-signal.sh', 'pmacct', sig])[0]
+def send_signal_to_pmacct(pmacct_name: str, sig: str) -> bool:
+    logger.info("Sending signal " + sig + " to container " + pmacct_name)
+    return run_script(['./library/sh/docker_tools/send-signal.sh', pmacct_name, sig])[0]
 
 # Waits for schema-registry container to be reported as healthy and return success or not
 # seconds: maximum time to wait for schema-registry
@@ -155,9 +155,9 @@ def replay_pcap(pcap_mount_folder: str) -> bool:
 
 # Spawns a new traffic reproducer container in detached mode and replays traffic from folder pcap_mount_folder
 # player_id is a user-given number used for reference when the container later needs to be stopped
-# pcap_mount_folder is the path of the folder containing the docker-compose.yml file for the conteiner
+# pcap_mount_folder is the path of the folder containing the docker-compose.yml file for the container
 # in question; it typically contains also traffic reproduction information
-def replay_pcap_detached(pcap_mount_folder: str, player_id: int):
+def replay_pcap_detached(pcap_mount_folder: str) -> bool:
     logger.info('Replaying pcap file from ' + helpers.short_name(pcap_mount_folder) + ' with DETACHED docker container')
     args = ['./library/sh/traffic_docker/start_docker_compose.sh', pcap_mount_folder + '/docker-compose.yml', '-d']
     success, output, error = run_script(args)
