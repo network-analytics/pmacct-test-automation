@@ -5,7 +5,7 @@
 from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import logging, pytest, time, datetime, secrets
+import logging, pytest, secrets
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
@@ -25,20 +25,7 @@ def transform_log_file_custom(logfile, repro_ips):
     helpers.replace_in_file(logfile, token, '(' + '|'.join(repro_ips) + ')')
 
 def main(consumer):
-    curr_sec = datetime.datetime.now().second
-    logger.info('Minute seconds: ' + str(curr_sec))
-    
-    # Some additional timing constraints for this test
-    # Make sure traffic reproducer 03 does not send packets before the others
-    if curr_sec < 25: 
-        wait_sec = 25 - curr_sec
-        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-        time.sleep(wait_sec)
-    # Make sure that traffic reproducers do not start in different minutes
-    elif curr_sec > 55:
-        wait_sec = 85 - curr_sec
-        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-        time.sleep(wait_sec)
+    test_tools.avoid_time_period_in_seconds(25, 30)
 
     pcap_folder_multi = test_tools.prepare_multi_pcap_player(testParams.results_folder,
         [testParams.pcap_folders[2], testParams.pcap_folders[3]], 2, testParams.fw_config)
