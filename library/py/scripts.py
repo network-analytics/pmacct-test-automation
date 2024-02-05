@@ -58,7 +58,7 @@ def stop_and_remove_redis_container() -> bool:
     return run_script(['./library/sh/redis_docker/stop.sh'])[0]
 
 # Stops traffic-reproducer container using docker stop and docker rm and returns success or not
-def stop_and_remove_traffic_container_byID(traffic_id: int) -> bool:
+def stop_and_remove_traffic_container_byID(traffic_id) -> bool: # called with either int or str
     logger.info("Stopping and removing traffic container with ID: " + str(traffic_id))
     return run_script(['./library/sh/traffic_docker/stop.sh', str(traffic_id)])[0]
 

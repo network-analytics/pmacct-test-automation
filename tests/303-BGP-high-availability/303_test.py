@@ -16,23 +16,10 @@ def test(test_core_redis, consumer_setup_teardown):
 
 def main(consumers):
     test_tools.avoid_time_period_in_seconds(5, 10)
-    # curr_sec = datetime.datetime.now().second
-    # logger.info('Minute seconds: ' + str(curr_sec))
-    #
-    # # Timing constraints
-    # if curr_sec < 5:
-    #     wait_sec = 5 - curr_sec
-    #     logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-    #     time.sleep(wait_sec)
-    # # Make sure that traffic reproducers do not start in different minutes
-    # elif curr_sec > 55:
-    #     wait_sec = 65 - curr_sec
-    #     logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-    #     time.sleep(wait_sec)
 
     # Prepare the multicast pcap player (mount points, traffic-repro.yml, docker-compose.yml, etc.)
     pcap_folder_multi = test_tools.prepare_multicollector_pcap_player(testParams.results_folder, testParams.pcap_folders[0],
-        testParams.pmacct, 0, testParams.fw_config)
+        testParams.pmacct, testParams.fw_config)
     assert pcap_folder_multi
     # Play traffic against all 3 nfacctd instances
     assert scripts.replay_pcap_detached(pcap_folder_multi)
@@ -41,7 +28,7 @@ def main(consumers):
     # Reset timer of nfacctd-00
     assert scripts.send_signal_to_pmacct(testParams.pmacct[0].name, 'SIGRTMIN')
     # Read messages for a while --- message should now refer to second nfacctd instance "locB"
-    assert test_tools.read_messages_dump_only(consumers.getReaderOfTopicStartingWith('daisy.bgp'), testParams, 20)
+    assert test_tools.read_messages_dump_only(consumers.getReaderOfTopicStartingWith('daisy.bgp'), testParams, 40)
 
     scripts.stop_and_remove_traffic_container(testParams.pcap_folders[0])
 
