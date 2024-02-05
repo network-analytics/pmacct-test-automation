@@ -31,7 +31,7 @@ def main(consumers):
     #     time.sleep(wait_sec)
 
     # Prepare the multicast pcap player (mount points, traffic-repro.yml, docker-compose.yml, etc.)
-    pcap_folder_multi = test_tools.prepare_multicast_pcap_player(testParams.results_folder, testParams.pcap_folders[0],
+    pcap_folder_multi = test_tools.prepare_multicollector_pcap_player(testParams.results_folder, testParams.pcap_folders[0],
         testParams.pmacct, 0, testParams.fw_config)
     assert pcap_folder_multi
     # Play traffic against all 3 nfacctd instances

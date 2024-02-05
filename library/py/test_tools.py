@@ -80,11 +80,12 @@ def replay_pcap_to_collector(pcap_folder, pmacct, detached=False):
 
 # Clones the traffic files as many times as the number of pmacct instances, replaces in each traffic-repro.yml the
 # corresponding pmacct IP, then mounts the pcap folders to a "multi" traffic reproducer container
-def prepare_multicast_pcap_player(results_folder, pcap_mount_folder, pmacct_list, container_id, fw_config):
+def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct_list, container_id, fw_config):
     # Make sure traffic-reproducer.yml files of all pcap folders refer to the same IP and BGP_ID
     # Otherwise, it is not possible for a single server (container) to replay these traffic data
-    repro_info = helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folder) # getREPROIPandBGPID(pcap_mount_folder)
-    pcap_folder = results_folder + '/pcap_mount_' + secrets.token_hex(4)[:8]
+    repro_info = helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folder)
+    prefix = os.path.basename(pcap_mount_folder).split('_')[-1] + 'x' + str(len(pmacct_list))
+    pcap_folder = results_folder + '/pcap_mount_' + prefix + '_multi'
     os.makedirs(pcap_folder)
     logger.info('Created following common mount pcap folder: ' + helpers.short_name(pcap_folder))
 
@@ -129,13 +130,14 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders, container_id, 
 
     # Make sure traffic-reproducer.yml files of all pcap folders refer to the same IP and BGP_ID
     # Otherwise, it is not possible for a single server (container) to replay these traffic data
-    repro_info = helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folders[0]) #getREPROIPandBGPID(pcap_mount_folders[0])
+    repro_info = helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folders[0])
     for i in range(1, len(pcap_mount_folders)):
-        if repro_info != helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folders[i]): # getREPROIPandBGPID(pcap_mount_folders[i]):
+        if repro_info != helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folders[i]):
             logger.error('IP and/or BGP_ID for the same traffic reproducer do not match!')
             return None
 
-    pcap_folder = results_folder + '/pcap_mount_' + secrets.token_hex(4)[:8]
+    pcap_folders_indices = [os.path.basename(folder).split('_')[-1] for folder in pcap_mount_folders]
+    pcap_folder = results_folder + '/pcap_mount_' + '+'.join(pcap_folders_indices) + '_multi'
     os.makedirs(pcap_folder)
     logger.info('Created following common mount pcap folder: ' + helpers.short_name(pcap_folder))
 
