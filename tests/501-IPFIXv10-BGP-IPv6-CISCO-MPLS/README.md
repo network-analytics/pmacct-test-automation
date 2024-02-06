@@ -1,6 +1,6 @@
 ## Test Description (501-IPFIXv10-BGP-IPv6-CISCO-extNH_enc)
 
-IPFIX and BGP from IOS XR 7.8.2 with IPv6 transport. BGP with ext-NH encoding (ipv6 NH for ipv4 NLRI). Templates 266 and 342.
+IPFIX and BGP from IOS XR 7.10.1 with IPv6 transport. BGP with ext-NH encoding (ipv6 NH for ipv4 NLRI). Templates 266 and 342.
 
 - MPLS VPN RD from option 334
 - Sampling info from option 257

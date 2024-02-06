@@ -4,7 +4,7 @@ IPFIX and BGP from IOS XR 7.10.1 with IPv6 transport. BGP with standard, large a
 
 ### Provided files:
 ```
-- 501_test.py                               pytest file defining test execution
+- 502_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
 - traffic-info-00.json                      some info about content of pcap file

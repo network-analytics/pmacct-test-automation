@@ -16,13 +16,41 @@ function handle_interrupt() {
 trap handle_interrupt SIGINT
 
 function print_help() {
-  echo "Usage:   ./runtest.sh [--dry] [--loglevel=<log level>] [--mark=<expression>] [--key=<expression>] \
-<test case number or wildcard>[:<scenario or wildcard>] [<TC number or wildcard>[:<scenario or wildcard>] ...]"
+  echo "Usage:"
+  echo -e " ./runtest.sh  [--dry] \\
+               [--loglevel=<log level>] \\
+               [--mark=<expression>] \\
+               [--key=<expression>] \\
+               [<test-case number or wildcard>[:<scenario or wildcard>] ... ]"  
   echo
-  echo "Examples: ./runtest.sh --loglevel=DEBUG 103 202"
-  echo "          ./runtest.sh --dry 103:01 202:01 --key=cisco"
+  echo "Arguments:"
+  echo "    --dry           Dry-run (print pytest command only without executing)" 
+  echo "    --loglevel      Log level: INFO(=default log level) or DEBUG"
+  echo "    --mark          Select test cases with pytest marker specified in the *_test.py file"
+  echo "    --key           Select test cases with provided keyword in the test name (folder name)"
   echo
-  echo "Script needs to be run from the top level directory of the testing framework"
+  echo "Examples:"
+  echo "    ./runtest.sh 202                                  # run test 202[all scenarios]"
+  echo "    ./runtest.sh 502:*                                # run test 502[all scenarios]"
+  echo "    ./runtest.sh 502:00                               # run test 502[default scenario]"
+  echo "    ./runtest.sh 103:02                               # run test 103[scenario 2]"
+  echo "    ./runtest.sh 103:01 103:02                        # run test 103[scenarios 1 and 2]"                                     
+  echo "    ./runtest.sh 101 102 201 301                      # run tests 101, 102, 201 and 301 [all scenarios]"
+  echo "    ./runtest.sh 101 103:02 201 301                   # run tests 101, 201 and 301 [all scenarios] and test 103[scenario 02]"
+  echo "    ./runtest.sh 1*                                   # run all 1XX tests[all scenarios]"
+  echo "    ./runtest.sh 1* --mark=ipfixv10                   # run all 1XX tests[all scenarios] with IPFIX v10 data"
+  echo "    ./runtest.sh 4*:01                                # run all 4XX tests[scenarios 1]"                                      
+  echo "    ./runtest.sh --loglevel=DEBUG 2*                  # run all 2XX tests[all scenarios] with log level DEBUG"
+  echo "    ./runtest.sh --loglevel=DEBUG 103 202             # run tests 103 and 202 [all scenarios] with log level DEBUG"
+  echo "    ./runtest.sh *                                    # run all test cases[all scenarios]"
+  echo "    ./runtest.sh * --mark=ipfix                       # run all test cases[all scenarios] with IPFIX/NFv9 data"
+  echo "    ./runtest.sh * --key=ipv6                         # run all test cases[all scenarios] with keyword \"ipv6\" in the test-name"
+  echo "    ./runtest.sh *:00                                 # run all test cases[default scenarios only]"
+  echo "    ./runtest.sh --dry 4*                             # dry-run all 4XX tests[all scenarios]"
+  echo "    ./runtest.sh --dry 401:01                         # dry-run test 401[scenario 1]"
+  echo "    ./runtest.sh --dry * --key=cisco                  # dry-run all tests [all scenarios] with keyword \"cisco\" in the test-name"
+  echo
+  echo "This script needs to be run from the top level directory of the testing framework!"
 }
 
 function start_monitor() {
