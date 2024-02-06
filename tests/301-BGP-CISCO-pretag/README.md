@@ -27,7 +27,7 @@ Testing with BGP ipv4 traffic with RD, comms, ecomms, AS_path. Testing also pret
 
 ### Test timeline:
 
-t=0s --> the first full minute after starting the traffic generator
+t=0s --> traffic-reproducer startup-time
 
 - t=5-6s: BGP packets sent 
 

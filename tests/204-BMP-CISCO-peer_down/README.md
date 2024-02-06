@@ -17,7 +17,7 @@ Test with BMP peer-up, route-monitoring, stats and peer-down messages.
 
 ### Test timeline:
 
-t=0s --> the first full minute after starting the traffic generator
+t=0s --> traffic-reproducer startup-time
 
 - t=5s: BMP Init
 - t=7-9s: BMP PeerUp and RouteMonitoring messages (with Updates)

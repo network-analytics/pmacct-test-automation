@@ -25,7 +25,7 @@ BMP test with pcap from Huawei VRP 8.210 (daisy-61 IETF lab) [with global and lo
 
 ### Test timeline:
 
-t=0s --> the first full minute after starting the traffic generator
+t=0s --> traffic-reproducer startup-time
 
 - t=5s: BMP packets sent 
 

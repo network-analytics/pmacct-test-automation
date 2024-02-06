@@ -26,5 +26,3 @@ bmp:
   collector:                              # collector that will receive the reproduced messages
     ip: localhost
     port: 1790
-
-
