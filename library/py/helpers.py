@@ -148,10 +148,14 @@ def read_pmacct_version(logfile: str) -> str:
 # Takes a folder with pcap information and returns the IP address of the traffic reproducer,
 # as found in traffic-reproducer.yml
 def get_repro_ip_from_pcap_folder(pcap_folder: str) -> str:
-    with open(pcap_folder + '/traffic-reproducer.yml') as f:
+    with open(pcap_folder + '/docker-compose.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
-    repro_info = data['network']['map'][0]
-    return repro_info['repro_ip']
+    net = data['services']['traffic-reproducer']['networks']['pmacct_test_network']
+    if 'ipv4_address' in net.keys():
+        return net['ipv4_address']
+    elif 'ipv6_address' in net.keys():
+        return net['ipv6_address']
+    raise Exception('No IP information in file: ' + pcap_folder + '/docker-compose.yml')
 
 # Replaces IPs in file, so that they reflect the framework subnet (which may or may not be
 # different than the ones provided with the test case)
@@ -163,7 +167,7 @@ def replace_IPs(params, filename: str):
 
 # Returns reproduction IP, i.e., IP of the traffic repro container, and BGP ID from a pcap folder
 def get_REPRO_IP_and_BGP_ID(pcap_mount_folder: str):
-    with open(pcap_mount_folder + '/traffic-reproducer.yml') as f:
+    with open(pcap_mount_folder + '/pcap0/traffic-reproducer.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
     repro_info = [data['network']['map'][0]['repro_ip'], None]
     if 'bgp_id' in data['network']['map'][0]:
