@@ -138,7 +138,7 @@ Local folder(s) **results/\<test case\>/pcap_mount_n** are mounted on traffic re
 ```
 - 500: IPFIXv10-BGP-CISCO-SRv6
 - 501: IPFIXv10-BGP-IPv6-CISCO-MPLS
-- 502: IPFIXv10-BGP-IPv6-lcomms         [TODO: add]
+- 502: IPFIXv10-BGP-IPv6-CISCO-SRv6-lcomms
 ```
 
 ### 9XX - Miscellaneous
