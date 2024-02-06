@@ -111,11 +111,10 @@ def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct
     with open(pcap_folder + '/docker-compose.yml') as f:
         data_dc = yaml.load(f, Loader=yaml.FullLoader)
     data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + prefix
-    #data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
     data_dc['services']['traffic-reproducer']['volumes'][0] = pcap_folder + ':/pcap'
     with open(pcap_folder + '/docker-compose.yml', 'w') as f:
         yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
-    logger.debug('Created traffic-reproducer-multi docker-compose.yml in ' + helpers.short_name(pcap_folder))
+    logger.debug('Created multi-collector traffic reproducer docker-compose.yml in ' + helpers.short_name(pcap_folder))
     for i in range(len(pmacct_list)):
         if os.path.isfile(pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
             os.remove(pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')
@@ -154,11 +153,10 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders, fw_config):
     with open(pcap_folder + '/docker-compose.yml') as f:
         data_dc = yaml.load(f, Loader=yaml.FullLoader)
     data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + prefix
-    #data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
     data_dc['services']['traffic-reproducer']['volumes'][0] = pcap_folder + ':/pcap'
     with open(pcap_folder + '/docker-compose.yml', 'w') as f:
         yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
-    logger.debug('Created traffic-reproducer-multi docker-compose.yml in ' + helpers.short_name(pcap_folder))
+    logger.debug('Created multi-traffic-reproducer-multi docker-compose.yml in ' + helpers.short_name(pcap_folder))
     for i in range(len(pcap_mount_folders)):
         if os.path.isfile(pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
             os.remove(pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')
