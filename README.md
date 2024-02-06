@@ -105,7 +105,7 @@ Local folder(s) **results/\<test case\>/pcap_mount_n** are mounted on traffic re
 - 100: IPFIXv10-CISCO
 - 101: NFv9-CISCO-cust_primitives
 - 102: NFv9-CISCO-f2rd-pretag-sampling-reload
-- 103: IPFIXv10-CISCO-JSON_encoding
+- 103: IPFIXv10-CISCO-pretag-JSON_encoding
 - 104: IPFIXv10-IPv6-CISCO-sampling_option
 - 110: IPFIXv10-NFv9-multiple-sources
 - 111: IPFIXv10-NFv9-IPv6-IPv4-mix_sources
