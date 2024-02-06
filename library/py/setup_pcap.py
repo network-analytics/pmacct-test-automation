@@ -11,7 +11,6 @@ from typing import Dict
 from library.py.helpers import short_name, select_files
 logger = logging.getLogger(__name__)
 
-# unify_image
 
 # Fixes reproduction IP in a config object, if needed (if not, it only produces a log)
 def fix_repro_ip_in_config(ip_subnet: str, config: Dict, fw_ip: str):
@@ -45,15 +44,15 @@ def fill_repro_docker_compose(i: int, params: KModuleParams, repro_ip: str, isIP
 # creates the docker-compose.yml for the specific container
 def prepare_pcap_folder(params: KModuleParams, i: int, test_config_file: str, test_pcap_file: str):
     results_pcap_folder = params.results_folder + '/pcap_mount_' + str(i)
-    os.makedirs(results_pcap_folder)
-    logger.debug('Created folder ' + short_name(results_pcap_folder))
+    os.makedirs(results_pcap_folder + '/pcap0')
+    logger.debug('Created folder ' + short_name(results_pcap_folder + '/pcap0'))
     params.pcap_folders.append(results_pcap_folder)
-    shutil.copy(test_config_file, results_pcap_folder + '/traffic-reproducer.yml')
-    shutil.copy(test_pcap_file, results_pcap_folder + '/traffic.pcap')
+    shutil.copy(test_config_file, results_pcap_folder + '/pcap0/traffic-reproducer.yml')
+    shutil.copy(test_pcap_file, results_pcap_folder + '/pcap0/traffic.pcap')
 
-    with open(results_pcap_folder + '/traffic-reproducer.yml') as f:
+    with open(results_pcap_folder + '/pcap0/traffic-reproducer.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
-    data['pcap'] = '/pcap/traffic.pcap'
+    data['pcap'] = '/pcap/pcap0/traffic.pcap'
 
     # adding pmacct IP address
     isIPv6 = ':' in data['network']['map'][0]['repro_ip']
@@ -69,7 +68,7 @@ def prepare_pcap_folder(params: KModuleParams, i: int, test_config_file: str, te
     else:
         fix_repro_ip_in_config(params.test_subnet_ipv4, data, '172.21.1.10')
 
-    with open(results_pcap_folder + '/traffic-reproducer.yml', 'w') as f:
+    with open(results_pcap_folder + '/pcap0/traffic-reproducer.yml', 'w') as f:
         yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
 # RUNS AFTER PMACCT IS RUN

@@ -93,7 +93,7 @@ def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct
     logger.debug('Editing pcap folders and copying them together')
     for i in range(len(pmacct_list)):
         dst = pcap_folder + '/pcap' + str(i)
-        shutil.copytree(pcap_mount_folder, dst)
+        shutil.copytree(pcap_mount_folder + '/pcap0', dst)
         with open(dst + '/traffic-reproducer.yml') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
         # adding pmacct IP address
@@ -104,14 +104,14 @@ def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct
                 data[k]['collector']['ip'] = pmacct_ip
         with open(dst + '/traffic-reproducer.yml', 'w') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-        helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/traffic.pcap',
+        helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/pcap0/traffic.pcap',
                                 '/pcap/pcap' + str(i) + '/traffic.pcap')
 
-    shutil.copy(pcap_folder + '/pcap0/docker-compose.yml', pcap_folder + '/docker-compose.yml')
+    shutil.copy(pcap_mount_folder + '/docker-compose.yml', pcap_folder + '/docker-compose.yml')
     with open(pcap_folder + '/docker-compose.yml') as f:
         data_dc = yaml.load(f, Loader=yaml.FullLoader)
     data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + prefix
-    data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
+    #data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
     data_dc['services']['traffic-reproducer']['volumes'][0] = pcap_folder + ':/pcap'
     with open(pcap_folder + '/docker-compose.yml', 'w') as f:
         yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
@@ -146,15 +146,15 @@ def prepare_multi_pcap_player(results_folder, pcap_mount_folders, fw_config):
     logger.debug('Editing pcap folders and copying them together')
     for i in range(len(pcap_mount_folders)):
         dst = pcap_folder + '/pcap' + str(i)
-        shutil.copytree(pcap_mount_folders[i], dst)
-        helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/traffic.pcap',
+        shutil.copytree(pcap_mount_folders[i] + '/pcap0', dst)
+        helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/pcap0/traffic.pcap',
                                 '/pcap/pcap' + str(i) + '/traffic.pcap')
 
-    shutil.copy(pcap_folder + '/pcap0/docker-compose.yml', pcap_folder + '/docker-compose.yml')
+    shutil.copy(pcap_mount_folders[0] + '/docker-compose.yml', pcap_folder + '/docker-compose.yml')
     with open(pcap_folder + '/docker-compose.yml') as f:
         data_dc = yaml.load(f, Loader=yaml.FullLoader)
     data_dc['services']['traffic-reproducer']['container_name'] = 'traffic-reproducer-' + prefix
-    data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
+    #data_dc['services']['traffic-reproducer']['image'] = fw_config.get('TRAFFIC_REPRO_MULTI_IMG')
     data_dc['services']['traffic-reproducer']['volumes'][0] = pcap_folder + ':/pcap'
     with open(pcap_folder + '/docker-compose.yml', 'w') as f:
         yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
