@@ -1,4 +1,4 @@
-## Test Description (103-IPFIXv10-CISCO-JSON_encoding)
+## Test Description (103-IPFIXv10-CISCO-pretag-JSON_encoding)
 
 Testing producing to kafka with JSON instead of avro encoding.
 
@@ -20,9 +20,12 @@ Otherwise this is the same test as 100: IPFIX v10 from CISCO ASR9k IOS XR 7.5.2 
 
 ### Scenarios
 
-- Default scenario produces json output with a simple aggregate (no maps)
-- Scenario-01 produces json output with pretag map for labels (label encoded as maps)
-- Scenario-02 produces avro output with pretag map for labels (label encoded as maps)
+- Default scenario produces **json** output with a simple aggregate (no maps)
+- Scenario-01 produces **json** output with pretag map (label, default encoding)
+- Scenario-02 produces **json** output with pretag map (label, **encoded as map**)
+- Scenario-03 produces **avro** output with pretag map (label, default encoding)
+- Scenario-04 produces **avro** output with pretag map (label, **encoded as map**)
+- Scenario-05 produces **avro** output with pretag map (longer label, **encoded as map**)
 
 ### Test timeline:
 
