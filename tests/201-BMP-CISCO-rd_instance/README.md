@@ -25,7 +25,7 @@ BMP test with pcap from IOS XR 7.4.1 (daisy-55 IETF lab) [with rd instance peers
 
 ### Test timeline:
 
-t=0s --> the first full minute after starting the traffic generator
+t=0s --> traffic-reproducer startup-time
 
 - t=5s: BMP packets sent 
 
