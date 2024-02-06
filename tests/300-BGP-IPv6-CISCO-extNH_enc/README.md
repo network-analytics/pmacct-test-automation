@@ -25,7 +25,7 @@ BGP from IOS XR 7.8.2 (ipt-zhh921-b-des-01) containing multi-protocol, route-ref
 
 ### Test timeline:
 
-t=0s --> the first full minute after starting the traffic generator
+t=0s --> traffic-reproducer startup-time
 
 - t=5-6s: BGP packets sent 
 
