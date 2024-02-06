@@ -28,7 +28,7 @@ def transform_log_file_custom(logfile, repro_ips):
 def main(consumer):
     test_tools.avoid_time_period_in_seconds(5, 30)
 
-    pcap_folder_multi = test_tools.prepare_multi_pcap_player(testParams.results_folder,
+    pcap_folder_multi = test_tools.prepare_multitraffic_pcap_player(testParams.results_folder,
         [testParams.pcap_folders[2], testParams.pcap_folders[3]], testParams.fw_config)
     assert pcap_folder_multi
 
