@@ -20,6 +20,7 @@ class KPmacctParams:
         self.results_output_folder = self.results_mount_folder + '/pmacct_output'
         self.pmacct_log_file = self.results_output_folder + '/pmacctd.log'
         self.test_conf_file = None
+        self.process_name = None
 
 class KModuleParams:
     def __init__(self, test_file, daemon='nfacctd', ipv4_subnet='', ipv6_subnet=''):

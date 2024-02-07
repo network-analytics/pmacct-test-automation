@@ -141,12 +141,14 @@ class KMessageReader(ABC):
 
     # Returns all available (pending) messages in the Kafka topic. Messages are returned as dictionaries.
     def get_all_messages(self, maxcount = -1) -> List[dict]:
+        logger.debug('Reading all remaining (pending) messages from Kafka')
         messages = []
         msg = self.consumer.poll(5)
         while msg and not msg.error() and (maxcount<0 or len(messages)<maxcount):
             _, json_dict = self.get_json_string_and_dict(msg)
             messages.append(json_dict)
             msg = self.consumer.poll(5)
+        logger.debug('Read ' + str(len(messages)) + ' pending messages')
         return messages
 
 

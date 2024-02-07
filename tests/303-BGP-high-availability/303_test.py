@@ -24,6 +24,12 @@ def main(consumers):
     with open(logfile, 'r') as f:
         loglines = f.read().split('\n')
 
+    # assert testParams.pmacct[0].name=='nfacctd-00' and testParams.pmacct[1].name=='nfacctd-01' and \
+    #    testParams.pmacct[2].name=='nfacctd-02'
+    assert testParams.pmacct[0].process_name == 'nfacctd_core_loc_A' \
+        and testParams.pmacct[1].process_name == 'nfacctd_core_loc_B' \
+        and testParams.pmacct[2].process_name == 'nfacctd_core_loc_C'
+
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[0].pmacct_log_file, [loglines[0], loglines[1]])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, [loglines[0], loglines[2]])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[2].pmacct_log_file, [loglines[0], loglines[2]])
@@ -33,49 +39,67 @@ def main(consumers):
     assert pcap_folder_multi
     # Play traffic against all 3 nfacctd instances
     assert scripts.replay_pcap_detached(pcap_folder_multi)
-    # Read messages for one minute --- messages should refer to first nfacctd instance "locA"
-    assert test_tools.read_messages_dump_only(consumers.getReaderOfTopicStartingWith('daisy.bgp'), testParams, 60)
+    # Read 5 messages only
+    messages = consumers[0].get_messages(60, 5)
+    assert messages!=None and messages[0]['writer_id']==testParams.pmacct[0].process_name  # 'nfacctd_core_loc_A'
 
     time.sleep(5)
-
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[0].pmacct_log_file, [loglines[3]])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, [loglines[3]])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[2].pmacct_log_file, [loglines[3]])
 
-    assert scripts.send_signal_to_pmacct(testParams.pmacct[0].name, 'SIGRTMIN')
-
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[0].name, 'SIGRTMIN')  # Resetting timestamp on A
     time.sleep(2)
-
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[0].pmacct_log_file, [loglines[4], loglines[2]])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, [loglines[1]])
 
-    return True
+    time.sleep(5)
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[1].name, 'SIGRTMIN')  # Resetting timestamp on B
+    time.sleep(2)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, [loglines[4], loglines[2]])
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[2].pmacct_log_file, [loglines[1]])
 
-    # Prepare the multicast pcap player (mount points, traffic-repro.yml, docker-compose.yml, etc.)
-    pcap_folder_multi = test_tools.prepare_multicollector_pcap_player(testParams.results_folder, testParams.pcap_folders[0],
-        testParams.pmacct, testParams.fw_config)
-    assert pcap_folder_multi
-    # Play traffic against all 3 nfacctd instances
-    assert scripts.replay_pcap_detached(pcap_folder_multi)
-    # Read messages for one minute --- messages should refer to first nfacctd instance "locA"
-    assert test_tools.read_messages_dump_only(consumers.getReaderOfTopicStartingWith('daisy.bgp'), testParams, 60)
-    # Reset timer of nfacctd-00
-    assert scripts.send_signal_to_pmacct(testParams.pmacct[0].name, 'SIGRTMIN')
-    # Read messages for a while --- message should now refer to second nfacctd instance "locB"
-    assert test_tools.read_messages_dump_only(consumers.getReaderOfTopicStartingWith('daisy.bgp'), testParams, 40)
+    time.sleep(5)
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[2].name, 'SIGRTMIN+1')  # Setting C to forced-active
+    time.sleep(2)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[2].pmacct_log_file, [loglines[5]])
+    time.sleep(2)
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[0].name, 'SIGRTMIN+2')  # Setting A to forced-standby
+    time.sleep(2)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[0].pmacct_log_file, [loglines[6]])
+    time.sleep(2)
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[1].name, 'SIGRTMIN+2')  # Setting B to forced-standby
+    time.sleep(2)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, [loglines[6]])
+
+    time.sleep(5)
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[2].name, 'SIGRTMIN')  # Resetting timestamp on C
+    time.sleep(2)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[2].pmacct_log_file, [loglines[8]])
+
+    time.sleep(5)
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[0].name, 'SIGRTMIN+3')  # Setting A to auto-mode
+    time.sleep(2)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[0].pmacct_log_file, [loglines[7], loglines[1]])
+
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[1].name, 'SIGRTMIN+3')  # Setting B to auto-mode
+    time.sleep(2)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, [loglines[7]])
+
+    time.sleep(5)
+    assert scripts.send_signal_to_pmacct(testParams.pmacct[2].name, 'SIGRTMIN+3')  # Setting C to auto-mode
+    time.sleep(2)
+    assert helpers.check_regex_sequence_in_file(testParams.pmacct[2].pmacct_log_file, [loglines[7], loglines[2]])
 
     scripts.stop_and_remove_traffic_container(testParams.pcap_folders[0])
 
-
-
-# def main(consumers):
-#     pcap_folder_multi = test_tools.prepare_multicast_pcap_player(testParams.results_folder, testParams.pcap_folders[0],
-#         testParams.pmacct, 0, testParams.fw_config)
-#     assert pcap_folder_multi
-#     assert scripts.replay_pcap_detached(pcap_folder_multi)
-#
-#     # assert test_tools.replay_pcap_to_collector(testParams.pcap_folders[0], testParams.pmacct[0], True)
-#     repro_ip = helpers.get_repro_ip_from_pcap_folder(testParams.pcap_folders[0])
-#     logger.debug('Repro IP: ' + repro_ip)
-#     assert test_tools.read_messages_dump_only(consumers.getReaderOfTopicStartingWith('daisy.bgp'), testParams)
-#     scripts.stop_and_remove_traffic_container(testParams.pcap_folders[0])
+    time.sleep(2)
+    messages = consumers[0].get_all_messages()
+    assert messages != None
+    only_loc_A = True
+    # Checking if at least one message was sent by a pmacct instance other than nfacctd-00/nfacctd_core_loc_A
+    for message in messages:
+        if message['writer_id'] != testParams.pmacct[0].process_name:
+            only_loc_A = False
+            break
+    assert not only_loc_A
