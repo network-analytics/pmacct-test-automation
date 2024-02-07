@@ -97,11 +97,11 @@ def prepare_test_env(params: KModuleParams, scenario: str):
     params.kafka_topics = {}
     for pmacct in params.pmacct:
         config = KConfigurationFile(pmacct.test_conf_file)
+        pmacct.process_name = config.data['core_proc_name']['']
         topicsDict = config.get_kafka_topics()
         for k in topicsDict.keys():
             if topicsDict[k] not in params.kafka_topics.keys():
                 params.kafka_topics[topicsDict[k]] = topicsDict[k] + '.' + secrets.token_hex(4)[:8]
-            #pmacct.kafka_topics[k] = params.kafka_topics[topicsDict[k]]
             config.replace_value_of_key(k, params.kafka_topics[topicsDict[k]])
         logger.debug('Kafka topic(s): ' + str(params.kafka_topics))
 
