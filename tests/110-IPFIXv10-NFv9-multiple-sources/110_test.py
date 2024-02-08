@@ -19,12 +19,7 @@ def test(test_core, consumer_setup_teardown):
 
 def main(consumer):
     # Make sure that traffic reproducers do not start in different minutes
-    curr_sec = datetime.datetime.now().second
-    logger.info('Minute seconds: ' + str(curr_sec))
-    if curr_sec > 55:
-        wait_sec = 85 - curr_sec
-        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-        time.sleep(wait_sec)
+    test_tools.avoid_time_period_in_seconds(25, 30)
 
     for pcap_folder in testParams.pcap_folders:
         assert scripts.replay_pcap_detached(pcap_folder)

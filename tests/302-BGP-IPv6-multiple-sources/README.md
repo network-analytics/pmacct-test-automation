@@ -41,7 +41,7 @@ pcaps file time duration:
 
 1. Part 1: start traffic reproducers (00, 01, 02, 03) with provided configs. 
 
-IMPORTANT: Make sure that you start the reproducers after in the 25s-55s range of a minute (to make sure timings and interactions between the pcaps are respected in all scenarios)!
+IMPORTANT: Make sure that you **start the reproducers after in the 25s-55s** range of a minute. This makes sure timings and interactions between the pcaps are respected in all scenarios! If both traffic reproducer would be started at e.g. mm:10s, then reproducer 03 would send packets in the minute bucket before the other 3, disrupting the test logic.
 IMPORTANT: do not kill the traffic reproducer processes, which stay open thanks to keep_open=true!
 
 Check the following at t=60s:

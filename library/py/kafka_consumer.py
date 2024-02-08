@@ -74,7 +74,7 @@ class KMessageReader(ABC):
         messages = []
         message_count = messages_expected
         time_start = round(time.time())
-        time_now = round(time.time())
+        time_now = time_start
         while messages_expected>0 and time_now-time_start<max_time_seconds:
             try:
                 msg = self.consumer.poll(5)
@@ -112,8 +112,8 @@ class KMessageReader(ABC):
     def get_all_messages_timeout(self, max_time_seconds: int) -> List[dict]:
         messages = []
         time_start = round(time.time())
-        time_now = round(time.time())
-        while  time_now - time_start < max_time_seconds:
+        time_now = time_start
+        while time_now - time_start < max_time_seconds:
             try:
                 msg = self.consumer.poll(5)
             except Exception as err:
@@ -139,14 +139,42 @@ class KMessageReader(ABC):
 
         return messages
 
-    # Returns all available (pending) messages in the Kafka topic. Messages are returned as dictionaries.
-    def get_all_messages(self, maxcount = -1) -> List[dict]:
+    # # Returns all available (pending) messages in the Kafka topic. Messages are returned as dictionaries.
+    # def get_all_messages(self, maxcount = -1) -> List[dict]:
+    #     logger.debug('Reading all remaining (pending) messages from Kafka')
+    #     messages = []
+    #     msg = self.consumer.poll(5)
+    #     while msg and not msg.error() and (maxcount<0 or len(messages)<maxcount):
+    #         _, json_dict = self.get_json_string_and_dict(msg)
+    #         messages.append(json_dict)
+    #         msg = self.consumer.poll(5)
+    #     logger.debug('Read ' + str(len(messages)) + ' pending messages')
+    #     return messages
+
+    # Returns a list of dictionaries representing the messages received within
+    #   max_time_seconds or none if no messages at all were received
+    def get_all_pending_messages(self, maxcount = -1) -> List[dict]:
+        logger.debug('Reading all remaining (pending) messages from Kafka')
         messages = []
-        msg = self.consumer.poll(5)
-        while msg and not msg.error() and (maxcount<0 or len(messages)<maxcount):
-            _, json_dict = self.get_json_string_and_dict(msg)
-            messages.append(json_dict)
-            msg = self.consumer.poll(5)
+        try:
+            msg = self.consumer.poll(1)
+        except Exception as err:
+            logger.error(str(err))
+            return messages
+        while msg and not msg.error() and (maxcount < 0 or len(messages) < maxcount):
+            self.dump_raw_if_needed(msg.value())
+            msgval, msgdict = self.get_json_string_and_dict(msg)
+            self.dump_json_if_needed(msgval)
+            logger.debug('Received message: ' + msgval)
+            messages.append(msgdict)
+            # _, json_dict = self.get_json_string_and_dict(msg)
+            # messages.append(json_dict)
+            try:
+                msg = self.consumer.poll(1)
+            except Exception as err:
+                logger.error(str(err))
+                return messages
+        logger.debug('Read ' + str(len(messages)) + ' pending messages')
         return messages
 
 
@@ -166,6 +194,7 @@ class KMessageReaderAvro(KMessageReader):
         deserialized_msg = self.avro_deserializer(msg.value(), SerializationContext(msg.topic(), MessageField.VALUE))
         return json.dumps(deserialized_msg), deserialized_msg
 
+
 class KMessageReaderPlainJson(KMessageReader):
 
     def __init__(self, topic: str, dump_to_file: str=None):
@@ -178,6 +207,7 @@ class KMessageReaderPlainJson(KMessageReader):
     def get_json_string_and_dict(self, msg):
         decoded_msg = msg.value().decode('utf-8')
         return decoded_msg, json.loads(decoded_msg)
+
 
 class KMessageReaderList(list):
 

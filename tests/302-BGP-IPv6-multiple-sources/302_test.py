@@ -5,7 +5,7 @@
 from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import logging, pytest, time, datetime, secrets
+import logging, pytest, secrets
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
@@ -25,23 +25,12 @@ def transform_log_file_custom(logfile, repro_ips):
     helpers.replace_in_file(logfile, token, '(' + '|'.join(repro_ips) + ')')
 
 def main(consumer):
-    curr_sec = datetime.datetime.now().second
-    logger.info('Minute seconds: ' + str(curr_sec))
-    
-    # Some additional timing constraints for this test
-    # Make sure traffic reproducer 03 does not send packets before the others
-    if curr_sec < 25: 
-        wait_sec = 25 - curr_sec
-        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-        time.sleep(wait_sec)
-    # Make sure that traffic reproducers do not start in different minutes
-    elif curr_sec > 55:
-        wait_sec = 85 - curr_sec
-        logger.debug('Waiting ' + str(wait_sec) + ' seconds')
-        time.sleep(wait_sec)
+    # Make sure that packets are reproduced as expected
+    # (avoid [mm:55-mm:25] intervals, refer to README)
+    test_tools.avoid_time_period_in_seconds(25, 30)
 
-    pcap_folder_multi = test_tools.prepare_multi_pcap_player(testParams.results_folder,
-        [testParams.pcap_folders[2], testParams.pcap_folders[3]], 2, testParams.fw_config)
+    pcap_folder_multi = test_tools.prepare_multitraffic_pcap_player(testParams.results_folder,
+        [testParams.pcap_folders[2], testParams.pcap_folders[3]], testParams.fw_config)
     assert pcap_folder_multi
 
     repro_ip_list = []
@@ -69,13 +58,13 @@ def main(consumer):
         test_tools.transform_log_file(logfile)
         assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
 
-    for i in [0, 1, 2]:
+    for i in ['0', '1', '2-3']:
       scripts.stop_and_remove_traffic_container_byID(i)
 
     # TODO DAISY: - we need to debug why pretag is not working properly on delete messages (bug)
     #                --> until then we check the delete messages excluding the label field
     assert test_tools.read_and_compare_messages(consumer, testParams, 'bgp-01',
-        ['seq', 'timestamp', 'peer_tcp_port', 'label'], 60)
+        ['seq', 'timestamp', 'peer_tcp_port', 'label'], 90)
 
     logfile = testParams.log_files.getFileLike('log-04')
     transform_log_file_custom(logfile, repro_ip_list)

@@ -39,7 +39,7 @@ function stop_monitor() {
 }
 
 function run_pytest() {
-  cmd="python3 -m pytest${MARKERS}${KEYS} ${test_files[@]} --runconfig=$RUNCONFIG --log-cli-level=$LOG_LEVEL \
+  cmd="python3 -m pytest${EXIT_ON_FAILURE}${MARKERS}${KEYS} ${test_files[@]} --runconfig=$RUNCONFIG --log-cli-level=$LOG_LEVEL \
 --log-file=results/pytestlog.log --html=results/report.html"
   if [ "$DRY_RUN" = "TRUE" ]; then
     echo -e "\nCommand to execute:\n$cmd\n\npytest dry run (collection-only):"
@@ -64,6 +64,7 @@ arg_was_asterisk=1; [[ "$@ " == *"$lsout"* ]] && arg_was_asterisk=0 # space afte
 DRY_RUN="FALSE"
 source ./settings.conf # getting default LOG_LEVEL
 MARKERS=
+EXIT_ON_FAILURE=
 KEYS=
 TESTS=()
 for arg in "$@"
@@ -71,6 +72,7 @@ for arg in "$@"
     case $arg in
       '--help'|'-h') print_help; exit 0;;
       '--dry') DRY_RUN="TRUE";;
+      '--exitfirst'|'-x') EXIT_ON_FAILURE=" -x";;
       '--loglevel='*) LOG_LEVEL=${arg/--loglevel=/};;
       '--mark='*) MARKERS=" -m \"${arg/--mark=/}\"";;
       '--key='*) KEYS=" -k \"${arg/--key=/}\"";;
