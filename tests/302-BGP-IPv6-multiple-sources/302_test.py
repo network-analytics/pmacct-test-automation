@@ -26,6 +26,8 @@ def transform_log_file_custom(logfile, repro_ips):
     helpers.replace_in_file(logfile, token, '(' + '|'.join(repro_ips) + ')')
 
 def main(consumer):
+<<<<<<< HEAD
+    # Make sure that packets are reproduced as expected
     test_tools.avoid_time_period_in_seconds(25, 30)
 
     pcap_folder_multi = test_tools.prepare_multitraffic_pcap_player(testParams.results_folder,
