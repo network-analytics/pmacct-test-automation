@@ -80,7 +80,7 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None):
         json1 = json_list1.pop(0)
         logger.debug('Matching: ' + str(json1))
         index = 0
-        min_diff_len = 1000000000
+        min_diff, min_diff_len, min_diff_index = -1, 1000000000, -1
         json2 = json_list2[index]
         diff = compare_json_ignore(json1, json2, ignore_fields)
         while diff:
@@ -88,7 +88,7 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None):
                 min_diff, min_diff_len, min_diff_index = diff, len(diff), index
             index += 1
             if index>=len(json_list2):
-                logger.info('Json not matched: ' + str(json1))
+                logger.info('Received message not matched: ' + str(json1))
                 logger.info('Closest match: ' + str(json_list2[min_diff_index]))
                 logger.info('Closest match delta: ' + str(min_diff))
                 return False
@@ -99,10 +99,55 @@ def compare_json_lists(json_list1, json_list2, ignore_fields=None):
     logger.info('All json matched')
     return True
 
+def compare_json_lists_multi_match(json_list1, json_list2, ignore_fields=None, max_matches=-1):
+    json_list1_len = len(json_list1)
+    json_list1 = [json.loads(x.strip()) for x in json_list1 if len(x)>3]
+    json_list2 = [json.loads(x.strip()) for x in json_list2 if len(x)>3]
+    json_list2_occurrences = [0] * len(json_list2)
+    logger.info('Comparing json lists (lengths: ' + str(len(json_list1)) + ', ' + str(len(json_list2)) + ')')
+    while len(json_list1):
+        json1 = json_list1.pop(0)
+        logger.debug('Matching: ' + str(json1))
+        index = 0
+        min_diff, min_diff_len, min_diff_index = -1, 1000000000, -1
+        json2 = json_list2[index]
+        diff = compare_json_ignore(json1, json2, ignore_fields)
+        while diff:
+            if len(diff)<min_diff_len:
+                min_diff, min_diff_len, min_diff_index = diff, len(diff), index
+            index += 1
+            if index>=len(json_list2):
+                logger.info('Received message not matched: ' + str(json1))
+                logger.info('Closest match: ' + str(json_list2[min_diff_index]))
+                logger.info('Closest match delta: ' + str(min_diff))
+                return False
+            json2 = json_list2[index]
+            diff = compare_json_ignore(json1, json2, ignore_fields)
+        logger.debug('Json matched')
+        json_list2_occurrences[index] = json_list2_occurrences[index] + 1
+        if max_matches>-1 and json_list2_occurrences[index]>max_matches:
+            logger.info('Json file line was matched more times than allowed (' + str(json_list2_occurrences[index]) +
+                        ' instead of ' + str(max_matches) + ')')
+            return False
+    logger.info('All ' + str(json_list1_len) + ' received messages matched to json lines')
+    dst_unmatched = 0
+    for i in range(len(json_list2_occurrences)):
+        if json_list2_occurrences[i]<1:
+            dst_unmatched += 1
+            logger.debug('Json file line not matched: ' + str(json_list2[i]))
+    if dst_unmatched>0:
+        logger.info(str(dst_unmatched) + ' json file lines were not matched to any received message')
+        return False
+    logger.info('All ' + str(len(json_list2)) + ' json file lines matched to received messages')
+    return True
+
 # Compares a list of dictionaries, which correspond to the messages received from Kafka,
 # with the lines of a file, which depict json structures
-def compare_messages_to_json_file(message_dicts, jsonfile, ignore_fields=None):
+def compare_messages_to_json_file(message_dicts, jsonfile, ignore_fields=None, multi_match_allowed=False):
     with open(jsonfile) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg) for msg in message_dicts]
+    if multi_match_allowed:
+        return compare_json_lists_multi_match(jsons, lines, ignore_fields, 3)
+    # return compare_json_lists_multi_match(jsons, lines, ignore_fields, 1)
     return compare_json_lists(jsons, lines, ignore_fields)
