@@ -44,6 +44,26 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
+# Reads all pending messages in Kafka topic and compares with given file. If prev_messages parameter is provided,
+# the eventual message list is made by merging the two lists (prev_messages + new_messages)
+def read_and_compare_all_messages(consumer, params, json_name, ignore_fields, prev_messages=None):
+    # Replacing IP addresses in output json file with the ones anticipated from pmacct
+    output_json_file = params.output_files.getFileLike(json_name)
+    helpers.replace_IPs(params, output_json_file)
+    logger.info('Using json file ' + helpers.short_name(output_json_file))
+
+    # Reading messages from Kafka topic
+    messages = consumer.get_all_pending_messages()
+    if prev_messages:
+        messages = prev_messages + messages
+    # Analytic log messages produced by the get_all_pending_messages method
+    if messages == None:
+        return False
+
+    # Comparing the received messages with the anticipated ones
+    # output_json_file is a file (filename) with json lines
+    logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
+    return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields, multi_match_allowed=True)
 
 # Reads all messages from Kafka topic within a specified timeout (wait_time)
 # --> used for test-case development

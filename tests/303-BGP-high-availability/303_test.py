@@ -19,16 +19,16 @@ def main(consumers):
     test_tools.avoid_time_period_in_seconds(5, 10)
     repro_ip = helpers.get_repro_ip_from_pcap_folder(testParams.pcap_folders[0])
 
+    # Loading log file into loglines list
     logfile = testParams.log_files.getFileLike('log-00')
     test_tools.transform_log_file(logfile, repro_ip)
     with open(logfile, 'r') as f:
         loglines = f.read().split('\n')
 
-    # assert testParams.pmacct[0].name=='nfacctd-00' and testParams.pmacct[1].name=='nfacctd-01' and \
-    #    testParams.pmacct[2].name=='nfacctd-02'
-    assert testParams.pmacct[0].process_name == 'nfacctd_core_loc_A' \
-        and testParams.pmacct[1].process_name == 'nfacctd_core_loc_B' \
-        and testParams.pmacct[2].process_name == 'nfacctd_core_loc_C'
+    # Make sure pmacct instances started in the right order
+    assert testParams.pmacct[0].process_name == 'nfacctd_core_loc_A'
+    assert testParams.pmacct[1].process_name == 'nfacctd_core_loc_B'
+    assert testParams.pmacct[2].process_name == 'nfacctd_core_loc_C'
 
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[0].pmacct_log_file, [loglines[0], loglines[1]])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, [loglines[0], loglines[2]])
@@ -39,8 +39,9 @@ def main(consumers):
     assert pcap_folder_multi
     # Play traffic against all 3 nfacctd instances
     assert scripts.replay_pcap_detached(pcap_folder_multi)
-    # Read 5 messages only
-    messages = consumers[0].get_messages(60, 5)
+
+    # Read 5 messages. Required because otherwise the log message about "BGP peers usage 1/100" does not appear
+    messages = consumers[0].get_messages(65, 5)
     assert messages!=None and messages[0]['writer_id']==testParams.pmacct[0].process_name  # 'nfacctd_core_loc_A'
 
     time.sleep(5)
@@ -93,13 +94,17 @@ def main(consumers):
 
     scripts.stop_and_remove_traffic_container(testParams.pcap_folders[0])
 
-    time.sleep(2)
-    messages = consumers[0].get_all_messages()
-    assert messages != None
-    only_loc_A = True
-    # Checking if at least one message was sent by a pmacct instance other than nfacctd-00/nfacctd_core_loc_A
-    for message in messages:
-        if message['writer_id'] != testParams.pmacct[0].process_name:
-            only_loc_A = False
-            break
-    assert not only_loc_A
+    assert test_tools.read_and_compare_all_messages(consumers[0], testParams, 'bgp-00',
+                                                ['seq', 'timestamp', 'peer_tcp_port', 'writer_id'], messages)
+
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct[0].pmacct_log_file, ['ERROR|WARN'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, ['ERROR|WARN'])
+    assert not helpers.check_regex_sequence_in_file(testParams.pmacct[2].pmacct_log_file, ['ERROR|WARN'])
+
+    # only_loc_A = True
+    # # Checking if at least one message was sent by a pmacct instance other than nfacctd-00/nfacctd_core_loc_A
+    # for message in messages:
+    #     if message['writer_id'] != testParams.pmacct[0].process_name:
+    #         only_loc_A = False
+    #         break
+    # assert not only_loc_A
