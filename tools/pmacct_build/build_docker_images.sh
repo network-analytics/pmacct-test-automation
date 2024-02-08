@@ -17,7 +17,7 @@ cd $SCRIPT_DIR/pmacct
 
 # TODO: make it available to change as a script argument (default local)
 # TODO: make also repo url available (default master pmacct)
-TAG='local'
+TAG='_build'
 
 echo "Building pmacct docker images"
 docker build -t pmacct-base:$TAG -f $SCRIPT_DIR/base/Dockerfile $SCRIPT_DIR/pmacct || exit $?
