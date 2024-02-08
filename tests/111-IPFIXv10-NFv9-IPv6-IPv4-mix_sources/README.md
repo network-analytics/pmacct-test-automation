@@ -28,7 +28,11 @@ t=0s --> the first full minute after starting the traffic generator
 
 ### Test execution and results:
 
-Start the 2 traffic reproducers with provided configs. When finished producing messages, the traffic reproducer will exit automatically (keep_open=false). 
+Start the 2 traffic reproducers with provided configs. 
+
+IMPORTANT: since we have multiple reproducer sending ipfix data, we need to make sure that both reproducers will send data within the same minute bucket. Since they both start sending data at mm:05, in order to ensure this we can simply avoid starting the reproducers if we are in the mm:00-mm:10 range withing the minute.
+
+When finished producing messages, the traffic reproducer will exit automatically (keep_open=false). 
 After nfacctd produced to kafka (t=10s), check the following:
 
 - The nfacctd kafka output messages in topic daisy.flow need to match with the json messages in "output-flow-00.json".
