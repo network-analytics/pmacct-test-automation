@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# TODO: modify for multiple pmacct instances (nfacctd, pmbmpd, pmbgpd)
-#if docker inspect pmacct >/dev/null 2>&1; then
-#    echo "Pmacct container already exists, please remove it first"
-#    exit 0
-#fi
-
 # exit if there is no argument
 if [ -z "$1" ]; then
   echo "No argument supplied"
