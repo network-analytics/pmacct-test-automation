@@ -13,16 +13,15 @@ fi
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR/..
 
-cat > reader.py.tmp << EOL
+python << EOL
 from library.py.kafka_consumer import KMessageReaderAvro, KMessageReaderPlainJson
-import json
+import json, time
 reader = KMessageReader${2}('${1}')
 reader.connect()
-messages = reader.get_all_messages()
+time.sleep(5)
+messages = reader.get_all_pending_messages()
 print('Read ' + str(len(messages)) + ' messages')
 for msg in messages:
   print(json.dumps(msg))
 EOL
 
-python reader.py.tmp
-rm reader.py.tmp
