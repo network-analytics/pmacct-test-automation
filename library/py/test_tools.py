@@ -13,29 +13,29 @@ import library.py.setup_test as setup_test
 logger = logging.getLogger(__name__)
 
 
+def replace_IPs_and_get_reference_file(params, json_name):
+    # Replacing IP addresses in output json file with the ones anticipated from pmacct
+    output_json_file = params.output_files.getFileLike(json_name)
+    helpers.replace_IPs(params, output_json_file)
+    logger.info('Using reference file ' + helpers.short_name(output_json_file))
+    return output_json_file
+
+
 # Reads messages from Kafka topic and compares with given file. First argument is the Kafka consumer object,
 # which will be used for reading. The number of messages anticipated is equal to the number of non-empty
 # lines of the json file passed as second argument. The latter is first edited in terms of referenced IPs,
 # as per the ip_subst_pairs, which are pairs of IPs, representing which IPs must be replaced by which.
 def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_time=120):
-    # Replacing IP addresses in output json file with the ones anticipated from pmacct
-    output_json_file = params.output_files.getFileLike(json_name)
-    helpers.replace_IPs(params, output_json_file)
-
+    output_json_file = replace_IPs_and_get_reference_file(params, json_name)
     # Counting non empty json lines in output file, so that we know the number of anticipated messages
     line_count = helpers.count_non_empty_lines(output_json_file)
-
-    logger.info('Using json file ' + helpers.short_name(output_json_file) + ', expecting ' + \
-                str(line_count) + ' messages')
-    # os.path.basename(output_json_file)
+    logger.info('Expecting ' + str(line_count) + ' messages')
 
     # Reading messages from Kafka topic
     # Max wait time for line_count messages is 120 seconds by default (overriden in arguments)
     # The get_messages method will return only if either line_count messages are received,
     # or 120 seconds have passed
     messages = consumer.get_messages(wait_time, line_count)
-
-    # Analytic log messages produced by the get_messages method
     if messages == None:
         return False
 
@@ -44,25 +44,6 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields)
 
-# Reads all pending messages in Kafka topic and compares with given file. If prev_messages parameter is provided,
-# the eventual message list is made by merging the two lists (prev_messages + new_messages)
-def read_and_compare_all_messages(consumer, params, json_name, ignore_fields, messages=None):
-    # Replacing IP addresses in output json file with the ones anticipated from pmacct
-    output_json_file = params.output_files.getFileLike(json_name)
-    helpers.replace_IPs(params, output_json_file)
-    logger.info('Using json file ' + helpers.short_name(output_json_file))
-
-    # Reading messages from Kafka topic
-    if messages==None:
-        messages = consumer.get_all_pending_messages()
-    # Analytic log messages produced by the get_all_pending_messages method
-    if messages == None:
-        return False
-
-    # Comparing the received messages with the anticipated ones
-    # output_json_file is a file (filename) with json lines
-    logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
-    return jsontools.compare_messages_to_json_file(messages, output_json_file, ignore_fields, multi_match_allowed=True)
 
 # Reads all messages from Kafka topic within a specified timeout (wait_time)
 # --> used for test-case development
@@ -194,7 +175,7 @@ def transform_log_file(filename, repro_ip=None, bgp_id=None):
 # This means it must not start if seconds are greater than 45 or smaller than 15, until time goes hh:mm:15.
 def avoid_time_period_in_seconds(end_of_period: int, length: int):
     if length>60:
-        raise Exception('Avoided time period equal or longer than 1 minute')
+        raise Exception('Avoided time period longer than 1 minute (must be <= 60sec)')
 
     curr_sec = datetime.datetime.now().second
     logger.info('Current minute seconds: ' + str(curr_sec))
@@ -219,6 +200,7 @@ def avoid_time_period_in_seconds(end_of_period: int, length: int):
     else:
         logger.debug('Waiting ' + str(wait_sec) + ' seconds')
         time.sleep(wait_sec)
+
 
 # Waits until the next occurrence of second, i.e., until the time gets hh:mm:second. If current time happens
 # to be equal to hh:mm:second, no wait time is applied and the function returns immediately

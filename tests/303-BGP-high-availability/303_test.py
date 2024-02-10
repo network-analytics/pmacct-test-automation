@@ -2,6 +2,7 @@
 from library.py.test_params import KModuleParams
 import library.py.helpers as helpers
 import library.py.scripts as scripts
+import library.py.json_tools as json_tools
 import logging, pytest, time
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
@@ -95,9 +96,14 @@ def main(consumers):
 
     scripts.stop_and_remove_traffic_container(testParams.pcap_folders[0])
 
+    # Compare received messages to reference file output-bgp-00.json
     messages = consumers[0].get_all_pending_messages()
-    assert test_tools.read_and_compare_all_messages(consumers[0], testParams, 'bgp-00',
-                                                ['seq', 'timestamp', 'peer_tcp_port', 'writer_id'], messages)
+    output_json_file = test_tools.replace_IPs_and_get_reference_file(testParams, 'bgp-00')
+    logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
+    assert json_tools.compare_messages_to_json_file(messages, output_json_file, ['seq', 'timestamp', 'peer_tcp_port',
+        'writer_id'], multi_match_allowed=True)
+
+    # Ensuring all three writer_id's show up in the messages
     writer_ids = set([msg['writer_id'] for msg in messages])
     logger.info('There are messages from ' + str(len(writer_ids)) + ' different pmacct processes: ' + str(writer_ids))
     assert len(writer_ids)==3
