@@ -40,8 +40,11 @@ def main(consumers):
     # Play traffic against all 3 nfacctd instances (only the Active instance will report traffic to Kafka)
     assert scripts.replay_pcap_detached(pcap_folder_multi)
 
-    test_tools.avoid_time_period_in_seconds(0, 59)  # wait until mm:00, so that we sync with the traffic reproducer
-    test_tools.avoid_time_period_in_seconds(15, 15)  # now wait until mm:15, so that BGP connections get established
+    # test_tools.avoid_time_period_in_seconds(0, 60)  # wait until mm:00, so that we sync with the traffic reproducer
+    # test_tools.avoid_time_period_in_seconds(15, 15)  # now wait until mm:15, so that BGP connections get established
+
+    test_tools.wait_until_second(0)  # wait until mm:00, so that we sync with the traffic reproducer
+    test_tools.wait_until_second(15)  # now wait until mm:15, so that BGP connections get established
 
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[0].pmacct_log_file, [loglines[3]])
     assert helpers.check_regex_sequence_in_file(testParams.pmacct[1].pmacct_log_file, [loglines[3]])
