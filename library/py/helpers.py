@@ -173,16 +173,3 @@ def get_REPRO_IP_and_BGP_ID(pcap_mount_folder: str):
     if 'bgp_id' in data['network']['map'][0]:
         repro_info[1] = data['network']['map'][0]['bgp_id']
     return repro_info
-
-def build_compose_file_for_multitraffic_container(from_pcap_folder, to_pcap_folder, cont_name, pcap_folders_length):
-    shutil.copy(from_pcap_folder + '/docker-compose.yml', to_pcap_folder + '/docker-compose.yml')
-    with open(to_pcap_folder + '/docker-compose.yml') as f:
-        data_dc = yaml.load(f, Loader=yaml.FullLoader)
-    data_dc['services']['traffic-reproducer']['container_name'] = cont_name
-    data_dc['services']['traffic-reproducer']['volumes'][0] = to_pcap_folder + ':/pcap'
-    with open(to_pcap_folder + '/docker-compose.yml', 'w') as f:
-        yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
-    logger.debug('Created traffic reproducer docker-compose.yml in ' + short_name(to_pcap_folder))
-    for i in range(pcap_folders_length):
-        if os.path.isfile(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
-            os.remove(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')

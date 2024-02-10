@@ -9,7 +9,7 @@ import logging, os, secrets, yaml, shutil, time, datetime
 import library.py.json_tools as jsontools
 import library.py.helpers as helpers
 import library.py.escape_regex as escape_regex
-import library.py.scripts as scripts
+import library.py.setup_test as setup_test
 logger = logging.getLogger(__name__)
 
 
@@ -129,7 +129,7 @@ def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct
         helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/pcap0/traffic.pcap',
                                 '/pcap/pcap' + str(i) + '/traffic.pcap')
 
-    helpers.build_compose_file_for_multitraffic_container(pcap_mount_folder, pcap_folder, 'traffic-reproducer-' +
+    setup_test.build_compose_file_for_multitraffic_container(pcap_mount_folder, pcap_folder, 'traffic-reproducer-' +
                                                   prefix, len(pmacct_list))
 
     return pcap_folder
@@ -162,7 +162,7 @@ def prepare_multitraffic_pcap_player(results_folder, pcap_mount_folders, fw_conf
         helpers.replace_in_file(dst + '/traffic-reproducer.yml', '/pcap/pcap0/traffic.pcap',
                                 '/pcap/pcap' + str(i) + '/traffic.pcap')
 
-    helpers.build_compose_file_for_multitraffic_container(pcap_mount_folders[0], pcap_folder, 'traffic-reproducer-' +
+    setup_test.build_compose_file_for_multitraffic_container(pcap_mount_folders[0], pcap_folder, 'traffic-reproducer-' +
                                                   prefix, len(pcap_mount_folders))
 
     return pcap_folder
@@ -193,7 +193,7 @@ def transform_log_file(filename, repro_ip=None, bgp_id=None):
 # Example: a process needs to finish by hh:mm:15 (=end_of_period) and it can take up to 30 seconds (=length).
 # This means it must not start if seconds are greater than 45 or smaller than 15, until time goes hh:mm:15.
 def avoid_time_period_in_seconds(end_of_period: int, length: int):
-    if length>59:
+    if length>60:
         raise Exception('Avoided time period equal or longer than 1 minute')
 
     curr_sec = datetime.datetime.now().second
@@ -219,3 +219,8 @@ def avoid_time_period_in_seconds(end_of_period: int, length: int):
     else:
         logger.debug('Waiting ' + str(wait_sec) + ' seconds')
         time.sleep(wait_sec)
+
+# Waits until the next occurrence of second, i.e., until the time gets hh:mm:second. If current time happens
+# to be equal to hh:mm:second, no wait time is applied and the function returns immediately
+def wait_until_second(second: int):
+    avoid_time_period_in_seconds(second, 60)

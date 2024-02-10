@@ -126,3 +126,16 @@ def prepare_test_env(params: KModuleParams, scenario: str):
         return retVal
     params.output_files = copyList(params.test_output_files)
     params.log_files = copyList(params.test_log_files)
+
+def build_compose_file_for_multitraffic_container(from_pcap_folder, to_pcap_folder, cont_name, pcap_folders_length):
+    shutil.copy(from_pcap_folder + '/docker-compose.yml', to_pcap_folder + '/docker-compose.yml')
+    with open(to_pcap_folder + '/docker-compose.yml') as f:
+        data_dc = yaml.load(f, Loader=yaml.FullLoader)
+    data_dc['services']['traffic-reproducer']['container_name'] = cont_name
+    data_dc['services']['traffic-reproducer']['volumes'][0] = to_pcap_folder + ':/pcap'
+    with open(to_pcap_folder + '/docker-compose.yml', 'w') as f:
+        yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
+    logger.debug('Created traffic reproducer docker-compose.yml in ' + short_name(to_pcap_folder))
+    for i in range(pcap_folders_length):
+        if os.path.isfile(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
+            os.remove(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')
