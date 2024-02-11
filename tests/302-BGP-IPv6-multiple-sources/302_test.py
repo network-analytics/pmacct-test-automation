@@ -31,7 +31,7 @@ def main(consumer):
     test_tools.avoid_time_period_in_seconds(25, 30)
 
     pcap_folder_multi = test_tools.prepare_multitraffic_pcap_player(testParams.results_folder,
-        [testParams.pcap_folders[2], testParams.pcap_folders[3]], testParams.fw_config)
+        [testParams.pcap_folders[2], testParams.pcap_folders[3]])
     assert pcap_folder_multi
 
     repro_ip_list = []
