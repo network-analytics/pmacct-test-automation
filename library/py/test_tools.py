@@ -10,10 +10,13 @@ import library.py.json_tools as jsontools
 import library.py.helpers as helpers
 import library.py.escape_regex as escape_regex
 import library.py.setup_test as setup_test
+from library.py.kafka_consumer import KMessageReader
+from library.py.test_params import KModuleParams
+from typing import List
 logger = logging.getLogger(__name__)
 
 
-def replace_IPs_and_get_reference_file(params, json_name):
+def replace_IPs_and_get_reference_file(params: KModuleParams, json_name: str):
     # Replacing IP addresses in output json file with the ones anticipated from pmacct
     output_json_file = params.output_files.getFileLike(json_name)
     helpers.replace_IPs(params, output_json_file)
@@ -25,7 +28,8 @@ def replace_IPs_and_get_reference_file(params, json_name):
 # which will be used for reading. The number of messages anticipated is equal to the number of non-empty
 # lines of the json file passed as second argument. The latter is first edited in terms of referenced IPs,
 # as per the ip_subst_pairs, which are pairs of IPs, representing which IPs must be replaced by which.
-def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_time=120):
+def read_and_compare_messages(consumer: KMessageReader, params: KModuleParams, json_name: str,
+                              ignore_fields: List, wait_time: int = 120):
     output_json_file = replace_IPs_and_get_reference_file(params, json_name)
     # Counting non empty json lines in output file, so that we know the number of anticipated messages
     line_count = helpers.count_non_empty_lines(output_json_file)
@@ -36,7 +40,16 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
     # The get_messages method will return only if either line_count messages are received,
     # or 120 seconds have passed
     messages = consumer.get_messages(wait_time, line_count)
-    if messages == None:
+    if len(messages) < 1:
+        logger.warning('No messages read by kafka consumer in ' + str(wait_time) + ' second(s)')
+        return False
+    elif len(messages) < line_count:
+        logger.warning('Received ' + str(len(messages)) + ' messages instead of ' + str(line_count))
+        return False
+    elif line_count == len(messages):
+        logger.info('Received the expected number of messages (' + str(len(messages)) + ')')
+    else:
+        logger.error('Received more messages than expected')
         return False
 
     # Comparing the received messages with the anticipated ones
@@ -47,19 +60,19 @@ def read_and_compare_messages(consumer, params, json_name, ignore_fields, wait_t
 
 # Reads all messages from Kafka topic within a specified timeout (wait_time)
 # --> used for test-case development
-def read_messages_dump_only(consumer, params, wait_time=120):
+def read_messages_dump_only(consumer: KMessageReader, params: KModuleParams, wait_time: int = 120):
     logger.info('Consuming from kafka [timeout=' + str(wait_time) + 's] and dumping messages in ' + params.results_dump_folder)
 
     # Reading messages from Kafka topic
     # The get_all_messages_timeout method consumes all messages and returns 
     # when wait_time (default=120s) has passed
-    messages = consumer.get_all_messages_timeout(wait_time)
+    messages = consumer.get_messages(wait_time)
+    if len(messages) < 1:
+        logger.warning('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
+        return False
 
     logger.info('Consumed ' + str(len(messages)) + ' messages')
     logger.warning('Json comparing disabled (test-case development)!')
-
-    if len(messages) == 0:
-        return False
 
     return True 
 
@@ -83,7 +96,7 @@ def read_messages_dump_only(consumer, params, wait_time=120):
 
 # Clones the traffic files as many times as the number of pmacct instances, replaces in each traffic-repro.yml the
 # corresponding pmacct IP, then mounts the pcap folders to a traffic reproducer container
-def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct_list, fw_config):
+def prepare_multicollector_pcap_player(results_folder: str, pcap_mount_folder: str, pmacct_list: List):
     # Make sure traffic-reproducer.yml files of all pcap folders refer to the same IP and BGP_ID
     # Otherwise, it is not possible for a single server (container) to replay these traffic data
     repro_info = helpers.get_REPRO_IP_and_BGP_ID(pcap_mount_folder)
@@ -116,7 +129,7 @@ def prepare_multicollector_pcap_player(results_folder, pcap_mount_folder, pmacct
     return pcap_folder
 
 
-def prepare_multitraffic_pcap_player(results_folder, pcap_mount_folders, fw_config):
+def prepare_multitraffic_pcap_player(results_folder: str, pcap_mount_folders: List):
     folder_names = ', '.join([helpers.short_name(folder) for folder in pcap_mount_folders])
     logger.info('Preparing multi-pcap player container...')
     logger.info('Creating common mount pcap folder for folders: ' + folder_names)
@@ -150,7 +163,7 @@ def prepare_multitraffic_pcap_player(results_folder, pcap_mount_folders, fw_conf
 
 
 # Transforms a provided log file, in terms of regex syntax and IP substitutions
-def transform_log_file(filename, repro_ip=None, bgp_id=None):
+def transform_log_file(filename: str, repro_ip: str = None, bgp_id: str = None):
     if repro_ip and helpers.file_contains_string(filename, '${repro_ip}'):
         helpers.replace_in_file(filename, '${repro_ip}', repro_ip)
     if bgp_id and helpers.file_contains_string(filename, '${bgp_id}'):

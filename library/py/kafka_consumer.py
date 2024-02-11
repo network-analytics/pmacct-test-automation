@@ -58,7 +58,7 @@ class KMessageReader(ABC):
         with open(self.dumpfile + '.json', 'a') as f:
             f.write(msgval + '\n')
 
-    def dump_raw_if_needed(self, msgval):
+    def dump_raw_if_needed(self, msgval: str):
         if not self.dumpfile:
             return
         with open(self.dumpfile + '.dat', 'ab') as f:
@@ -66,114 +66,55 @@ class KMessageReader(ABC):
         with open(self.dumpfile + '.txt', 'a') as f:
             f.write(str(msgval) + '\n')
 
+    # Reads next Kafka message and returns it. If no message read within 5 seconds, or read throws an error,
+    # then None is returned
+    def get_next_message(self):
+        try:
+            msg = self.consumer.poll(5)
+        except Exception as err:
+            logger.error(str(err))
+            return None
+        if not msg:
+            logger.debug('No message received from Kafka')
+            return None
+        if msg.error():
+            logger.warning('Erroneous message received from Kafka')
+            return None
+        self.dump_raw_if_needed(msg.value())
+        msgval, msgdict = self.get_json_string_and_dict(msg)
+        self.dump_json_if_needed(msgval)
+        logger.debug('Received message: ' + msgval)
+        return msgdict
 
     # Receives as input the maximum time to wait and the number of expected messages
     # Returns a list of dictionaries representing the messages received, or None if fewer than expected messages
     # (or no messages at all) were received
-    def get_messages(self, max_time_seconds: int, messages_expected: int) -> List[dict]:
-        messages = []
-        message_count = messages_expected
-        time_start = round(time.time())
-        time_now = time_start
-        while messages_expected>0 and time_now-time_start<max_time_seconds:
-            try:
-                msg = self.consumer.poll(5)
-            except Exception as err:
-                logger.error(str(err))
-                return messages
-            if not msg:
-                logger.debug('No message received from Kafka, waiting (' + str(max_time_seconds-time_now+time_start) +
-                    ' seconds left)')
-            elif msg.error():
-                logger.warning('Erroneous message received from Kafka, waiting (' + str(max_time_seconds - time_now +
-                    time_start) + ' seconds left)')
-            else:
-                self.dump_raw_if_needed(msg.value())
-                msgval, msgdict = self.get_json_string_and_dict(msg)
-                self.dump_json_if_needed(msgval)
-                logger.debug('Received message: ' + msgval)
-                messages.append(msgdict)
-                messages_expected -= 1
-                if messages_expected>0:
-                    logger.debug('Waiting for ' + str(messages_expected) + ' more messages')
-            time_now = round(time.time())
-        if messages_expected<1:
-            logger.info('Received the expected number of messages (' + str(message_count) + ')')
-        if len(messages)<1:
-            logger.warning('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
-            return None
-        if len(messages)<message_count:
-            logger.warning('Received ' + str(len(messages)) + ' messages instead of ' + str(message_count))
-            return None
-        return messages
-
-    # Returns a list of dictionaries representing the messages received within 
-    #   max_time_seconds or none if no messages at all were received
-    def get_all_messages_timeout(self, max_time_seconds: int) -> List[dict]:
+    def get_messages(self, max_time_seconds: int, messages_expected: int = -1) -> List[dict]:
         messages = []
         time_start = round(time.time())
         time_now = time_start
-        while time_now - time_start < max_time_seconds:
-            try:
-                msg = self.consumer.poll(5)
-            except Exception as err:
-                logger.error(str(err))
-                return messages
-            if not msg:
-                logger.debug('No message received from Kafka, waiting (' + str(max_time_seconds-time_now+time_start) +
-                    ' seconds left)')
-            elif msg.error():
-                logger.warning('Erroneous message received from Kafka, waiting (' + str(max_time_seconds - time_now +
-                    time_start) + ' seconds left)')
+        while (messages_expected<0 or messages_expected>len(messages)) and time_now-time_start<max_time_seconds:
+            msg = self.get_next_message()
+            if msg==None:
+                logger.debug('Waiting... (' + str(max_time_seconds - time_now + time_start) + ' seconds left)')
             else:
-                self.dump_raw_if_needed(msg.value())
-                msgval, msgdict = self.get_json_string_and_dict(msg)
-                self.dump_json_if_needed(msgval)
-                logger.debug('Received message: ' + msgval)
-                messages.append(msgdict)
-
+                messages.append(msg)
+                if messages_expected>len(messages):
+                    logger.debug('Waiting for ' + str(messages_expected-len(messages)) + ' more messages')
             time_now = round(time.time())
-
-        if len(messages) < 1:
-            logger.warning('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
-
         return messages
 
-    # # Returns all available (pending) messages in the Kafka topic. Messages are returned as dictionaries.
-    # def get_all_messages(self, maxcount = -1) -> List[dict]:
-    #     logger.debug('Reading all remaining (pending) messages from Kafka')
-    #     messages = []
-    #     msg = self.consumer.poll(5)
-    #     while msg and not msg.error() and (maxcount<0 or len(messages)<maxcount):
-    #         _, json_dict = self.get_json_string_and_dict(msg)
-    #         messages.append(json_dict)
-    #         msg = self.consumer.poll(5)
-    #     logger.debug('Read ' + str(len(messages)) + ' pending messages')
-    #     return messages
-
-    # Returns a list of dictionaries representing the messages received within
-    #   max_time_seconds or none if no messages at all were received
+    # Returns a list of dictionaries representing the messages pending to be read in the Kafka topic
+    # If maxcount parameter is passed, reading messages will stop as soon as the number of read messages
+    # reaches maxcount. Also, reading process will stop as soon as an error is encountered.
     def get_all_pending_messages(self, maxcount = -1) -> List[dict]:
         logger.debug('Reading all remaining (pending) messages from Kafka')
         messages = []
-        try:
-            msg = self.consumer.poll(1)
-        except Exception as err:
-            logger.error(str(err))
-            return messages
-        while msg and not msg.error() and (maxcount < 0 or len(messages) < maxcount):
-            self.dump_raw_if_needed(msg.value())
-            msgval, msgdict = self.get_json_string_and_dict(msg)
-            self.dump_json_if_needed(msgval)
-            logger.debug('Received message: ' + msgval)
-            messages.append(msgdict)
-            # _, json_dict = self.get_json_string_and_dict(msg)
-            # messages.append(json_dict)
-            try:
-                msg = self.consumer.poll(1)
-            except Exception as err:
-                logger.error(str(err))
-                return messages
+        while maxcount < 0 or len(messages) < maxcount:
+            msg = self.get_next_message()
+            if msg==None:
+                break
+            messages.append(msg)
         logger.debug('Read ' + str(len(messages)) + ' pending messages')
         return messages
 
