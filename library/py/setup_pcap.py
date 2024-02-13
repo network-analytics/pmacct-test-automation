@@ -82,3 +82,15 @@ def prepare_pcap(params: KModuleParams):
     # test_config_files is sorted per basename (filename)
     for i in range(len(test_config_files)):
         prepare_pcap_folder(params, i, test_config_files[i], test_pcap_files[i])
+
+    with open(params.test_folder + '/container-setup.yml') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    for container in data['containers']:
+        folder_name = params.results_folder + '/' + container['name']
+        os.makedirs(folder_name)
+        params.traffic_folders.append(folder_name)
+        for process in container['processes']:
+            pcap_file = params.test_folder + '/' + process['pcap']
+
+        shutil.copy(test_config_file, results_pcap_folder + '/pcap0/traffic-reproducer.yml')
+        shutil.copy(test_pcap_file, results_pcap_folder + '/pcap0/traffic.pcap')

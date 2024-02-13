@@ -27,10 +27,7 @@ class KModuleParams:
         self.daemon = daemon
         self.test_subnet_ipv4 = ipv4_subnet
         self.test_subnet_ipv6 = ipv6_subnet
-        self.build_static_params(test_file)
-
-    def build_static_params(self, filename: str):
-        self.test_folder = os.path.dirname(filename)
+        self.test_folder = os.path.dirname(test_file)
         self.tests_folder = os.path.dirname(self.test_folder)
         self.root_folder = os.path.dirname(self.tests_folder)
         self.fw_config = read_config_file(self.root_folder + '/settings.conf')
@@ -39,7 +36,7 @@ class KModuleParams:
         self.pmacct_mount_folder = '/var/log/pmacct'
         self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
         self.monitor_file = self.root_folder + '/results/monitor.log'
-        self.pcap_folders = self.output_files = self.log_files = []
+        self.pcap_folders = self.output_files = self.log_files = self.traffic_folders = []
         self.kafka_topics = {}
 
     @property
