@@ -1,0 +1,9 @@
+containers:
+  - name: traffic-reproducer-302
+    processes:
+      - pcap: traffic-00.pcap
+        collector: nfacctd-00
+      - pcap: traffic-01.pcap
+        collector: nfacctd-00
+      - pcap: traffic-02.pcap
+        collector: nfacctd-00

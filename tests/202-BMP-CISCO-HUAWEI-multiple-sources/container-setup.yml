@@ -1,0 +1,13 @@
+containers:
+  - name: traffic-reproducer-202a
+    processes:
+      - pcap: traffic-00.pcap
+        collector: pmbmpd-00
+  - name: traffic-reproducer-202a
+    processes:
+      - pcap: traffic-01.pcap
+        collector: pmbmpd-00
+  - name: traffic-reproducer-202a
+    processes:
+      - pcap: traffic-02.pcap
+        collector: pmbmpd-00
