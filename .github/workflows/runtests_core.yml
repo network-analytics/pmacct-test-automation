@@ -1,9 +1,7 @@
-name: runtest_selected
+name: runtest_core
 
 on:
   workflow_dispatch:
-  push:
-  pull_request:
 
 jobs:
   ### Build Traffic Reproducer Images
@@ -39,20 +37,67 @@ jobs:
           name: traffic_reproducer_docker_images
           path: /tmp/docker
 
+  ### Retrieve all other necessary images from Docker Hub and store as artifacts
+  ### (to avoid possible Docker Hub pull limits)
+  hub-pulled-docker:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Framework
+        uses: actions/checkout@v4
+        with:
+          path: pmacct-test-automation
+          submodules: recursive
+
+      - name: Download images
+        run: |
+          cd pmacct-test-automation
+          source settings.conf
+          docker image pull $ZOOKEEPER_IMG
+          docker image pull $KAFKA_IMG
+          docker image pull $SCHEMAREGISTRY_IMG
+          docker image pull $REDIS_IMG
+          echo "List Images"
+          docker images | grep 'confluentinc\|redis'
+
+      - name: Download pmacct images and adjust tag to _build     # TODO: later on bind to 1.7.8 version...
+        run: |
+          docker pull pmacct/nfacctd:bleeding-edge
+          docker pull pmacct/pmbmpd:bleeding-edge
+          docker pull pmacct/pmbgpd:bleeding-edge
+          docker image tag pmacct/nfacctd:bleeding-edge nfacctd:_build
+          docker image tag pmacct/pmbmpd:bleeding-edge pmbmpd:_build
+          docker image tag pmacct/pmbgpd:bleeding-edge pmbgpd:_build
+          echo "List Images"
+          docker images | grep _build
+
+      - name: Prepare Artifacts
+        run: |
+          echo "Saving images as artifacts..."
+          mkdir -p /tmp/docker/
+          docker save -o /tmp/docker/hub_pulled_docker_images.tar $ZOOKEEPER_IMG $KAFKA_IMG $SCHEMAREGISTRY_IMG $REDIS_IMG \
+                                                                  nfacctd:_build pmbmpd:_build pmbgpd:_build
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: hub_pulled_docker_images
+          path: /tmp/docker
+
+
   ### Setup Framework and Run Tests
   pytest-runtests:
-    needs: traf-repro-docker
+    needs: [traf-repro-docker, hub-pulled-docker]
     runs-on: ubuntu-22.04
-
     strategy:
       fail-fast: false
       matrix:
-        test: [102, 104,
-               110, 111,
-               200, 203, 204,
-               302,
-               400, 401,
-               502]
+        test: ["1**",
+               "2**",
+               "3**",
+               "4**",
+               "5**",
+               "9**"]
 
     steps:
       - name: Checkout Framework
@@ -72,30 +117,24 @@ jobs:
           sudo apt install librdkafka-dev docker
           pip install --upgrade pip
           pip install -r pmacct-test-automation/requirements.txt
-          docker-compose --env-file pmacct-test-automation/settings.conf -f pmacct-test-automation/library/sh/kafka_compose/docker-compose.yml pull
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: 'traffic_reproducer_docker_images'
+          pattern: '*_docker_images'
           path: /tmp/docker
 
-      - name: Download/import images in the local registry
+      - name: Import images in the local registry
         run: |
-          docker load -i /tmp/docker/traffic_reproducer_docker_images.tar
-          docker pull pmacct/nfacctd:bleeding-edge
-          docker pull pmacct/pmbmpd:bleeding-edge
-          docker pull pmacct/pmbgpd:bleeding-edge
-          docker image tag pmacct/nfacctd:bleeding-edge nfacctd:_build
-          docker image tag pmacct/pmbmpd:bleeding-edge pmbmpd:_build
-          docker image tag pmacct/pmbgpd:bleeding-edge pmbgpd:_build
+          docker load -i /tmp/docker/traffic_reproducer_docker_images/traffic_reproducer_docker_images.tar
+          docker load -i /tmp/docker/hub_pulled_docker_images/hub_pulled_docker_images.tar
           echo "List Images"
-          docker images | grep _build
+          docker images | grep 'confluentinc\|redis\|_build'
 
       - name: Run the test
         run: |
           cd pmacct-test-automation
-          sudo env PATH="$PATH" ./runtest.sh ${{ matrix.test }}
+          sudo env PATH="$PATH" ./runtest.sh ${{ matrix.test }} --mark=core
 
       - name: Prepare Results Folder for Upload (permissions and folder name)
         if: '!cancelled()'                            # always run this step, unless job manually cancelled
@@ -150,8 +189,7 @@ jobs:
           mkdir tmp_html
           randomname() { head -c16 /dev/urandom | base64 | tr -dc a-zA-Z; }
           for f in results/**/report.html; do mv "$f" tmp_html/`randomname`.html; done
-          array_of_assets_dirs=($(find results/**/assets -maxdepth 0 -type d))
-          cp -R ${array_of_assets_dirs[0]} tmp_html
+          cp -R test_results_merged/assets tmp_html
           pytest_html_merger -i tmp_html -o test_results_merged/report_merged.html
           cp -R tmp_html/assets test_results_merged
 
@@ -165,8 +203,8 @@ jobs:
       - name: Create folder to deploy to pages and fix permissions
         run: |
           mkdir github-pages
-          cp -R test_results_merged/assets github-pages
-          cp test_results_merged/report_merged.html github-pages/index.html
+          cp -R test_results_merged/assets github-pages/index.html
+          cp test_results_merged/report_merged.html github-pages
           chmod -c -R +rX github-pages | while read line; do
             echo "::warning title=Invalid file permissions automatically fixed::$line"
           done
@@ -175,6 +213,12 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: github-pages/
+
+      - name: Add info to markdown summary
+        run: |
+          echo "# :loudspeaker: Pytest Quick Report: :loudspeaker:" >> $GITHUB_STEP_SUMMARY
+          echo "ADD SOME SMALL SUMMARY HERE (nr of test failes, passed, etc..) --> e.g. take small summary output (that when test are failing is in the log, and pipe it together here)"
+          echo "TODO finish this, add direct way to open/download html report (for when CI is ran by PR or by other branches and we cannot publish to pages...)"
 
   # Deploy HTML report with github pages
   pytest-html-report-deploy:
@@ -188,8 +232,3 @@ jobs:
       - name: Deploy artifact to Github Pages
         uses: actions/deploy-pages@v4
         id: deployment
-
-      - name: Add info to markdown summary
-        run: |
-          echo "# :loudspeaker: Pytest Quick Report: :loudspeaker:" >> $GITHUB_STEP_SUMMARY
-          echo "ADD SOME SMALL SUMMARY HERE (nr of test failes, passed, etc..) --> e.g. take small summary output (that when test are failing is in the log, and pipe it together here)"
