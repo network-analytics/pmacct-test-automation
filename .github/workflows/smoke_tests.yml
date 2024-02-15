@@ -1,9 +1,7 @@
 name: smoke_tests
 
 on:
-  workflow_dispatch:
-  push:
-  pull_request:
+  workflow_dispatch:      # TODO: these some tests should be the one running by default on push and pr for this repo...(do that once we have the smoke tests...)
 
 jobs:
   ### Build Traffic Reproducer Images

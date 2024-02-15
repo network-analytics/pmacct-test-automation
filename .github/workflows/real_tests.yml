@@ -1,7 +1,8 @@
-name: runtest_all
+name: real_tests
 
 on:
   workflow_dispatch:
+  push:
 
 jobs:
   ### Build Traffic Reproducer Images
@@ -131,10 +132,10 @@ jobs:
           echo "List Images"
           docker images | grep 'confluentinc\|redis\|_build'
 
-      - name: Run the test
+      - name: Run the test        # TODO: add input from workflow-dispatch here (now we're testing with basic...)
         run: |
           cd pmacct-test-automation
-          sudo env PATH="$PATH" ./runtest.sh ${{ matrix.test }}
+          sudo env PATH="$PATH" ./runtest.sh ${{ matrix.test }} --mark=basic
 
       - name: Prepare Results Folder for Upload (permissions and folder name)
         if: '!cancelled()'                            # always run this step, unless job manually cancelled
