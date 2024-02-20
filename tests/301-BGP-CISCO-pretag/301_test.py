@@ -1,18 +1,19 @@
 
 from library.py.test_params import KModuleParams
-import library.py.scripts as scripts
-import library.py.helpers as helpers
-import logging, pytest
+import logging
+import pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='pmbgpd', ipv4_subnet='192.168.100.')
+
 
 @pytest.mark.pmbgpd
 @pytest.mark.bgp
 @pytest.mark.bgp_only
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
+
 
 def main(consumers):
     th = test_tools.KTestHelper(testParams, consumers)

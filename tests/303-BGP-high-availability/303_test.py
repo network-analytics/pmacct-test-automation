@@ -1,13 +1,16 @@
-
 from library.py.test_params import KModuleParams
 import library.py.helpers as helpers
 import library.py.scripts as scripts
 import library.py.json_tools as json_tools
-import logging, pytest, time
+import logging
+import pytest
+import time
 import library.py.test_tools as test_tools
+
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd', ipv6_subnet='cafe::')
+
 
 @pytest.mark.nfacctd
 @pytest.mark.bgp
@@ -15,6 +18,7 @@ testParams = KModuleParams(__file__, daemon='nfacctd', ipv6_subnet='cafe::')
 @pytest.mark.redis
 def test(test_core_redis, consumer_setup_teardown):
     main(consumer_setup_teardown)
+
 
 def main(consumers):
     th = test_tools.KTestHelper(testParams, consumers)
@@ -90,12 +94,12 @@ def main(consumers):
     output_json_file = test_tools.replace_IPs_and_get_reference_file(testParams, 'bgp-00')
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     assert json_tools.compare_messages_to_json_file(messages, output_json_file, ['seq', 'timestamp', 'peer_tcp_port',
-        'writer_id'], multi_match_allowed=True)
+                                                                                 'writer_id'], multi_match_allowed=True)
 
     # Ensuring all three writer_id's show up in the messages
     writer_ids = set([msg['writer_id'] for msg in messages])
     logger.info('There are messages from ' + str(len(writer_ids)) + ' different pmacct processes: ' + str(writer_ids))
-    assert len(writer_ids)==3
+    assert len(writer_ids) == 3
 
     assert not th.check_regex_in_pmacct_log('ERROR|WARN', pmacct_name='nfacctd-00')
     assert not th.check_regex_in_pmacct_log('ERROR|WARN', pmacct_name='nfacctd-01')
