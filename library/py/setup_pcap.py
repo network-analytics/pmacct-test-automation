@@ -83,7 +83,9 @@ def prepare_pcap(params: KModuleParams):
     # for i in range(len(test_config_files)):
     #     prepare_pcap_folder(params, i, test_config_files[i], test_pcap_files[i])
 
-
+    if not os.path.isfile(params.test_folder + '/container-setup.yml'):
+        logger.info('No container-setup.yml file detected, no traffic reproduction inferred')
+        return
 
     with open(params.test_folder + '/container-setup.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)

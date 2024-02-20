@@ -41,11 +41,14 @@ class KTestHelper:
         consumer = self.consumers.getReaderOfTopicStartingWith(topic_name)
         return read_and_compare_messages(consumer, self.params, reference_json, self.ignored_fields, wait_time)
 
-    def transform_log_file(self, log_tag: str, name: str):
+    def transform_log_file(self, log_tag: str, name: str = None):
         logfile = self.params.log_files.getFileLike(log_tag)
-        repro_info = helpers.get_reproduction_IP_and_BGP_ID(self.params.traffic_folders.getFileLike(name) +
+        repro_ip = None
+        if name:
+            repro_info = helpers.get_reproduction_IP_and_BGP_ID(self.params.traffic_folders.getFileLike(name) +
                                                             '/pcap0/traffic-reproducer.yml')
-        transform_log_file(logfile, repro_info[0])
+            repro_ip = repro_info[0]
+        transform_log_file(logfile, repro_ip)
 
     def check_file_regex_sequence_in_pmacct_log(self, log_tag: str, pmacct_name: str = None):
         logfile = self.params.log_files.getFileLike(log_tag)
@@ -66,6 +69,9 @@ class KTestHelper:
         pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
         return helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, [regex])
 
+    def disconnect_consumers(self):
+        for c in self.consumers:
+            c.disconnect()
 
 
 

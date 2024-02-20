@@ -2,38 +2,35 @@
 from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.test_tools as test_tools
-import library.py.helpers as helpers
-import logging, pytest
+import logging
+import pytest
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.')
 
+
 @pytest.mark.signals
 @pytest.mark.nfacctd
 def test(test_core, consumer_setup_teardown):
-    main(consumer_setup_teardown[0])
+    main(consumer_setup_teardown)
 
-def main(consumer):
-    # Make sure the expected logs exist in pmacct log
-    logfile = testParams.log_files.getFileLike('log-00')
-    test_tools.transform_log_file(logfile)
-    assert helpers.retry_until_true('Checking expected logs',
-        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 5)
-    #assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
 
-    consumer.disconnect() # For the Kafka consumer not to hang when Kafka is killed
-    # Kafka infrastructure is stopped
+def main(consumers):
+    th = test_tools.KTestHelper(testParams, consumers)
+
+    th.transform_log_file('log-00')
+    assert th.wait_and_check_logs('log-00', 30, 5)
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
+
+    th.disconnect_consumers()
     scripts.stop_and_remove_kafka_containers()
 
-    assert scripts.replay_pcap(testParams.pcap_folders[0])
+    assert th.spawn_traffic_container('traffic-reproducer-900')
 
-    logfile = testParams.log_files.getFileLike('log-01')
-    test_tools.transform_log_file(logfile)
-    assert helpers.retry_until_true('Checking expected logs',
-        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 90, 10)
+    th.transform_log_file('log-01')
+    assert th.wait_and_check_logs('log-01', 90, 10)
 
-    scripts.stop_and_remove_traffic_container(testParams.pcap_folders[0])
+    assert th.delete_traffic_container('traffic-reproducer-900')
 
     # We want to leave the Kafka infrastructure running, for the next test case to use, so we re-deploy it
     assert scripts.start_kafka_containers()
