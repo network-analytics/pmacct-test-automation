@@ -1,5 +1,6 @@
 
 from library.py.test_params import KModuleParams
+from library.py.test_helper import KTestHelper
 import logging
 import pytest
 import library.py.test_tools as test_tools
@@ -19,7 +20,7 @@ def test(test_core, consumer_setup_teardown):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
 
     # Make sure that traffic reproducers do not start in different minutes
     test_tools.avoid_time_period_in_seconds(25, 30)

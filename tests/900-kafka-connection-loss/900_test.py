@@ -1,7 +1,7 @@
 
 from library.py.test_params import KModuleParams
+from library.py.test_helper import KTestHelper
 import library.py.scripts as scripts
-import library.py.test_tools as test_tools
 import logging
 import pytest
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ def test(test_core, consumer_setup_teardown):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
 
     th.transform_log_file('log-00')
     assert th.wait_and_check_logs('log-00', 30, 5)

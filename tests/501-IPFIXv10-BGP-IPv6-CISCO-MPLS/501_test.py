@@ -1,8 +1,8 @@
 
 from library.py.test_params import KModuleParams
+from library.py.test_helper import KTestHelper
 import logging
 import pytest
-import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd')
@@ -16,7 +16,7 @@ def test(test_core, consumer_setup_teardown):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
     assert th.spawn_traffic_container('traffic-reproducer-501', detached=True)
 
     th.set_ignored_fields(['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])

@@ -1,6 +1,6 @@
 
 from library.py.test_params import KModuleParams
-import library.py.test_tools as test_tools
+from library.py.test_helper import KTestHelper
 import logging
 import pytest
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ def test(test_core, consumer_setup_teardown):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
     assert th.spawn_traffic_container('traffic-reproducer-100')
 
     th.set_ignored_fields(['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])

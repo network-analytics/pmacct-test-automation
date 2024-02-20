@@ -1,8 +1,8 @@
 
 from library.py.test_params import KModuleParams
+from library.py.test_helper import KTestHelper
 import logging
 import pytest
-import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd', ipv6_subnet='cafe::')
@@ -16,7 +16,7 @@ def test(test_core, consumer_setup_teardown):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
     assert th.spawn_traffic_container('traffic-reproducer-300', detached=True)
 
     th.set_ignored_fields(['seq', 'timestamp', 'peer_tcp_port'])
