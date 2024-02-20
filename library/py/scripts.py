@@ -64,7 +64,7 @@ def stop_and_remove_traffic_container_byID(traffic_id) -> bool: # called with ei
 
 # Stops traffic-reproducer container using docker stop and docker rm and returns success or not
 def stop_and_remove_traffic_container(pcap_folder: str) -> bool:
-    logger.info("Stopping and removing traffic container out of folder: " + helpers.short_name(pcap_folder))
+    logger.info("Stopping and removing traffic container of folder: " + helpers.short_name(pcap_folder))
     return run_script(['./library/sh/traffic_docker/stop_docker_compose.sh', pcap_folder + '/docker-compose.yml'])[0]
 
 # Stops ALL traffic-reproducer containers using docker stop and docker rm and returns success or not
@@ -146,20 +146,23 @@ def display_debug_info(success, output, error):
             logger.debug('Error: ' + line)
 
 # Spawns a new traffic reproducer container and replays traffic from folder pcap_mount_folder
-def replay_pcap(pcap_mount_folder: str) -> bool:
+# pcap_mount_folder is the path of the folder containing the docker-compose.yml file for the container
+# in question; it typically contains also traffic reproduction information
+def replay_pcap(pcap_mount_folder: str, detached: bool = False) -> bool:
     logger.info('Replaying pcap file from ' + pcap_mount_folder)
     args = ['./library/sh/traffic_docker/start_docker_compose.sh', pcap_mount_folder + '/docker-compose.yml']
+    if detached==True:
+        args.append('-d')
     success, output, error = run_script(args)
     display_debug_info(success, output, error)
     return success
 
 # Spawns a new traffic reproducer container in detached mode and replays traffic from folder pcap_mount_folder
-# player_id is a user-given number used for reference when the container later needs to be stopped
 # pcap_mount_folder is the path of the folder containing the docker-compose.yml file for the container
 # in question; it typically contains also traffic reproduction information
-def replay_pcap_detached(pcap_mount_folder: str) -> bool:
-    logger.info('Replaying pcap file from ' + helpers.short_name(pcap_mount_folder) + ' with DETACHED docker container')
-    args = ['./library/sh/traffic_docker/start_docker_compose.sh', pcap_mount_folder + '/docker-compose.yml', '-d']
-    success, output, error = run_script(args)
-    display_debug_info(success, output, error)
-    return success
+# def replay_pcap_detached(pcap_mount_folder: str) -> bool:
+#     logger.info('Replaying pcap file from ' + helpers.short_name(pcap_mount_folder) + ' with DETACHED docker container')
+#     args = ['./library/sh/traffic_docker/start_docker_compose.sh', pcap_mount_folder + '/docker-compose.yml', '-d']
+#     success, output, error = run_script(args)
+#     display_debug_info(success, output, error)
+#     return success

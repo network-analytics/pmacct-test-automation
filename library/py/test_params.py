@@ -5,7 +5,7 @@
 # nikolaos.tsokas@swisscom.com 11/05/2023
 ###################################################
 
-from library.py.helpers import select_files, read_config_file
+from library.py.helpers import select_files, read_config_file, KFileList
 import logging, os
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class KModuleParams:
         self.pmacct_mount_folder = '/var/log/pmacct'
         self.pmacct_output_folder = self.pmacct_mount_folder + '/pmacct_output'
         self.monitor_file = self.root_folder + '/results/monitor.log'
-        self.pcap_folders = self.output_files = self.log_files = self.traffic_folders = []
+        self.pcap_folders = self.output_files = self.log_files = self.traffic_folders = KFileList()
         self.kafka_topics = {}
 
     @property

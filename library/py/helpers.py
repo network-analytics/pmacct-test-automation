@@ -173,3 +173,11 @@ def get_REPRO_IP_and_BGP_ID(pcap_mount_folder: str):
     if 'bgp_id' in data['network']['map'][0]:
         repro_info[1] = data['network']['map'][0]['bgp_id']
     return repro_info
+
+def get_reproduction_IP_and_BGP_ID(traffic_config_file: str):
+    with open(traffic_config_file) as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    repro_info = [data['network']['map'][0]['repro_ip'], None]
+    if 'bgp_id' in data['network']['map'][0]:
+        repro_info[1] = data['network']['map'][0]['bgp_id']
+    return repro_info

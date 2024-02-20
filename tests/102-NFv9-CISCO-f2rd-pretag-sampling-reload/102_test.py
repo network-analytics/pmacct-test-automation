@@ -2,11 +2,14 @@
 from library.py.test_params import KModuleParams
 import library.py.scripts as scripts
 import library.py.helpers as helpers
-import shutil, logging, pytest
+import shutil
+import logging
+import pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.')
+
 
 @pytest.mark.nfacctd
 @pytest.mark.ipfix
@@ -14,7 +17,8 @@ testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.
 @pytest.mark.nfv9
 @pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
-    main(consumer_setup_teardown[0])
+    main(consumer_setup_teardown)
+
 
 def transform_log_file(logfile):
     helpers.replace_in_file(logfile, '/etc/pmacct', testParams.pmacct_mount_folder, 'Reading configuration file')
@@ -22,17 +26,18 @@ def transform_log_file(logfile):
     helpers.replace_in_file(logfile, 'primitives.map', 'primitives-00.map')
     test_tools.transform_log_file(logfile)
 
-def main(consumer):
-    assert scripts.replay_pcap(testParams.pcap_folders[0])
 
-    assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
-        ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
+def main(consumers):
+    th = test_tools.KTestHelper(testParams, consumers)
+    assert th.spawn_traffic_container('traffic-reproducer-102')
+
+    th.set_ignored_fields(['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
+    assert th.read_and_compare_messages('daisy.flow', 'flow-00')
 
     # Make sure the expected logs exist in pmacct log
-    logfile = testParams.log_files.getFileLike('log-00')
-    transform_log_file(logfile)
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
+    transform_log_file(testParams.log_files.getFileLike('log-00'))
+    assert th.check_file_regex_sequence_in_pmacct_log('log-00')
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
 
     # Replace -00 maps with -01 maps
     for filename in [testParams.results_mount_folder + '/' + mf for mf in ['f2rd', 'pretag', 'sampling']]:
@@ -42,13 +47,11 @@ def main(consumer):
     # Sending the signal to reload maps
     assert scripts.send_signal_to_pmacct(testParams.pmacct_name, 'SIGUSR2')
 
-    assert scripts.replay_pcap(testParams.pcap_folders[0])
+    assert th.spawn_traffic_container('traffic-reproducer-102')
 
-    assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-01',
-        ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
+    assert th.read_and_compare_messages('daisy.flow', 'flow-01')
 
     # Make sure the expected logs exist in pmacct log
-    logfile = testParams.log_files.getFileLike('log-01')
-    transform_log_file(logfile)
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
+    transform_log_file(testParams.log_files.getFileLike('log-01'))
+    assert th.check_file_regex_sequence_in_pmacct_log('log-01')
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
