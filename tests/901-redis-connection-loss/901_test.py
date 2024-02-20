@@ -1,5 +1,6 @@
 
 from library.py.test_params import KModuleParams
+from library.py.test_helper import KTestHelper
 import library.py.scripts as scripts
 import library.py.test_tools as test_tools
 import library.py.helpers as helpers
@@ -25,15 +26,15 @@ def transform_log_file(logfile):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
 
-    transform_log_file(testParams.log_files.getFileLike('log-00'))
+    transform_log_file(testParams.log_files.get_item_like('log-00'))
     logger.info('Looking for connection evidence')
     assert th.wait_and_check_logs('log-00', 30, 10)
     assert not th.check_regex_in_pmacct_log('ERROR|WARN')
 
     scripts.stop_and_remove_redis_container()
 
-    transform_log_file(testParams.log_files.getFileLike('log-01'))
+    transform_log_file(testParams.log_files.get_item_like('log-01'))
     logger.info('Looking for lost connectivity evidence')
     assert th.wait_and_check_logs('log-01', 90, 10)

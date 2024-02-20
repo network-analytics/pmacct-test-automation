@@ -3,6 +3,7 @@
 #   and also different buckets (per/per_peer buckets) [in this test we have 3 sources and lots of RDs!]
 
 from library.py.test_params import KModuleParams
+from library.py.test_helper import KTestHelper
 import logging
 import pytest
 import library.py.test_tools as test_tools
@@ -19,7 +20,7 @@ def test(test_core, consumer_setup_teardown):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
     test_tools.avoid_time_period_in_seconds(25, 30)
 
     for suffix in ['a', 'b', 'cd']:
@@ -28,7 +29,7 @@ def main(consumers):
     th.set_ignored_fields(['seq', 'timestamp', 'peer_tcp_port'])
     assert th.read_and_compare_messages('daisy.bgp', 'bgp-00', 90)
 
-    test_tools.transform_log_file(testParams.log_files.getFileLike('log-00'), '172.21.1.1\\d{2}|fd25::1\\d{2}')
+    test_tools.transform_log_file(testParams.log_files.get_item_like('log-00'), '172.21.1.1\\d{2}|fd25::1\\d{2}')
     assert th.wait_and_check_logs('log-00', 30, 10)
     assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!(.*Unable to get kafka_host)|(.*Refusing new connection))')
 
@@ -46,7 +47,7 @@ def main(consumers):
     th.set_ignored_fields(['seq', 'timestamp', 'peer_tcp_port', 'label'])
     assert th.read_and_compare_messages('daisy.bgp', 'bgp-01', 90)
 
-    test_tools.transform_log_file(testParams.log_files.getFileLike('log-04'), '172.21.1.1\\d{2}|fd25::1\\d{2}')
+    test_tools.transform_log_file(testParams.log_files.get_item_like('log-04'), '172.21.1.1\\d{2}|fd25::1\\d{2}')
     assert th.wait_and_check_logs('log-04', 30, 5)
     # Check logs --> retry each 5s for max 30s as it takes some time to stop traffic-repro containers
 

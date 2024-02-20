@@ -1,11 +1,11 @@
 
 from library.py.test_params import KModuleParams
+from library.py.test_helper import KTestHelper
 import library.py.scripts as scripts
 import time
 import logging
 import pytest
 import os
-import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.')
@@ -18,7 +18,7 @@ def test(test_core, consumer_setup_teardown):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
 
     th.transform_log_file('log-00')
     assert th.check_file_regex_sequence_in_pmacct_log('log-00')

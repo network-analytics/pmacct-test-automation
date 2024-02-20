@@ -1,4 +1,6 @@
+
 from library.py.test_params import KModuleParams
+from library.py.test_helper import KTestHelper
 import library.py.helpers as helpers
 import library.py.scripts as scripts
 import library.py.json_tools as json_tools
@@ -21,12 +23,12 @@ def test(test_core_redis, consumer_setup_teardown):
 
 
 def main(consumers):
-    th = test_tools.KTestHelper(testParams, consumers)
+    th = KTestHelper(testParams, consumers)
     test_tools.avoid_time_period_in_seconds(5, 10)
 
     # Loading log file into loglines list
     th.transform_log_file('log-00', 'traffic-reproducer-303')
-    with open(testParams.log_files.getFileLike('log-00'), 'r') as f:
+    with open(testParams.log_files.get_item_like('log-00'), 'r') as f:
         loglines = f.read().split('\n')
 
     # Make sure pmacct instances started in the right order
@@ -91,7 +93,7 @@ def main(consumers):
 
     # Compare received messages to reference file output-bgp-00.json
     messages = consumers[0].get_all_pending_messages()
-    output_json_file = test_tools.replace_IPs_and_get_reference_file(testParams, 'bgp-00')
+    output_json_file = test_tools.replace_ips_and_get_reference_file(testParams, 'bgp-00')
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
     assert json_tools.compare_messages_to_json_file(messages, output_json_file, ['seq', 'timestamp', 'peer_tcp_port',
                                                                                  'writer_id'], multi_match_allowed=True)

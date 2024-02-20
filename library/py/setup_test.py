@@ -5,11 +5,15 @@
 # nikolaos.tsokas@swisscom.com 11/05/2023
 ###################################################
 
-import shutil, secrets, logging, os, yaml
+import shutil
+import secrets
+import logging
+import os
+import yaml
 from library.py.configuration_file import KConfigurationFile
 from library.py.test_params import KPmacctParams, KModuleParams
 from typing import List
-from library.py.helpers import short_name, select_files, replace_IPs, KFileList
+from library.py.helpers import short_name, select_files, replace_ips, KFileList
 logger = logging.getLogger(__name__)
 
 
@@ -45,6 +49,7 @@ def create_mount_and_output_folders(params: KPmacctParams):
     os.umask(_mask)
     logger.debug('Mount and output folders created')
 
+
 # Files in mounted folder, for pmacct to read
 def edit_conf_mount_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('flow_to_rd_map', params.pmacct_mount_folder + '/f2rd-00.map')
@@ -52,6 +57,7 @@ def edit_conf_mount_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key('aggregate_primitives', params.pmacct_mount_folder + '/custom-primitives-00.map')
     config.replace_value_of_key_ending_with('_tag_map', params.pmacct_mount_folder + '/pretag-00.map')
     config.replace_value_of_key_ending_with('kafka_config_file', params.pmacct_mount_folder + '/librdkafka.conf')
+
 
 # Files in output folder, for pmacct to write
 def edit_conf_output_folder(config: KConfigurationFile, params: KModuleParams):
@@ -63,12 +69,14 @@ def edit_conf_output_folder(config: KConfigurationFile, params: KModuleParams):
     config.replace_value_of_key_ending_with('avro_schema_output_file',
                                             params.pmacct_output_folder + '/avsc/nfacctd_msglog_avroschema.avsc')
 
+
 # Calls above two functions; also, sets the correct schema registry URL and the correct address:port of redis
 def edit_config_with_framework_params(config: KConfigurationFile, params: KModuleParams):
     edit_conf_mount_folder(config, params)
     edit_conf_output_folder(config, params)
     config.replace_value_of_key_ending_with('kafka_avro_schema_registry', 'http://schema-registry:8081')
     config.replace_value_of_key('redis_host', '172.21.1.14:6379')
+
 
 # Copy existing files in pmacct_mount to result (=actual) mounted folder
 def copy_files_in_mount_folder(test_mount_folder: str, results_mount_folder: str):
@@ -98,11 +106,11 @@ def prepare_test_env(params: KModuleParams, scenario: str):
     for pmacct in params.pmacct:
         config = KConfigurationFile(pmacct.test_conf_file)
         pmacct.process_name = config.data['core_proc_name']['']
-        topicsDict = config.get_kafka_topics()
-        for k in topicsDict.keys():
-            if topicsDict[k] not in params.kafka_topics.keys():
-                params.kafka_topics[topicsDict[k]] = topicsDict[k] + '.' + secrets.token_hex(4)[:8]
-            config.replace_value_of_key(k, params.kafka_topics[topicsDict[k]])
+        topicsdict = config.get_kafka_topics()
+        for k in topicsdict.keys():
+            if topicsdict[k] not in params.kafka_topics.keys():
+                params.kafka_topics[topicsdict[k]] = topicsdict[k] + '.' + secrets.token_hex(4)[:8]
+            config.replace_value_of_key(k, params.kafka_topics[topicsdict[k]])
         logger.debug('Kafka topic(s): ' + str(params.kafka_topics))
 
         create_mount_and_output_folders(pmacct)
@@ -110,32 +118,33 @@ def prepare_test_env(params: KModuleParams, scenario: str):
         config.print_to_file(pmacct.results_conf_file)
 
         copy_files_in_mount_folder(params.test_mount_folder, pmacct.results_mount_folder)
-        if scenario!='default': # copy scenario-specific map files to results mount folder
+        if scenario != 'default':  # copy scenario-specific map files to results mount folder
             for map_file in select_files(params.test_folder + '/' + scenario, '.+\\.map$'):
                 shutil.copy(map_file, params.results_mount_folder)
         for results_pretag_file in select_files(pmacct.results_mount_folder, '.+\\.map$'):
-            replace_IPs(params, results_pretag_file)
+            replace_ips(params, results_pretag_file)
         shutil.copy(params.root_folder + '/library/librdkafka.conf', pmacct.results_mount_folder)
 
-    def copyList(filelist: List):
-        retVal = KFileList()
+    def copy_list(filelist: List) -> List[str]:
+        retval = KFileList()
         for src_filepath in filelist:
             dst_filepath = params.results_folder + '/' + os.path.basename(src_filepath)
-            retVal.append(dst_filepath)
+            retval.append(dst_filepath)
             shutil.copy(src_filepath, dst_filepath)
-        return retVal
-    params.output_files = copyList(params.test_output_files)
-    params.log_files = copyList(params.test_log_files)
+        return retval
+    params.output_files = copy_list(params.test_output_files)
+    params.log_files = copy_list(params.test_log_files)
 
-def build_compose_file_for_multitraffic_container(from_pcap_folder, to_pcap_folder, cont_name, pcap_folders_length):
-    shutil.copy(from_pcap_folder + '/docker-compose.yml', to_pcap_folder + '/docker-compose.yml')
-    with open(to_pcap_folder + '/docker-compose.yml') as f:
-        data_dc = yaml.load(f, Loader=yaml.FullLoader)
-    data_dc['services']['traffic-reproducer']['container_name'] = cont_name
-    data_dc['services']['traffic-reproducer']['volumes'][0] = to_pcap_folder + ':/pcap'
-    with open(to_pcap_folder + '/docker-compose.yml', 'w') as f:
-        yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
-    logger.debug('Created traffic reproducer docker-compose.yml in ' + short_name(to_pcap_folder))
-    for i in range(pcap_folders_length):
-        if os.path.isfile(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
-            os.remove(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')
+
+# def build_compose_file_for_multitraffic_container(from_pcap_folder, to_pcap_folder, cont_name, pcap_folders_length):
+#     shutil.copy(from_pcap_folder + '/docker-compose.yml', to_pcap_folder + '/docker-compose.yml')
+#     with open(to_pcap_folder + '/docker-compose.yml') as f:
+#         data_dc = yaml.load(f, Loader=yaml.FullLoader)
+#     data_dc['services']['traffic-reproducer']['container_name'] = cont_name
+#     data_dc['services']['traffic-reproducer']['volumes'][0] = to_pcap_folder + ':/pcap'
+#     with open(to_pcap_folder + '/docker-compose.yml', 'w') as f:
+#         yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
+#     logger.debug('Created traffic reproducer docker-compose.yml in ' + short_name(to_pcap_folder))
+#     for i in range(pcap_folders_length):
+#         if os.path.isfile(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
+#             os.remove(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')
