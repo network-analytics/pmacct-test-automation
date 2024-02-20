@@ -8,7 +8,7 @@
 import shutil, logging, os, yaml
 from library.py.test_params import KModuleParams
 from typing import Dict
-from library.py.helpers import short_name, select_files
+from library.py.helpers import short_name, get_reproduction_IP_and_BGP_ID
 logger = logging.getLogger(__name__)
 
 
@@ -75,21 +75,15 @@ def prepare_pcap_folder(params: KModuleParams, i: int, test_config_file: str, te
 # Prepares json output, log, pcap and pcap-config files
 def prepare_pcap(params: KModuleParams):
     params.pcap_folders.clear()
-    test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\\d+.yml$')
-    test_pcap_files = select_files(params.test_folder, 'traffic.*-\\d+.pcap$')
-    assert len(test_pcap_files)==len(test_config_files)
+    # test_config_files = select_files(params.test_folder, 'traffic-reproducer.*-\\d+.yml$')
+    # test_pcap_files = select_files(params.test_folder, 'traffic.*-\\d+.pcap$')
+    # assert len(test_pcap_files)==len(test_config_files)
 
     # test_config_files is sorted per basename (filename)
-    for i in range(len(test_config_files)):
-        prepare_pcap_folder(params, i, test_config_files[i], test_pcap_files[i])
+    # for i in range(len(test_config_files)):
+    #     prepare_pcap_folder(params, i, test_config_files[i], test_pcap_files[i])
 
-    def get_REPRO_IP_and_BGP_ID(traffic_config_file: str):
-        with open(traffic_config_file) as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
-        repro_info = [data['network']['map'][0]['repro_ip'], None]
-        if 'bgp_id' in data['network']['map'][0]:
-            repro_info[1] = data['network']['map'][0]['bgp_id']
-        return repro_info
+
 
     with open(params.test_folder + '/container-setup.yml') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
@@ -101,10 +95,10 @@ def prepare_pcap(params: KModuleParams):
         # Make sure traffic-reproducer.yml files of all pcap folders refer to the same IP and BGP_ID
         # Otherwise, it is not possible for a single server (container) to replay these traffic data
         config_file_src = params.test_folder + '/' + container['processes'][0]['config']
-        repro_info = get_REPRO_IP_and_BGP_ID(config_file_src)
+        repro_info = get_reproduction_IP_and_BGP_ID(config_file_src)
         for i in range(len(container['processes'])):
             config_file_src = params.test_folder + '/' + container['processes'][i]['config']
-            if repro_info != get_REPRO_IP_and_BGP_ID(config_file_src):
+            if repro_info != get_reproduction_IP_and_BGP_ID(config_file_src):
                 logger.error('IP and/or BGP_ID for the same traffic reproducer do not match!')
                 return None
         repro_ip = repro_info[0]

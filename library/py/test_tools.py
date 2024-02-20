@@ -10,10 +10,63 @@ import library.py.json_tools as jsontools
 import library.py.helpers as helpers
 import library.py.escape_regex as escape_regex
 import library.py.setup_test as setup_test
+import library.py.scripts as scripts
 from library.py.kafka_consumer import KMessageReader
 from library.py.test_params import KModuleParams
 from typing import List
 logger = logging.getLogger(__name__)
+
+
+
+class KTestHelper:
+
+    def __init__(self, testParams: KModuleParams, consumers):
+        self.params = testParams
+        self.consumers = consumers
+        self.ignored_fields = []
+
+    def spawn_traffic_container(self, container_name: str, detached: bool = False):
+        logger.debug('Traffic folders: ' + str(self.params.traffic_folders))
+        pcap_folder = self.params.traffic_folders.getFileLike(container_name)
+        return scripts.replay_pcap(pcap_folder, detached)
+
+    def delete_traffic_container(self, container_name: str):
+        pcap_folder = self.params.traffic_folders.getFileLike(container_name)
+        return scripts.stop_and_remove_traffic_container(pcap_folder)
+
+    def set_ignored_fields(self, ignored_fields):
+        self.ignored_fields = ignored_fields
+
+    def read_and_compare_messages(self, topic_name: str,  reference_json: str, wait_time: int = 120):
+        consumer = self.consumers.getReaderOfTopicStartingWith(topic_name)
+        return read_and_compare_messages(consumer, self.params, reference_json, self.ignored_fields, wait_time)
+
+    def transform_log_file(self, log_tag: str, name: str):
+        logfile = self.params.log_files.getFileLike(log_tag)
+        repro_info = helpers.get_reproduction_IP_and_BGP_ID(self.params.traffic_folders.getFileLike(name) +
+                                                            '/pcap0/traffic-reproducer.yml')
+        transform_log_file(logfile, repro_info[0])
+
+    def check_file_regex_sequence_in_pmacct_log(self, log_tag: str, pmacct_name: str = None):
+        logfile = self.params.log_files.getFileLike(log_tag)
+        pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
+        return helpers.check_file_regex_sequence_in_file(pmacct.pmacct_log_file, logfile)
+
+    def check_regex_sequence_in_pmacct_log(self, regexes: List, pmacct_name: str = None):
+        pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
+        return helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, regexes)
+
+    def wait_and_check_logs(self, log_tag: str, max_seconds: int, seconds_repeat: int):
+        logfile = self.params.log_files.getFileLike(log_tag)
+        return helpers.retry_until_true('Checking expected logs',
+                lambda: helpers.check_file_regex_sequence_in_file(self.params.pmacct_log_file, logfile),
+                                        max_seconds, seconds_repeat)
+
+    def check_regex_in_pmacct_log(self, regex: str, pmacct_name: str = None):
+        pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
+        return helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, [regex])
+
+
 
 
 def replace_IPs_and_get_reference_file(params: KModuleParams, json_name: str):
@@ -68,7 +121,7 @@ def read_messages_dump_only(consumer: KMessageReader, params: KModuleParams, wai
     # when wait_time (default=120s) has passed
     messages = consumer.get_messages(wait_time)
     if len(messages) < 1:
-        logger.warning('No messages read by kafka consumer in ' + str(max_time_seconds) + ' second(s)')
+        logger.warning('No messages read by kafka consumer in ' + str(wait_time) + ' second(s)')
         return False
 
     logger.info('Consumed ' + str(len(messages)) + ' messages')
@@ -163,11 +216,12 @@ def prepare_multitraffic_pcap_player(results_folder: str, pcap_mount_folders: Li
 
 
 # Transforms a provided log file, in terms of regex syntax and IP substitutions
-def transform_log_file(filename: str, repro_ip: str = None, bgp_id: str = None):
+# repro_ip can be a regular expression
+def transform_log_file(filename: str, repro_ip: str = None):
+    token_ip = None
     if repro_ip and helpers.file_contains_string(filename, '${repro_ip}'):
-        helpers.replace_in_file(filename, '${repro_ip}', repro_ip)
-    if bgp_id and helpers.file_contains_string(filename, '${bgp_id}'):
-        helpers.replace_in_file(filename, '${bgp_id}', bgp_id)
+        token_ip = secrets.token_hex(4)[:8]
+        helpers.replace_in_file(filename, '${repro_ip}', token_ip)
     token1 = secrets.token_hex(4)[:8]
     if helpers.file_contains_string(filename, '${TIMESTAMP}'):
         helpers.replace_in_file(filename, '${TIMESTAMP}', token1)
@@ -181,6 +235,27 @@ def transform_log_file(filename: str, repro_ip: str = None, bgp_id: str = None):
         helpers.replace_in_file(filename, token1, '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z')
     if helpers.file_contains_string(filename, token2):
         helpers.replace_in_file(filename, token2, '.+')
+    if token_ip:
+        helpers.replace_in_file(filename, token_ip, repro_ip)
+
+# def transform_log_file(filename: str, repro_ip: str = None, bgp_id: str = None):
+#     if repro_ip and helpers.file_contains_string(filename, '${repro_ip}'):
+#         helpers.replace_in_file(filename, '${repro_ip}', repro_ip)
+#     if bgp_id and helpers.file_contains_string(filename, '${bgp_id}'):
+#         helpers.replace_in_file(filename, '${bgp_id}', bgp_id)
+#     token1 = secrets.token_hex(4)[:8]
+#     if helpers.file_contains_string(filename, '${TIMESTAMP}'):
+#         helpers.replace_in_file(filename, '${TIMESTAMP}', token1)
+#     if helpers.file_contains_string(filename, '${IGNORE_REST}'):
+#         helpers.replace_in_file(filename, '${IGNORE_REST}', '')
+#     token2 = secrets.token_hex(4)[:8]
+#     if helpers.file_contains_string(filename, '${RANDOM}'):
+#         helpers.replace_in_file(filename, '${RANDOM}', token2)
+#     escape_regex.escape_file(filename)
+#     if helpers.file_contains_string(filename, token1):
+#         helpers.replace_in_file(filename, token1, '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z')
+#     if helpers.file_contains_string(filename, token2):
+#         helpers.replace_in_file(filename, token2, '.+')
 
 
 # Checks current second and, if needed, waits until the sleep period ends.

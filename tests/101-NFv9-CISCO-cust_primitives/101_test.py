@@ -1,12 +1,12 @@
 
 from library.py.test_params import KModuleParams
-import library.py.scripts as scripts
-import library.py.helpers as helpers
-import logging, pytest
+import logging
+import pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.')
+
 
 @pytest.mark.nfacctd
 @pytest.mark.ipfix
@@ -14,20 +14,16 @@ testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.
 @pytest.mark.nfv9
 @pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
-    main(consumer_setup_teardown[0])
+    main(consumer_setup_teardown)
 
-def main(consumer):
-    assert scripts.replay_pcap(testParams.pcap_folders[0])
 
-    assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
-        ['timestamp_arrival', 'timestamp_min', 'timestamp_max',
-         'stamp_inserted', 'stamp_updated'])
+def main(consumers):
+    th = test_tools.KTestHelper(testParams, consumers)
+    assert th.spawn_traffic_container('traffic-reproducer-101')
 
-    # Make sure the expected logs exist in pmacct log
-    logfile = testParams.log_files.getFileLike('log-00')
-    test_tools.transform_log_file(logfile)
+    th.set_ignored_fields(['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
+    assert th.read_and_compare_messages('daisy.flow', 'flow-00')
 
-    # Retry needed for the last message ('Purging cache - END (PID: xx, QN: 51/51, ET: 0)') to exist in logs
-    assert helpers.retry_until_true('Checking expected logs',
-        lambda: helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile), 30, 10)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
+    th.transform_log_file('log-00', 'traffic-reproducer-101')
+    assert th.wait_and_check_logs('log-00', 30, 10)
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
