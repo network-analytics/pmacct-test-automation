@@ -23,11 +23,11 @@ class KTestHelper:
 
     def spawn_traffic_container(self, container_name: str, detached: bool = False):
         logger.debug('Traffic folders: ' + str(self.params.traffic_folders))
-        pcap_folder = self.params.traffic_folders.get_item_like(container_name)
+        pcap_folder = self.params.traffic_folders.get_path_like(container_name)
         return scripts.replay_pcap(pcap_folder, detached)
 
     def delete_traffic_container(self, container_name: str):
-        pcap_folder = self.params.traffic_folders.get_item_like(container_name)
+        pcap_folder = self.params.traffic_folders.get_path_like(container_name)
         return scripts.stop_and_remove_traffic_container(pcap_folder)
 
     def set_ignored_fields(self, ignored_fields):
@@ -39,15 +39,15 @@ class KTestHelper:
                                                     self.ignored_fields, wait_time)
 
     def transform_log_file(self, log_tag: str, name: str = None):
-        logfile = self.params.log_files.get_item_like(log_tag)
+        logfile = self.params.log_files.get_path_like(log_tag)
         repro_ip = None
         if name:
-            repro_ip = helpers.get_reproduction_ip(self.params.traffic_folders.get_item_like(name) +
+            repro_ip = helpers.get_reproduction_ip(self.params.traffic_folders.get_path_like(name) +
                                                    '/pcap0/traffic-reproducer.yml')
         test_tools.transform_log_file(logfile, repro_ip)
 
     def check_file_regex_sequence_in_pmacct_log(self, log_tag: str, pmacct_name: str = None):
-        logfile = self.params.log_files.get_item_like(log_tag)
+        logfile = self.params.log_files.get_path_like(log_tag)
         pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
         return helpers.check_file_regex_sequence_in_file(pmacct.pmacct_log_file, logfile)
 
@@ -56,7 +56,7 @@ class KTestHelper:
         return helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, regexes)
 
     def wait_and_check_logs(self, log_tag: str, max_seconds: int, seconds_repeat: int):
-        logfile = self.params.log_files.get_item_like(log_tag)
+        logfile = self.params.log_files.get_path_like(log_tag)
         return helpers.retry_until_true('Checking expected logs',
                                         lambda: helpers.check_file_regex_sequence_in_file(self.params.pmacct_log_file,
                                                                                           logfile),

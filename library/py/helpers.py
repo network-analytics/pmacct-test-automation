@@ -16,8 +16,11 @@ from typing import List, Dict
 logger = logging.getLogger(__name__)
 
 
-class KFileList(list):
-    def get_item_like(self, txt: str) -> Optional[str]:
+# Adds methods to a list of strings
+class KPathList(list):
+
+    # Returns the first item, whose base name, i.e., last part of the path, contains the provided string
+    def get_path_like(self, txt: str) -> Optional[str]:
         for filename in self:
             basename = os.path.basename(filename)
             if txt in basename:
@@ -159,7 +162,7 @@ def read_pmacct_version(logfile: str) -> Optional[str]:
 
 
 # Replaces IPs in file, so that they reflect the framework subnet (which may or may not be
-# different than the ones provided with the test case)
+# different from the ones provided with the test case)
 def replace_ips(params, filename: str):
     if params.test_subnet_ipv4 != '' and file_contains_string(filename, params.test_subnet_ipv4):
         replace_in_file(filename, params.test_subnet_ipv4, '172.21.1.10')
@@ -167,7 +170,14 @@ def replace_ips(params, filename: str):
         replace_in_file(filename, params.test_subnet_ipv6, 'fd25::10')
 
 
-def get_reproduction_ip(traffic_config_file: str) -> str:
+# Returns the IP of the traffic reproduction, as defined in a traffic-reproduction.yml file
+# The IP of the traffic reproduction is later changed (if needed), to match the one assigned to
+# the traffic container.
+def get_reproduction_ip(traffic_config_file: str) -> Optional[str]:
     with open(traffic_config_file) as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
+    if 'network' not in data.keys() or 'map' not in data['network'].keys():
+        return None
+    if len(data['network']['map']) < 1 or 'repro_ip' not in data['network']['map'][0].keys():
+        return None
     return data['network']['map'][0]['repro_ip']

@@ -213,7 +213,7 @@ The framework allows for checking the logfile as well, i.e. to detect if any ERR
 Concretely, this works by adding in the test file something like:
 ```
     # Match for patterns in a provided file
-    logfile = testParams.log_files.get_item_like('log-00')
+    logfile = testParams.log_files.get_path_like('log-00')
     test_tools.transform_log_file(logfile)
     assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
 

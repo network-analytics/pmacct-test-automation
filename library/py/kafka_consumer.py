@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 logger = logging.getLogger(__name__)
 
 
+# Abstract class, encapsulates the main functionality of reading (consuming) messages from a Kafka topic
 class KMessageReader(ABC):
 
     def __init__(self, topic: str, dump_to_file: str = None):
@@ -23,14 +24,17 @@ class KMessageReader(ABC):
         self.dumpfile = dump_to_file
         self.consumer = None
 
+    # Instantiates the consumer, as per the derived class (e.g., Avro consumer or whatever)
     @abstractmethod
     def instantiate_consumer(self, prop_dict: Dict):
         raise NotImplementedError("Must override instantiate_consumer")
 
+    # Returns the same message in both the form of a (json) string and of a dictionary
     @abstractmethod
     def get_json_string_and_dict(self, message: Message) -> Tuple[str, Dict]:
         raise NotImplementedError("Must override get_json_string_and_dict")
 
+    # Consumer is instantiated and connects to the topic
     def connect(self):
         prop_dict = {
                 'bootstrap.servers': 'localhost:9092',
@@ -41,6 +45,7 @@ class KMessageReader(ABC):
         self.instantiate_consumer(prop_dict)
         self.consumer.subscribe([self.topic])
 
+    # Consumer is disconnected
     def disconnect(self):
         logger.debug('Message reader disconnect called')
         if self.consumer:
@@ -51,16 +56,20 @@ class KMessageReader(ABC):
         else:
             logger.debug('Consumer is already down')
 
+    # Disconnect called in the destructor for being on the safe side
     def __del__(self):
         logger.debug('Message reader destructor called')
         self.disconnect()
 
+    # If dumpfile has been defined, json is dumped to its .json extension
     def dump_json_if_needed(self, msgval: str):
         if not self.dumpfile:
             return
         with open(self.dumpfile + '.json', 'a') as f:
             f.write(msgval + '\n')
 
+    # If dumpfile has been defined, raw bytes are dumped to its .dat extension and text-binary
+    # version is dumped to its .txt extension
     def dump_raw_if_needed(self, msgval: bytes):
         if not self.dumpfile:
             return
@@ -122,6 +131,7 @@ class KMessageReader(ABC):
         return messages
 
 
+# Extends the base class for using Avro as schema
 class KMessageReaderAvro(KMessageReader):
 
     def __init__(self, topic: str, dump_to_file: str = None):
@@ -140,6 +150,7 @@ class KMessageReaderAvro(KMessageReader):
         return json.dumps(deserialized_msg), deserialized_msg
 
 
+# Extends the base class for using simple json - without a schema
 class KMessageReaderPlainJson(KMessageReader):
 
     def __init__(self, topic: str, dump_to_file: str = None):
@@ -154,6 +165,7 @@ class KMessageReaderPlainJson(KMessageReader):
         return decoded_msg, json.loads(decoded_msg)
 
 
+# List of message readers with search facility with respect to the Kafka topic
 class KMessageReaderList(list):
 
     def get_consumer_of_topic_like(self, txt: str) -> Optional[KMessageReader]:

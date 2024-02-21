@@ -24,7 +24,7 @@ def main(consumers):
     th.set_ignored_fields(['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
     assert th.read_and_compare_messages('daisy.bmp', 'bmp-00')
 
-    logfile = testParams.log_files.get_item_like('log-00')
+    logfile = testParams.log_files.get_path_like('log-00')
     helpers.replace_in_file(logfile, '/etc/pmacct/librdkafka.conf', testParams.pmacct_mount_folder + '/librdkafka.conf')
     th.transform_log_file('log-00', 'traffic-reproducer-200')
     assert th.wait_and_check_logs('log-00', 30, 10)

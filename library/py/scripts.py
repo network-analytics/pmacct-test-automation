@@ -11,6 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# Initialises the docker network used by the automation framework
 def create_test_network() -> bool:
     logger.info("Creating test network (pmacct_test_network)")
     return run_script(['./library/sh/test_network/create.sh'])[0]
@@ -22,7 +23,9 @@ def start_kafka_containers() -> bool:
     return run_script(['./library/sh/kafka_compose/start.sh'])[0]
 
 
-def start_pmacct_container(pmacct_name, pmacct_docker_compose_file: str) -> bool:
+# Deploys a pmacct container with the specific docker-compose file. Typically, the name of the container
+# inside the compose file coincides with the pmacct name (e.g. nfacctd-00) - but this is not mandatory.
+def start_pmacct_container(pmacct_name: str, pmacct_docker_compose_file: str) -> bool:
     logger.info("Starting pmacct container " + pmacct_name)
     return run_script(['./library/sh/pmacct_docker/start.sh', pmacct_docker_compose_file])[0]
 
@@ -45,7 +48,7 @@ def stop_and_remove_kafka_containers() -> bool:
     return run_script(['./library/sh/kafka_compose/stop.sh'])[0]
 
 
-# Gets pmacct container stats
+# Gets pmacct container stats for the specific pmacct instance
 def get_pmacct_stats(pmacct_name: str) -> str:
     logger.info("Getting pmacct stats from docker for: " + pmacct_name)
     ret = run_script(['./library/sh/docker_tools/get-container-stats.sh', pmacct_name])
@@ -54,7 +57,7 @@ def get_pmacct_stats(pmacct_name: str) -> str:
     return ret[1]
 
 
-# Stops pmacct container using docker stop and docker rm and returns success or not
+# Stops pmacct container using the corresponding docker-compose file
 def stop_and_remove_pmacct_container(pmacct_name: str, pmacct_docker_compose_file: str) -> bool:
     logger.info("Stopping and removing pmacct container " + pmacct_name)
     return run_script(['./library/sh/pmacct_docker/stop.sh', pmacct_docker_compose_file])[0]
@@ -66,22 +69,11 @@ def stop_and_remove_redis_container() -> bool:
     return run_script(['./library/sh/redis_docker/stop.sh'])[0]
 
 
-# # Stops traffic-reproducer container using docker stop and docker rm and returns success or not
-# def stop_and_remove_traffic_container_byID(traffic_id: int) -> bool: # called with either int or str
-#     logger.info("Stopping and removing traffic container with ID: " + str(traffic_id))
-#     return run_script(['./library/sh/traffic_docker/stop.sh', str(traffic_id)])[0]
-
-
-# Stops traffic-reproducer container using docker stop and docker rm and returns success or not
-def stop_and_remove_traffic_container(pcap_folder: str) -> bool:
-    logger.info("Stopping and removing traffic container of folder: " + helpers.short_name(pcap_folder))
-    return run_script(['./library/sh/traffic_docker/stop_docker_compose.sh', pcap_folder + '/docker-compose.yml'])[0]
-
-
-# Stops ALL traffic-reproducer containers using docker stop and docker rm and returns success or not
-def stop_and_remove_all_traffic_containers() -> bool:
-    logger.info("Stopping and removing all traffic containers")
-    return run_script(['./library/sh/traffic_docker/stop_all.sh'])[0]
+# Stops traffic-reproducer container using the corresponding docker-compose file
+def stop_and_remove_traffic_container(container_folder: str) -> bool:
+    logger.info("Stopping and removing traffic container of folder: " + helpers.short_name(container_folder))
+    return run_script(['./library/sh/traffic_docker/stop_docker_compose.sh', container_folder +
+                       '/docker-compose.yml'])[0]
 
 
 # Waits for pmacct container to be reported as running and return success or not
@@ -145,7 +137,7 @@ def create_or_clear_kafka_topic(topic: str) -> bool:
         if retval:
             logger.info("Topic cleared successfully")
         else:
-            logger.info("Falied to clear topic")
+            logger.info("Failed to clear topic")
         return retval
     logger.info("Creating Kafka topic " + topic)
     retval = run_script(['./library/sh/docker_tools/create-topic.sh', topic])[0]

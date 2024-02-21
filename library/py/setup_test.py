@@ -13,7 +13,7 @@ import yaml
 from library.py.configuration_file import KConfigurationFile
 from library.py.test_params import KPmacctParams, KModuleParams
 from typing import List
-from library.py.helpers import short_name, select_files, replace_ips, KFileList
+from library.py.helpers import short_name, select_files, replace_ips, KPathList
 logger = logging.getLogger(__name__)
 
 
@@ -126,7 +126,7 @@ def prepare_test_env(params: KModuleParams, scenario: str):
         shutil.copy(params.root_folder + '/library/librdkafka.conf', pmacct.results_mount_folder)
 
     def copy_list(filelist: List) -> List[str]:
-        retval = KFileList()
+        retval = KPathList()
         for src_filepath in filelist:
             dst_filepath = params.results_folder + '/' + os.path.basename(src_filepath)
             retval.append(dst_filepath)
@@ -134,17 +134,3 @@ def prepare_test_env(params: KModuleParams, scenario: str):
         return retval
     params.output_files = copy_list(params.test_output_files)
     params.log_files = copy_list(params.test_log_files)
-
-
-# def build_compose_file_for_multitraffic_container(from_pcap_folder, to_pcap_folder, cont_name, pcap_folders_length):
-#     shutil.copy(from_pcap_folder + '/docker-compose.yml', to_pcap_folder + '/docker-compose.yml')
-#     with open(to_pcap_folder + '/docker-compose.yml') as f:
-#         data_dc = yaml.load(f, Loader=yaml.FullLoader)
-#     data_dc['services']['traffic-reproducer']['container_name'] = cont_name
-#     data_dc['services']['traffic-reproducer']['volumes'][0] = to_pcap_folder + ':/pcap'
-#     with open(to_pcap_folder + '/docker-compose.yml', 'w') as f:
-#         yaml.dump(data_dc, f, default_flow_style=False, sort_keys=False)
-#     logger.debug('Created traffic reproducer docker-compose.yml in ' + short_name(to_pcap_folder))
-#     for i in range(pcap_folders_length):
-#         if os.path.isfile(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml'):
-#             os.remove(to_pcap_folder + '/pcap' + str(i) + '/docker-compose.yml')

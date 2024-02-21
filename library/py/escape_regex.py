@@ -10,12 +10,14 @@ import re
 import shutil
 
 
+# Escapes regex-significant characters in a string. Returns the escaped string.
 def escape_regex_chars(pattern: str) -> str:
     special_chars = r'\^$.|?*+()[{\\'
     escaped_pattern = re.sub(fr'([{re.escape(special_chars)}])', r'\\\1', pattern)
     return escaped_pattern
 
 
+# Escapes regex-significant characters in a file in place. Keeps backup with extension .bak
 def escape_file(input_file: str):
     temp_file = input_file + ".tmp"
     backup_file = input_file + ".bak"
