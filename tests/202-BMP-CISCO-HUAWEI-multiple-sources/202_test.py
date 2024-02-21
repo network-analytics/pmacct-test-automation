@@ -27,7 +27,7 @@ def main(consumers):
     assert th.read_and_compare_messages('daisy.bmp', 'bmp-00')
 
     # Make sure the expected logs exist in pmacct log
-    test_tools.transform_log_file(testParams.log_files.get_item_like('log-00'), '172.21.1.1\\d{2}')
+    test_tools.transform_log_file(testParams.log_files.get_path_like('log-00'), '172.21.1.1\\d{2}')
     assert th.check_file_regex_sequence_in_pmacct_log('log-00')
     assert th.check_regex_in_pmacct_log('\\[172\\.21\\.1\\.101] BMP peers usage')
     assert th.check_regex_in_pmacct_log('\\[172\\.21\\.1\\.102] BMP peers usage')
@@ -38,7 +38,7 @@ def main(consumers):
         th.delete_traffic_container('traffic-reproducer-202' + suffix)
 
     # Make sure the expected logs exist in pmacct log
-    test_tools.transform_log_file(testParams.log_files.get_item_like('log-01'), '172.21.1.1\\d{2}')
+    test_tools.transform_log_file(testParams.log_files.get_path_like('log-01'), '172.21.1.1\\d{2}')
     assert th.wait_and_check_logs('log-01', 30, 10)
 
     assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!.*Unable to get kafka_host)')

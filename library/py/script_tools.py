@@ -34,7 +34,7 @@ def run_script(command: List[str]) -> (bool, str, str):
 
 
 # Runs a script, which waits for a container to reach a certain state, for a maximum of time
-# If the maximum time is reached without the state having been reached, it returns False. Otherwise True.
+# If the maximum time is reached without the state having been reached, it returns False. Otherwise, True.
 # command: a list of strings, first of which is the called script, the rest being the arguments
 # name: the name of the container
 # checkfunc: the function that checks whether the desired state has been reached. It takes as input a

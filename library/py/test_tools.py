@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def replace_ips_and_get_reference_file(params: KModuleParams, json_name: str):
     # Replacing IP addresses in output json file with the ones anticipated from pmacct
-    output_json_file = params.output_files.get_item_like(json_name)
+    output_json_file = params.output_files.get_path_like(json_name)
     helpers.replace_ips(params, output_json_file)
     logger.info('Using reference file ' + helpers.short_name(output_json_file))
     return output_json_file
@@ -31,7 +31,7 @@ def replace_ips_and_get_reference_file(params: KModuleParams, json_name: str):
 # lines of the json file passed as second argument. The latter is first edited in terms of referenced IPs,
 # as per the ip_subst_pairs, which are pairs of IPs, representing which IPs must be replaced by which.
 def read_and_compare_messages(consumer: KMessageReader, params: KModuleParams, json_name: str,
-                              ignore_fields: List, wait_time: int = 120):
+                              ignore_fields: List, wait_time: int = 120) -> bool:
     output_json_file = replace_ips_and_get_reference_file(params, json_name)
     # Counting non-empty json lines in output file, so that we know the number of anticipated messages
     line_count = helpers.count_non_empty_lines(output_json_file)
@@ -62,7 +62,7 @@ def read_and_compare_messages(consumer: KMessageReader, params: KModuleParams, j
 
 # Reads all messages from Kafka topic within a specified timeout (wait_time)
 # --> used for test-case development
-def read_messages_dump_only(consumer: KMessageReader, params: KModuleParams, wait_time: int = 120):
+def read_messages_dump_only(consumer: KMessageReader, params: KModuleParams, wait_time: int = 120) -> bool:
     logger.info('Consuming from kafka [timeout=' + str(wait_time) + 's] and dumping messages in ' +
                 params.results_dump_folder)
 

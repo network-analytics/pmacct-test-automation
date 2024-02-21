@@ -37,7 +37,7 @@ def main(consumers):
     assert th.read_and_compare_messages('daisy.flow', 'flow-00')
 
     # Make sure the expected logs exist in pmacct log
-    transform_log_file(testParams.log_files.get_item_like('log-00'))
+    transform_log_file(testParams.log_files.get_path_like('log-00'))
     assert th.check_file_regex_sequence_in_pmacct_log('log-00')
     assert not th.check_regex_in_pmacct_log('ERROR|WARN')
 
@@ -54,6 +54,6 @@ def main(consumers):
     assert th.read_and_compare_messages('daisy.flow', 'flow-01')
 
     # Make sure the expected logs exist in pmacct log
-    transform_log_file(testParams.log_files.get_item_like('log-01'))
+    transform_log_file(testParams.log_files.get_path_like('log-01'))
     assert th.check_file_regex_sequence_in_pmacct_log('log-01')
     assert not th.check_regex_in_pmacct_log('ERROR|WARN')

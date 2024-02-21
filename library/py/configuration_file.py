@@ -10,12 +10,13 @@ from typing import List, Dict
 logger = logging.getLogger(__name__)
 
 
+# Represents a pmacct configuration file. The --> syntax key[subkey]: value <-- is assumed.
 class KConfigurationFile:
     def __init__(self, filename: str):
         self.data = {}
         self.read_conf_file(filename)
 
-    # Loads configuration from file whose name is passed
+    # Loads pmacct configuration from file whose name is passed
     def read_conf_file(self, filename: str):
         self.data = {}
         with open(filename, 'r') as file:
@@ -66,6 +67,8 @@ class KConfigurationFile:
                     if subkey is None or sk == subkey:
                         self.data[key][sk] = value
 
+    # Returns all kafka topics found in the configration file. Different Kafka topics need to have
+    # different keys!
     def get_kafka_topics(self) -> Dict:
         retval = {}
         for propname in self.data.keys():
@@ -75,6 +78,7 @@ class KConfigurationFile:
                 retval[propname] = list(self.data[propname].values())[0]
         return retval
 
+    # Used when dumping configuration back to file. Follows syntax: --> key[subkey]: value <--
     def print_key_to_stringlist(self, key: str) -> List[str]:
         lines = []
         for k in self.data[key]:
@@ -84,6 +88,7 @@ class KConfigurationFile:
                 lines.append(key + '[' + k + ']: ' + self.data[key][k])
         return lines
 
+    # Dumps configuration back to a file
     def print_to_file(self, filename: str):
         logger.debug('Dumping configuration to file: ' + filename)
         with open(filename, 'w') as f:

@@ -28,7 +28,7 @@ def main(consumers):
 
     # Loading log file into loglines list
     th.transform_log_file('log-00', 'traffic-reproducer-303')
-    with open(testParams.log_files.get_item_like('log-00'), 'r') as f:
+    with open(testParams.log_files.get_path_like('log-00'), 'r') as f:
         loglines = f.read().split('\n')
 
     # Make sure pmacct instances started in the right order
