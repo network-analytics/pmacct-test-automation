@@ -17,16 +17,7 @@ testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.
 @pytest.mark.bgp_only
 @pytest.mark.basic
 def test(test_core, consumer_setup_teardown):
-<<<<<<< HEAD
-    main(consumer_setup_teardown[0])
-
-def transform_log_file_custom(logfile, repro_ips):
-    # repro_ips = [info['repro_ip']  for info in repro_info_list]
-    token = secrets.token_hex(4)[:8]
-    helpers.replace_in_file(logfile, '${repro_ip}', token)
-    test_tools.transform_log_file(logfile)  # the usual log transformations
-    helpers.replace_in_file(logfile, token, '(' + '|'.join(repro_ips) + ')')
-
+    main(consumer_setup_teardown)
 
 
 def main(consumers):
