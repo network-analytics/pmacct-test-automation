@@ -1,12 +1,12 @@
 
 from library.py.test_params import KModuleParams
-import library.py.scripts as scripts
-import library.py.helpers as helpers
-import logging, pytest
-import library.py.test_tools as test_tools
+from library.py.test_helper import KTestHelper
+import logging
+import pytest
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd')
+
 
 @pytest.mark.nfacctd
 @pytest.mark.ipfix
@@ -16,30 +16,24 @@ testParams = KModuleParams(__file__, daemon='nfacctd')
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
 
+
 def main(consumers):
-    # Reproduce all the pcap files
-    for i in range(len(testParams.pcap_folders)):
-        assert scripts.replay_pcap_detached(testParams.pcap_folders[i])
+    th = KTestHelper(testParams, consumers)
+    assert th.spawn_traffic_container('traffic-reproducer-400a', detached=True)
+    assert th.spawn_traffic_container('traffic-reproducer-400b', detached=True)
 
-    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.flow'),
-        testParams, 'flow-00',
-        ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
+    th.set_ignored_fields(['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
+    assert th.read_and_compare_messages('daisy.flow', 'flow-00')
+    th.set_ignored_fields(['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
+    assert th.read_and_compare_messages('daisy.bmp', 'bmp-00')
 
-    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'),
-        testParams, 'bmp-00',
-        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
-
-    # Make sure the expected logs exist in pmacct log
-    logfile = testParams.log_files.getFileLike('log-00')
-    test_tools.transform_log_file(logfile)
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
+    th.transform_log_file('log-00')
+    assert th.check_file_regex_sequence_in_pmacct_log('log-00')
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
 
     # Close connections
     logger.info('Stopping traffic container (closing TCP connections)')
-    for i in range(len(testParams.pcap_folders)):
-        assert scripts.stop_and_remove_traffic_container(testParams.pcap_folders[i])
+    assert th.delete_traffic_container('traffic-reproducer-400a')
+    assert th.delete_traffic_container('traffic-reproducer-400b')
 
-    assert test_tools.read_and_compare_messages(consumers.getReaderOfTopicStartingWith('daisy.bmp'),
-        testParams, 'bmp-01',
-        ['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
+    assert th.read_and_compare_messages('daisy.bmp', 'bmp-01')

@@ -1,12 +1,13 @@
 
 from library.py.test_params import KModuleParams
-import library.py.scripts as scripts
-import library.py.helpers as helpers
-import logging, pytest, time, datetime
+from library.py.test_helper import KTestHelper
+import logging
+import pytest
 import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd')
+
 
 @pytest.mark.nfacctd
 @pytest.mark.ipfix
@@ -15,16 +16,18 @@ testParams = KModuleParams(__file__, daemon='nfacctd')
 @pytest.mark.nfv9
 @pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
-    main(consumer_setup_teardown[0])
+    main(consumer_setup_teardown)
 
-def main(consumer):
+
+def main(consumers):
+    th = KTestHelper(testParams, consumers)
+
     # Make sure that traffic reproducers do not start in different minutes
     test_tools.avoid_time_period_in_seconds(25, 30)
+    for suffix in ['a', 'b', 'c']:
+        assert th.spawn_traffic_container('traffic-reproducer-110' + suffix)
 
-    for pcap_folder in testParams.pcap_folders:
-        assert scripts.replay_pcap_detached(pcap_folder)
+    th.set_ignored_fields(['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
+    assert th.read_and_compare_messages('daisy.flow', 'flow-00')
 
-    assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
-        ['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
-
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
