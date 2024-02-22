@@ -1,7 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 # Functions for preparing the environment for the
-# test case to run in - test part
+# test case to run in - pmacct part
 # nikolaos.tsokas@swisscom.com 11/05/2023
 ###################################################
 

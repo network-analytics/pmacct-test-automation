@@ -1,12 +1,10 @@
 
 from library.py.test_params import KModuleParams
 from library.py.test_helper import KTestHelper
-import library.py.scripts as scripts
 import library.py.helpers as helpers
 import shutil
 import logging
 import pytest
-import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.')
@@ -26,7 +24,6 @@ def transform_log_file(logfile):
     helpers.replace_in_file(logfile, '/etc/pmacct', testParams.pmacct_mount_folder, 'Reading configuration file')
     helpers.replace_in_file(logfile, '.map]', '-00.map]')
     helpers.replace_in_file(logfile, 'primitives.map', 'primitives-00.map')
-    test_tools.transform_log_file(logfile)
 
 
 def main(consumers):
@@ -38,6 +35,7 @@ def main(consumers):
 
     # Make sure the expected logs exist in pmacct log
     transform_log_file(testParams.log_files.get_path_like('log-00'))
+    th.transform_log_file('log-00')
     assert th.check_file_regex_sequence_in_pmacct_log('log-00')
     assert not th.check_regex_in_pmacct_log('ERROR|WARN')
 
@@ -47,7 +45,7 @@ def main(consumers):
         shutil.move(filename + '-01.map', filename + '-00.map')
 
     # Sending the signal to reload maps
-    assert scripts.send_signal_to_pmacct(testParams.pmacct_name, 'SIGUSR2')
+    assert th.send_signal_to_pmacct('SIGUSR2')
 
     assert th.spawn_traffic_container('traffic-reproducer-102')
 
@@ -55,5 +53,6 @@ def main(consumers):
 
     # Make sure the expected logs exist in pmacct log
     transform_log_file(testParams.log_files.get_path_like('log-01'))
+    th.transform_log_file('log-01')
     assert th.check_file_regex_sequence_in_pmacct_log('log-01')
     assert not th.check_regex_in_pmacct_log('ERROR|WARN')

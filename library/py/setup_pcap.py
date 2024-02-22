@@ -1,7 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
 # Functions for preparing the environment for the
-# test case to run in - pcap part
+# test case to run in - traffic reproduction part
 # nikolaos.tsokas@swisscom.com 11/05/2023
 ###################################################
 
@@ -21,6 +21,7 @@ class KTrafficSetup:
     def __init__(self, params: KModuleParams):
         self.params = params
 
+    # All functionality triggered by this method, which is the only "public"
     def build(self):
         self.params.traffic_folders.clear()
         if not os.path.isfile(self.params.test_folder + '/container-setup.yml'):
@@ -74,7 +75,7 @@ class KTrafficSetup:
         # Otherwise, it is not possible for a single server (container) to replay these traffic data
         config_file_src = self.params.test_folder + '/' + container['processes'][0]['config']
         repro_ip = helpers.get_reproduction_ip(config_file_src)
-        for i in range(len(container['processes'])):
+        for i in range(1, len(container['processes'])):
             config_file_src = self.params.test_folder + '/' + container['processes'][i]['config']
             if repro_ip != helpers.get_reproduction_ip(config_file_src):
                 logger.error('IP addresses assigned to the same traffic reproducer do not match!')
