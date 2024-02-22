@@ -1,7 +1,6 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-# Highest-level test functions for test cases to
-# reuse repeatable/common functionality
+# Functions for repeatable/common functionality
 # nikolaos.tsokas@swisscom.com 07/07/2023
 ###################################################
 

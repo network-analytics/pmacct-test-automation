@@ -1,7 +1,6 @@
 
 from library.py.test_params import KModuleParams
 from library.py.test_helper import KTestHelper
-import library.py.scripts as scripts
 import time
 import logging
 import pytest
@@ -32,7 +31,7 @@ def main(consumers):
     # time.sleep(180)
 
     # Sending the signal to recreate log file
-    assert scripts.send_signal_to_pmacct('nfacctd-00', 'SIGHUP')
+    assert th.send_signal_to_pmacct('SIGHUP')
 
     logger.debug('Waiting 65 sec')
     time.sleep(65)

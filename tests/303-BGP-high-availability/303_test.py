@@ -2,7 +2,6 @@
 from library.py.test_params import KModuleParams
 from library.py.test_helper import KTestHelper
 import library.py.helpers as helpers
-import library.py.scripts as scripts
 import library.py.json_tools as json_tools
 import logging
 import pytest
@@ -49,45 +48,45 @@ def main(consumers):
     assert th.check_regex_in_pmacct_log(loglines[3], 'nfacctd-01')
     assert th.check_regex_in_pmacct_log(loglines[3], 'nfacctd-02')
 
-    assert scripts.send_signal_to_pmacct('nfacctd-00', 'SIGRTMIN')  # Resetting timestamp on A
+    assert th.send_signal_to_pmacct('SIGRTMIN', 'nfacctd-00')  # Resetting timestamp on A
     time.sleep(2)
     assert th.check_regex_sequence_in_pmacct_log([loglines[4], loglines[2]], 'nfacctd-00')
     assert th.check_regex_in_pmacct_log(loglines[1], 'nfacctd-01')
 
     time.sleep(5)
-    assert scripts.send_signal_to_pmacct('nfacctd-01', 'SIGRTMIN')  # Resetting timestamp on B
+    assert th.send_signal_to_pmacct('SIGRTMIN', 'nfacctd-01')  # Resetting timestamp on B
     time.sleep(2)
     assert th.check_regex_sequence_in_pmacct_log([loglines[4], loglines[2]], 'nfacctd-01')
     assert th.check_regex_in_pmacct_log(loglines[1], 'nfacctd-02')
 
     time.sleep(5)
-    assert scripts.send_signal_to_pmacct('nfacctd-02', 'SIGRTMIN+1')  # Setting C to forced-active
+    assert th.send_signal_to_pmacct('SIGRTMIN+1', 'nfacctd-02')  # Setting C to forced-active
     time.sleep(2)
     assert th.check_regex_in_pmacct_log(loglines[5], 'nfacctd-02')
     time.sleep(2)
-    assert scripts.send_signal_to_pmacct('nfacctd-00', 'SIGRTMIN+2')  # Setting A to forced-standby
+    assert th.send_signal_to_pmacct('SIGRTMIN+2', 'nfacctd-00')  # Setting A to forced-standby
     time.sleep(2)
     assert th.check_regex_in_pmacct_log(loglines[6], 'nfacctd-00')
     time.sleep(2)
-    assert scripts.send_signal_to_pmacct('nfacctd-01', 'SIGRTMIN+2')  # Setting B to forced-standby
+    assert th.send_signal_to_pmacct('SIGRTMIN+2', 'nfacctd-01')  # Setting B to forced-standby
     time.sleep(2)
     assert th.check_regex_in_pmacct_log(loglines[6], 'nfacctd-01')
 
     time.sleep(5)
-    assert scripts.send_signal_to_pmacct('nfacctd-02', 'SIGRTMIN')  # Resetting timestamp on C
+    assert th.send_signal_to_pmacct('SIGRTMIN', 'nfacctd-02')  # Resetting timestamp on C
     time.sleep(2)
     assert th.check_regex_in_pmacct_log(loglines[8], 'nfacctd-02')
     time.sleep(5)
-    assert scripts.send_signal_to_pmacct('nfacctd-00', 'SIGRTMIN+3')  # Setting A to auto-mode
+    assert th.send_signal_to_pmacct('SIGRTMIN+3', 'nfacctd-00')  # Setting A to auto-mode
     time.sleep(2)
     assert th.check_regex_sequence_in_pmacct_log([loglines[7], loglines[1]], 'nfacctd-00')
 
-    assert scripts.send_signal_to_pmacct('nfacctd-01', 'SIGRTMIN+3')  # Setting B to auto-mode
+    assert th.send_signal_to_pmacct('SIGRTMIN+3', 'nfacctd-01')  # Setting B to auto-mode
     time.sleep(2)
     assert th.check_regex_in_pmacct_log(loglines[7], 'nfacctd-01')
 
     time.sleep(5)
-    assert scripts.send_signal_to_pmacct('nfacctd-02', 'SIGRTMIN+3')  # Setting C to auto-mode
+    assert th.send_signal_to_pmacct('SIGRTMIN+3', 'nfacctd-02')  # Setting C to auto-mode
     time.sleep(2)
     assert th.check_regex_sequence_in_pmacct_log([loglines[7], loglines[2]], 'nfacctd-02')
 

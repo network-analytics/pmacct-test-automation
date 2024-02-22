@@ -1,8 +1,7 @@
 ###################################################
 # Automated Testing Framework for Network Analytics
-# Functions for preparing the environment for the
-# test case to run in
-# nikolaos.tsokas@swisscom.com 11/05/2023
+# Encapsulation of test case parameters
+# nikolaos.tsokas@swisscom.com 05/02/2023
 ###################################################
 
 from library.py.helpers import select_files, read_config_file, KPathList
@@ -12,6 +11,7 @@ import os
 logger = logging.getLogger(__name__)
 
 
+# Encapsulation of parameters describing a pmacct instance
 class KPmacctParams:
     def __init__(self, main_results_folder: str, pmacct_name: str):
         self.name = pmacct_name
@@ -25,6 +25,7 @@ class KPmacctParams:
         self.test_conf_file = self.process_name = self.ipv4 = self.ipv6 = None
 
 
+# Encapsulation of parameters defining a test case
 class KModuleParams:
     def __init__(self, test_file: str, daemon: str = 'nfacctd', ipv4_subnet: str = '', ipv6_subnet: str = ''):
         self.daemon = daemon
@@ -65,7 +66,7 @@ class KModuleParams:
     def pmacct_docker_compose_file(self):
         return self.pmacct[0].docker_compose_file
 
-    def set_pmacct_params(self):
+    def _set_pmacct_params(self):
         self.pmacct = []
         index = 0
         for conffile in self.test_conf_files:
@@ -103,7 +104,7 @@ class KModuleParams:
         logger.debug('Test config files: ' + str(self.test_conf_files))
         logger.debug('Test output files: ' + str(self.test_output_files))
         logger.debug('Test log files: ' + str(self.test_log_files))
-        self.set_pmacct_params()
+        self._set_pmacct_params()
 
     # Returns the configuration object corresponding to the pmacct instance with the provided name
     def get_pmacct_with_name(self, pmacct_name: str) -> Optional[KPmacctParams]:

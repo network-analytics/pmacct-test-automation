@@ -63,6 +63,7 @@ tools/pmacct_build/build_docker_images.sh
 To run one or more test cases:
 ```shell
 ./runtest.sh  [--dry] \
+              [--exitfirst] \
               [--loglevel=<log level>] \
               [--mark=<expression>] \
               [--key=<expression>] <test case number or wildcard>[:<scenario or wildcard>] \
@@ -94,9 +95,9 @@ To stop Kafka components, including the created network, do:
 tools/stop_all.sh
 ```
 
-Local folder **results/\<test case\>/pmacct_mount** is mounted on pmacct container's folder **/var/log/pmacct**
+Local folders **results/\<test case\>/<pmacct name>/pmacct_mount** are mounted on pmacct containers' folder **/var/log/pmacct**
 
-Local folder(s) **results/\<test case\>/pcap_mount_n** are mounted on traffic reproducer container's folder **/pcap**
+Local folders **results/\<test case\>/<container_name>** are mounted on traffic reproducer containers' folder **/pcap**
 
 ## 3 - Test Cases
 
@@ -126,6 +127,7 @@ Local folder(s) **results/\<test case\>/pcap_mount_n** are mounted on traffic re
 - 300: BGP-IPv6-CISCO-extNH_enc
 - 301: BGP-CISCO-pretag
 - 302: BGP-IPv6-multiple-sources
+- 303: BGP-high-availability
 ```
 
 ### 4XX - IPFIX/NFv9 + BMP
@@ -157,6 +159,8 @@ For a new test it is necessary to provide at least the following files:
 ```
 - XXX_test.py                             pytest file defining test execution
 
+- container-setup.yml                     file describing the traffic container setup
+
 - traffic-00.pcap                         pcap file (for traffic generator)
 - traffic-reproducer-00.yml               traffic replay function config file
 
@@ -180,21 +184,22 @@ This is possible since the framework will always provide the kafka dumps (in the
 
 As example, if we want to generate the output files for test 100 (assuming that the output-flow-00.json file is not existing yet), we cannot just run the test normally as the *read_and_compare_messages* function will throw an error.
 ```
-def main(consumer):
-    assert scripts.replay_pcap(testParams.pcap_folders[0])
+def main(consumers):
+    th = KTestHelper(testParams, consumers)
+    assert th.spawn_traffic_container('traffic-reproducer')
 
-    assert test_tools.read_and_compare_messages(consumer, testParams, 'flow-00',
-        ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
+    th.set_ignored_fields(['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
+    assert th.read_and_compare_messages('daisy.flow', 'flow-00')
 ```
 
 To overcome this, we can temporarily replace that function with another one specifically developed for this purpose:
 ```
-    assert test_tools.read_messages_dump_only(consumer, testParams, 'flow-00', wait_time=120)             # wait_time is optional (default=120s)
+    assert test_tools.read_messages_dump_only(consumers[0], testParams, 'flow-00', wait_time=120)             # wait_time is optional (default=120s)
 ```
 
 It's also possible to keep all the original arguments and just replace the function name, as the ignore_fields parameter will simply be ignored:
 ```
-    assert test_tools.read_messages_dump_only(consumer, testParams, 'flow-00',
+    assert test_tools.read_messages_dump_only(consumers[0], testParams, 'flow-00',
         ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])       # wait_time is optional (default=120s)
 ```
 
@@ -212,16 +217,16 @@ The framework allows for checking the logfile as well, i.e. to detect if any ERR
 
 Concretely, this works by adding in the test file something like:
 ```
+    th.transform_log_file('log-00')
+    
     # Match for patterns in a provided file
-    logfile = testParams.log_files.get_path_like('log-00')
-    test_tools.transform_log_file(logfile)
-    assert helpers.check_file_regex_sequence_in_file(testParams.pmacct_log_file, logfile)
-
+    assert th.check_file_regex_sequence_in_pmacct_log('log-00')
+    
     # Match for patterns provided directly
-    assert not helpers.check_regex_sequence_in_file(testParams.pmacct_log_file, ['ERROR|WARN'])
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
 ```
 
-The framework provides a helper function (*test_tools.transform_log_file*), which transforms some specific macros in regular expressions that can be directly matched with the live pmacct log output.
+The framework provides a helper function (*transform_log_file*) with KTestHelper class, which transforms some specific macros in regular expressions that can be directly matched with the live pmacct log output.
 
 As an example, the following line:
 ```
@@ -325,9 +330,9 @@ In [tests/conftest.py](tests/conftest.py) we define the following fixtures, i.e.
 **prepare_test** creates results folder, pmacct_mount, etc. and copies all needed files there 
     edits pmacct config file with framework-specific details (IPs, ports, paths, etc.)
 
-**pmacct_setup_teardown** sets up (and tears down) pmacct container itself
+**pmacct_setup_teardown** sets up (and tears down) pmacct containers
 
 **prepare_pcap** edits pcap configuration file with framework-specific IPs and hostnames
-              creates pcap_mount_n folders and copies traffic pcap and reproducer conf
+              creates traffic reproduction container folders and copies traffic pcap and reproducer conf
 
-**consumer_setup_teardown** creates and tears down the Kafka consumer (message reader)
+**consumer_setup_teardown** creates and tears down the Kafka consumers (message reader)

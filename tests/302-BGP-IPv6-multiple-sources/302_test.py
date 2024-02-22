@@ -29,7 +29,7 @@ def main(consumers):
     th.set_ignored_fields(['seq', 'timestamp', 'peer_tcp_port'])
     assert th.read_and_compare_messages('daisy.bgp', 'bgp-00', 90)
 
-    test_tools.transform_log_file(testParams.log_files.get_path_like('log-00'), '172.21.1.1\\d{2}|fd25::1\\d{2}')
+    th.transform_log_file_with_ip('log-00', '172.21.1.1\\d{2}|fd25::1\\d{2}')
     assert th.wait_and_check_logs('log-00', 30, 10)
     assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!(.*Unable to get kafka_host)|(.*Refusing new connection))')
 
@@ -47,7 +47,7 @@ def main(consumers):
     th.set_ignored_fields(['seq', 'timestamp', 'peer_tcp_port', 'label'])
     assert th.read_and_compare_messages('daisy.bgp', 'bgp-01', 90)
 
-    test_tools.transform_log_file(testParams.log_files.get_path_like('log-04'), '172.21.1.1\\d{2}|fd25::1\\d{2}')
+    th.transform_log_file_with_ip('log-04', '172.21.1.1\\d{2}|fd25::1\\d{2}')
     assert th.wait_and_check_logs('log-04', 30, 5)
     # Check logs --> retry each 5s for max 30s as it takes some time to stop traffic-repro containers
 
