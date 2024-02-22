@@ -48,7 +48,7 @@ jobs:
           echo
           echo "Saving images as artifacts..."
           mkdir -p /tmp/docker/
-          docker save -o /tmp/docker/traffic_reproducer_docker_images.tar traffic-reproducer:_build traffic-reproducer-multi:_build
+          docker save -o /tmp/docker/traffic_reproducer_docker_images.tar traffic-reproducer:_build
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
