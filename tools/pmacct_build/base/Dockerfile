@@ -54,13 +54,9 @@ RUN ./ci/deps.sh
 COPY . .
 RUN export AVRO_LIBS="-L/usr/local/avro/lib -lavro" && \
   export AVRO_CFLAGS="-I/usr/local/avro/include" && \
-  ./autogen.sh && ./configure --enable-mysql --enable-pgsql     \
-                              --enable-sqlite3 --enable-kafka   \
-                              --enable-geoipv2 --enable-jansson \
-                              --enable-rabbitmq --enable-nflog  \
-                              --enable-ndpi --enable-zmq        \
-                              --enable-avro --enable-serdes     \
-                              --enable-redis --enable-gnutls && \
+  ./autogen.sh && ./configure --enable-kafka --enable-redis  \
+                              --enable-zmq  --enable-jansson \
+                              --enable-avro --enable-serdes && \
   make install
 
 FROM debian:bullseye-slim as base

@@ -11,6 +11,8 @@ testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet=
 
 @pytest.mark.nfacctd
 @pytest.mark.signals
+
+@pytest.mark.xfail  # Expected to fail due to signals not going through with docker images
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 

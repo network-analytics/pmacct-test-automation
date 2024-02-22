@@ -13,6 +13,7 @@ testParams = KModuleParams(sys.modules[__name__], daemon='nfacctd', ipv4_subnet=
 @pytest.mark.ipfix_only
 @pytest.mark.nfv9
 @pytest.mark.avro
+@pytest.mark.basic
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown[0])
 
