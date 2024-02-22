@@ -1,10 +1,11 @@
+#!/bin/bash
 ###################################################
 # Automated Testing Framework for Network Analytics
 # Pytest wrapper script for running test cases or
 # groups thereof
 # nikolaos.tsokas@swisscom.com 30/06/2023
 ###################################################
-#!/bin/bash
+
 
 function handle_interrupt() {
   echo "Called handle_interrupt"
