@@ -1,6 +1,6 @@
 # TODO DAISY:
-# - when multi-config execution is supported), add multiple options with path_id/mpls_vpn_rd
-#   and also different buckets (per/per_peer buckets) [in this test we have 3 sources and lots of RDs!]
+# - add multiple scenarios with path_id/mpls_vpn_rd
+#   --> and also different buckets (per/per_peer buckets) [in this test we have 3 sources and lots of RDs!]
 
 from library.py.test_params import KModuleParams
 from library.py.test_helper import KTestHelper
@@ -44,7 +44,7 @@ def main(consumers):
     for suffix in ['a', 'b', 'cd']:
         assert th.delete_traffic_container('traffic-reproducer-302' + suffix)
 
-    # TODO DAISY: - we need to debug why pretag is not working properly on delete messages (bug)
+    # TODO DAISY: - we need to debug why pretag is not working properly on delete messages (possible bug)
     #                --> until then we check the delete messages excluding the label field
     th.set_ignored_fields(['seq', 'timestamp', 'peer_tcp_port', 'label'])
     assert th.read_and_compare_messages('daisy.bgp', 'bgp-01', 90)

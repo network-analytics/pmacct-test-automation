@@ -46,7 +46,7 @@ The 3 daemons are configured in HA, meaning that when started they will negotiat
 
 Then start 3 instances of the traffic reproducer in detached mode: same pcap, same config, only difference is each one is replaying the traffic to one of the nfacctd collectors. The traffic reproducers will not kill the TCP connection after finishing replaying the packets (keep_open=true). 
 
-**HINT**: we might need some logic to ensure that the traffic reproducers are not started when XX:00 - XX:05 (similar to test case 302). That's to avoid a situation where traffic repro 1 is started at XX:04 and the others after XX:05 leading to the reproduction being out of sync for the 3 daemons (TODO: discuss further --> actually this should not matter, as HA should handle a couple of seconds out of sync, and also this could happen in real routers as well).
+**HINT**: ensure that the traffic reproducers are not started when time \> XX:55 or time \< XX:05. That's to avoid a situation where traffic repro 1 is started at XX:04 and the others after XX:05 leading to the reproduction being out of sync for the 3 daemons.
 
 **Now perform the following actions:**
 
