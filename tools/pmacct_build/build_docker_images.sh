@@ -4,19 +4,15 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
 
-# Pull pmacct
-#if [ ! -d $SCRIPT_DIR/pmacct ] ; then
-#  git clone "https://github.com/rodonile/pmacct.git" $SCRIPT_DIR/pmacct
-#fi
+PMACCT_LOCATION="$SCRIPT_DIR/pmacct"
+if [ ! -d "$PMACCT_LOCATION" ]; then
+  echo "Error: $PMACCT_LOCATION does not exist."
+  echo
+  echo "     !!! Please clone the pmacct repo in $SCRIPT_DIR !!!"
+  echo
+  exit 1
+fi
 
-# Update source tree
-cd $SCRIPT_DIR/pmacct
-#git fetch origin
-#git checkout master
-#git pull
-
-# TODO: make it available to change as a script argument (default local)
-# TODO: make also repo url available (default master pmacct)
 TAG='_build'
 
 echo "Building pmacct docker images"
