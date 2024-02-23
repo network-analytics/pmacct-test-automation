@@ -185,7 +185,7 @@ Refer to [library/py/test_helpers.py](library/py/test_helpers.py) as documentati
 - [library/py/helpers.py](library/py/helpers.py): miscellaneous generic python helpers.
 - [library/py/scripts.py](library/py/scripts.py): bash scripts wrappers, mainly for setting up and managing docker containers.
 
-Refer to those files as well if you need more additional functionalitie for more complex test cases.
+Refer to those files as well if you need more additional functionality for more complex test cases.
 
 ### Pcap File
 
