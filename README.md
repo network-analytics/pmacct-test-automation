@@ -154,7 +154,6 @@ Local folders **results/\<test case\>/<container_name>** are mounted on traffic 
 ```
 - 900: kafka-connection-loss
 - 901: redis-connection-loss
-- 902: log-rotation-signal              [TODO: fix or move to dev branch]
 ```
 
 ## 4 - Developing Test Cases
