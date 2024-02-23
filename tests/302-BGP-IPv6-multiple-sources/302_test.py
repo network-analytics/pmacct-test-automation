@@ -49,7 +49,8 @@ def main(consumers):
     assert th.read_and_compare_messages('daisy.bgp', 'bgp-01', 90)
 
     th.transform_log_file_with_ip('log-04', '172.21.1.1\\d{2}|fd25::1\\d{2}')
-    assert th.wait_and_check_logs('log-04', 30, 5)
+    
     # Check logs --> retry each 5s for max 30s as it takes some time to stop traffic-repro containers
+    assert th.wait_and_check_logs('log-04', 30, 5)
 
     assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!(.*Unable to get kafka_host)|(.*Refusing new connection))')
