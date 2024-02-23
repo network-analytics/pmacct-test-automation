@@ -11,6 +11,7 @@ testParams = KModuleParams(__file__, daemon='nfacctd', ipv6_subnet='cafe::')
 @pytest.mark.nfacctd
 @pytest.mark.bgp
 @pytest.mark.bgp_only
+@pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
 

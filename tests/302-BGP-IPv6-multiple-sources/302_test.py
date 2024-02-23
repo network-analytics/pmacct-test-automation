@@ -16,6 +16,7 @@ testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.
 @pytest.mark.bgp
 @pytest.mark.bgp_only
 @pytest.mark.basic
+@pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
 

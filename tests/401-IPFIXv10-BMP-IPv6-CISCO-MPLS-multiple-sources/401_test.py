@@ -14,6 +14,7 @@ testParams = KModuleParams(__file__, daemon='nfacctd')
 @pytest.mark.bmp
 @pytest.mark.bmpv3
 @pytest.mark.basic
+@pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
 
