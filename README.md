@@ -79,7 +79,7 @@ Examples:
 ./runtest.sh 101 103:02 201 301               # run tests 101, 201 and 301 [all scenarios] and test 103[scenario 02]"
 ./runtest.sh 1*                               # run all 1XX tests[all scenarios]"
 ./runtest.sh 1* --mark=ipfixv10               # run all 1XX tests[all scenarios] with IPFIX v10 data"
-./runtest.sh 4*:01                            # run all 4XX tests[scenarios 1]"                                       # TODO: not working
+./runtest.sh 4*:01                            # run all 4XX tests[scenarios 1]"
 ./runtest.sh --loglevel=DEBUG 2*              # run all 2XX tests[all scenarios] with log level DEBUG"
 ./runtest.sh --loglevel=DEBUG 103 202         # run tests 103 and 202 [all scenarios] with log level DEBUG"
 ./runtest.sh *                                # run all test cases[all scenarios]"
