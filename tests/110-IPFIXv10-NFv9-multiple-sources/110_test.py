@@ -25,7 +25,7 @@ def main(consumers):
     # Make sure that traffic reproducers do not start in different minutes
     test_tools.avoid_time_period_in_seconds(25, 30)
     for suffix in ['a', 'b', 'c']:
-        assert th.spawn_traffic_container('traffic-reproducer-110' + suffix)
+        assert th.spawn_traffic_container('traffic-reproducer-110' + suffix, detached=True)
 
     th.set_ignored_fields(['timestamp_arrival', 'timestamp_min', 'timestamp_max', 'stamp_inserted', 'stamp_updated'])
     assert th.read_and_compare_messages('daisy.flow', 'flow-00')
