@@ -12,6 +12,7 @@ testParams = KModuleParams(__file__, daemon='nfacctd')
 @pytest.mark.ipfix
 @pytest.mark.bgp
 @pytest.mark.basic
+@pytest.mark.avro
 def test(test_core, consumer_setup_teardown):
     main(consumer_setup_teardown)
 

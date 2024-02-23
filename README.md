@@ -154,7 +154,6 @@ Local folders **results/\<test case\>/<container_name>** are mounted on traffic 
 ```
 - 900: kafka-connection-loss
 - 901: redis-connection-loss
-- 902: log-rotation-signal              [TODO: fix or move to dev branch]
 ```
 
 ## 4 - Developing Test Cases
@@ -179,7 +178,7 @@ Other files can be added or might be necessary depending on the specific test.
 
 ### Test Functions
 
-Refer to [library/py/test_helpers.py](library/py/test_helpers.py) as documentation for test helper functions available (KTestHelper Class). These helper functions include all the required functionalty for developing basic tests, and are mainly wrappers for functions defined in:
+Refer to [library/py/test_helper.py](library/py/test_helper.py) as documentation for test helper functions available (KTestHelper Class). These helper functions include all the required functionalty for developing basic tests, and are mainly wrappers for functions defined in:
 
 - [library/py/test_tools.py](library/py/test_tools.py): generic test functionaliy: wait timeouts, replace entries in json and log files, compare messages, ...
 - [library/py/helpers.py](library/py/helpers.py): miscellaneous generic python helpers.
