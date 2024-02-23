@@ -25,4 +25,4 @@ done
 
 echo "Building traffic reproducer docker images"
 cd tools/pcap_player
-./build_docker_images.sh
+./build_docker_image.sh
