@@ -102,9 +102,9 @@ To stop Kafka components, including the created network, do:
 tools/stop_all.sh
 ```
 
-Local folders **results/\<test case\>/<pmacct name>/pmacct_mount** are mounted on pmacct containers' folder **/var/log/pmacct**
+Local folders **results/\<test case\>/\<pmacct name>/pmacct_mount** are mounted on pmacct containers' folder **/var/log/pmacct**
 
-Local folders **results/\<test case\>/<container_name>** are mounted on traffic reproducer containers' folder **/pcap**
+Local folders **results/\<test case\>/\<container name>** are mounted on traffic reproducer containers' folder **/pcap**
 
 ## 3 - Test Cases
 
