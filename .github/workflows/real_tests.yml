@@ -1,3 +1,10 @@
+###################################################
+# Automated Testing Framework for Network Analytics
+# Github Action Workflow for Setting up the Framework
+# and running test cases
+# leonardo.rodoni@swisscom.com 22/02/2024
+###################################################
+
 name: real_tests
 
 on:
