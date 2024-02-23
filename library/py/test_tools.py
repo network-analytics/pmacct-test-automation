@@ -66,7 +66,7 @@ def read_messages_dump_only(consumer: KMessageReader, params: KModuleParams, wai
                 params.results_dump_folder)
 
     # Reading messages from Kafka topic
-    # The get_all_messages_timeout method consumes all messages and returns 
+    # The get_messages method with wait_time as only argument consumes all messages and returns 
     # when wait_time (default=120s) has passed
     messages = consumer.get_messages(wait_time)
     if len(messages) < 1:
@@ -103,8 +103,9 @@ def transform_log_file(filename: str, repro_ip: str = None):
 
 
 # Checks current second and, if needed, waits until the sleep period ends.
-# Example: a process needs to finish by hh:mm:15 (=end_of_period) and it can take up to 30 seconds (=length).
-# This means it must not start if seconds are greater than 45 or smaller than 15, until time goes hh:mm:15.
+# Example: a process should not start before hh:mm:15 (=end_of_period) and it might take up to 30 seconds (=length).
+# --> avoid_time_period_in_seconds(15, 30) will sleep when time is greater than mm:45 or smaller than mm:15, 
+#     and exits when time arrives at (or is already bigger then) mm:15.
 def avoid_time_period_in_seconds(end_of_period: int, length: int):
     if length > 60:
         raise Exception('Avoided time period longer than 1 minute (must be <= 60sec)')
