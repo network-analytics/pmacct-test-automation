@@ -30,7 +30,7 @@ def main(consumers):
     th.transform_log_file('log-00')
 
     logger.info('Looking for connection evidence')
-    assert th.wait_and_check_logs('log-00', 30, 10)
+    assert th.wait_and_check_logs('log-00', 10, 2)
     assert not th.check_regex_in_pmacct_log('ERROR|WARN')
 
     scripts.stop_and_remove_redis_container()
@@ -39,4 +39,4 @@ def main(consumers):
     th.transform_log_file('log-01')
 
     logger.info('Looking for lost connectivity evidence')
-    assert th.wait_and_check_logs('log-01', 90, 10)
+    assert th.wait_and_check_logs('log-01', 10, 2)

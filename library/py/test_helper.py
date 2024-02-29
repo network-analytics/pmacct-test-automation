@@ -73,13 +73,6 @@ class KTestHelper:
         return helpers.check_file_regex_sequence_in_file(pmacct.pmacct_log_file, logfile)
 
     # Checks the content of the log file of the pmacct instance of name pmacct_name against a list of regular
-    # expressions provided in the regexes parameter. If no pmacct_name is passed, the first one having been
-    # deployed is used.
-    def check_regex_sequence_in_pmacct_log(self, regexes: List, pmacct_name: str = None) -> bool:
-        pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
-        return helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, regexes)
-
-    # Checks the content of the log file of the pmacct instance of name pmacct_name against a list of regular
     # expressions included in the file implied by log_tag (searched for with *like* in the test results folder).
     # If no pmacct_name is passed, the first one having been deployed is used. If there is no match, the
     # checking is repeated after <seconds_repeat> seconds for a maximum time of <max_seconds> seconds.
@@ -97,6 +90,28 @@ class KTestHelper:
     def check_regex_in_pmacct_log(self, regex: str, pmacct_name: str = None) -> bool:
         pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
         return helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, [regex])
+
+    # TODO: document here...
+    def wait_and_check_regex_in_pmacct_log(self, regex: str, max_seconds: int, seconds_repeat: int, pmacct_name: str = None) -> bool:
+        pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
+        return helpers.retry_until_true('Checking expected logs',
+                                        lambda: helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, [regex]),
+                                        max_seconds, seconds_repeat)
+
+
+    # Checks the content of the log file of the pmacct instance of name pmacct_name against a list of regular
+    # expressions provided in the regexes parameter. If no pmacct_name is passed, the first one having been
+    # deployed is used.
+    def check_regex_sequence_in_pmacct_log(self, regexes: List, pmacct_name: str = None) -> bool:
+        pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
+        return helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, regexes)
+
+    # TODO: document here...
+    def wait_and_check_regex_sequence_in_pmacct_log(self, regexes: List, max_seconds: int, seconds_repeat: int, pmacct_name: str = None) -> bool:
+        pmacct = self.params.get_pmacct_with_name(pmacct_name) if pmacct_name else self.params.pmacct[0]
+        return helpers.retry_until_true('Checking expected logs',
+                                        lambda: helpers.check_regex_sequence_in_file(pmacct.pmacct_log_file, regexes),
+                                        max_seconds, seconds_repeat)
 
     # Disconnects all consumers from the kafka infrastructure
     def disconnect_consumers(self):

@@ -127,6 +127,7 @@ Local folders **results/\<test case\>/\<container name>** are mounted on traffic
 - 203: BMP-HUAWEI-dump
 - 204: BMP-CISCO-peer_down
 - 205: BMP-6wind-FRR-peer_down
+- 206: BMP-high-availability
 ```
 
 ### 3XX - BGP
@@ -141,6 +142,7 @@ Local folders **results/\<test case\>/\<container name>** are mounted on traffic
 ```
 - 400: IPFIXv10-BMP-CISCO-SRv6-multiple-sources
 - 401: IPFIXv10-BMP-IPv6-CISCO-MPLS-multiple-sources
+- 402: IPFIXv10-BMP-IPv6-high-availability
 ```
 
 ### 5XX - IPFIX/NFv9 + BGP
