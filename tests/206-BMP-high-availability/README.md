@@ -20,6 +20,7 @@ Traffic taken from test 205 (only a subset and timestamps adjusted and messages 
 
 - Default scenario: cdada queue max size 1000 messages (retention time, 15s)
 - Scenario-01: cdada queue max size unlimited (only limited by retention time, 15s)
+- Scenario-02: cdada queue max size unlimited (only limited by retention time, 10s)
 
 ### Test timeline:
 
