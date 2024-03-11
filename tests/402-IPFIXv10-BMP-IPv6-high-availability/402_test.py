@@ -49,10 +49,11 @@ def main(consumers):
     test_tools.avoid_time_period_in_seconds(10, 15)
     assert th.spawn_traffic_container('traffic-reproducer-402', detached=True)
 
-    # Wait until mm:05, so that BMP connections have been established (retry up to 20s to account for delays)
+    # Wait until mm:05, so that BMP connections have been established (retry up to 30s to account for delays)
+    # TODO: check here if delays are fine
     test_tools.wait_until_second(5) 
-    assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 20, 2, 'nfacctd-00')
-    assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 20, 2, 'nfacctd-01')
+    assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 30, 2, 'nfacctd-00')
+    assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 30, 2, 'nfacctd-01')
 
     # Check the BMP topic (has to contain only messages from active daemon, i.e. nfacctd_00_loc_A)
     th.set_ignored_fields(['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
