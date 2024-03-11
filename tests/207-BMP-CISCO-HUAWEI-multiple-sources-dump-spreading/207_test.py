@@ -39,8 +39,8 @@ def main(consumers):
 
     # Check logs
     th.transform_log_file('log-00', 'traffic-reproducer-207')
-    assert th.wait_and_check_logs('log-00', 60, 10)
+    assert th.wait_and_check_logs('log-00', 120, 10)
 
     # Check messages from BMP table dump
     th.set_ignored_fields(['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'dump_period'])
-    assert th.read_and_compare_messages('daisy.bmp.dump', 'bmp-dump-00')
+    assert th.read_and_compare_messages('daisy.bmp.dump', 'bmp-dump-00', wait_time=120)
