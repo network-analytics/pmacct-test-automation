@@ -212,13 +212,8 @@ def main(consumers):
 
 To overcome this, we can temporarily replace that function with another one specifically developed for this purpose:
 ```
-    assert test_tools.read_messages_dump_only(consumers[0], testParams, 'flow-00', wait_time=120)             # wait_time is optional (default=120s)
-```
-
-It's also possible to keep all the original arguments and just replace the function name, as the ignore_fields parameter will simply be ignored:
-```
-    assert test_tools.read_messages_dump_only(consumers[0], testParams, 'flow-00',
-        ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])       # wait_time is optional (default=120s)
+    consumer = consumers.get_consumer_of_topic_like('daisy.flow')
+    assert test_tools.read_messages_dump_only(consumers[0], testParams, wait_time=120)             # wait_time is optional (default=120s)
 ```
 
 This way we can simply call:
