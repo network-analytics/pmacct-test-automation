@@ -37,13 +37,10 @@ def main(consumers):
     assert th.check_regex_in_pmacct_log('\\[172\\.21\\.1\\.103] BMP peers usage')
     assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!.*Unable to get kafka_host)')
 
-    # Check logs and dumped messages
+    # Check logs
     th.transform_log_file('log-00', 'traffic-reproducer-207')
     assert th.wait_and_check_logs('log-00', 60, 10)
 
     # Check messages from BMP table dump
     th.set_ignored_fields(['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port', 'dump_period'])
     assert th.read_and_compare_messages('daisy.bmp.dump', 'bmp-dump-00')
-
-    #bmp_dump_consumer = consumers.get_consumer_of_topic_like('daisy.bmp.dump')
-    #assert test_tools.read_messages_dump_only(bmp_dump_consumer, testParams, wait_time=60)

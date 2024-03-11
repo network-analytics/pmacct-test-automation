@@ -2,8 +2,9 @@
 
 IMPORTANT: for this test we use the pmbmpd daemon (not nfacctd)!
 
-Testing with BMP traffic from 3 different source IPs. BMP table dump is enabled, and configured to be spread in different intervals. 
-The goal of this test is to validate functionality of the dump spreading feature.
+Testing with BMP traffic from 3 different source IPs. 
+BMP table dump is enabled, and configured to be spread in different intervals (depending on the scenario, see below).
+The goal of this test is to validate functionality of the table dump also with the dump spreading feature.
 
 (pcaps taken from test 202)
 
