@@ -1,6 +1,3 @@
-# TODO DAISY:
-# - add multiple scenarios with path_id/mpls_vpn_rd
-#   --> and also different buckets (per/per_peer buckets) [in this test we have 3 sources and lots of RDs!]
 
 from library.py.test_params import KModuleParams
 from library.py.test_helper import KTestHelper
@@ -10,7 +7,6 @@ import library.py.test_tools as test_tools
 logger = logging.getLogger(__name__)
 
 testParams = KModuleParams(__file__, daemon='nfacctd', ipv4_subnet='192.168.100.', ipv6_subnet='cafe::')
-
 
 @pytest.mark.nfacctd
 @pytest.mark.bgp
@@ -23,6 +19,8 @@ def test(test_core, consumer_setup_teardown):
 
 def main(consumers):
     th = KTestHelper(testParams, consumers)
+
+    # Ensure traffic-reproducers are not started too in the interval mm:55-mm+1:25
     test_tools.avoid_time_period_in_seconds(25, 30)
 
     for suffix in ['a', 'b', 'cd']:
