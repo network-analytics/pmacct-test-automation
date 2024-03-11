@@ -20,6 +20,10 @@ def test(test_core, consumer_setup_teardown):
 
 def main(consumers):
     th = KTestHelper(testParams, consumers)
+
+    # Ensure traffic-reproducers are not started too near mm:05
+    test_tools.avoid_time_period_in_seconds(10, 10)
+
     for suffix in ['a', 'b', 'c']:
         th.spawn_traffic_container('traffic-reproducer-207' + suffix, detached=True)
 
