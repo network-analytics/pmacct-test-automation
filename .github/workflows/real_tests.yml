@@ -29,6 +29,7 @@ on:
         - json
         - redis
         - signals
+        - ha
 
 jobs:
   ### Build Traffic Reproducer Images
