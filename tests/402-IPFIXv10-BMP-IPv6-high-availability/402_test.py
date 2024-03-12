@@ -1,9 +1,3 @@
-# Think about how can we deterministically check this...
-
-# Do it easy way --> just want to check that the stand-by daemon is able to correlate:
-
-# send same bgp to both, then same ipfix to both and result need to match, while second daemon does not need to produce anything to bgp topic!
-# check that writer ID for stand-by daemon is not there...
 
 from library.py.test_params import KModuleParams
 from library.py.test_helper import KTestHelper
@@ -49,18 +43,18 @@ def main(consumers):
     test_tools.avoid_time_period_in_seconds(10, 15)
     assert th.spawn_traffic_container('traffic-reproducer-402', detached=True)
 
-    # Wait until mm:05, so that BMP connections have been established (retry up to 30s to account for delays)
-    # TODO: check here if delays are fine
+    # Wait until mm:05, so that BMP connections have been established (retry up to 10s to account for delays)
     test_tools.wait_until_second(5) 
-    assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 30, 2, 'nfacctd-00')
-    assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 30, 2, 'nfacctd-01')
+    assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 10, 2, 'nfacctd-00')
+    assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 10, 2, 'nfacctd-01')
 
     # Check the BMP topic (has to contain only messages from active daemon, i.e. nfacctd_00_loc_A)
     th.set_ignored_fields(['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
     assert th.read_and_compare_messages('daisy.bmp', 'bmp-00')
 
     # Check the flow topic: we need to receive the exact same messages from both daemons
-    test_tools.wait_until_second(9) # Wait until mm:09, s.t. all messages will have been produced to kafka 
+    test_tools.wait_until_second(5) # Wait until mm:05 (s.t. we wait for the next minute)
+    time.sleep(10) # Wait 10s to ensure that all messages will have been produced to kafka 
     output_json_file = test_tools.replace_ips_and_get_reference_file(testParams, 'flow-00')
     messages = consumers[0].get_all_pending_messages()
     logger.info('Comparing messages received with json lines in file ' + helpers.short_name(output_json_file))
