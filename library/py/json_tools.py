@@ -144,10 +144,10 @@ def compare_json_lists_multi_match(json_list1: List[str], json_list2: List[str],
 # If multi_match_allowed is set to True, every reference json line can potentially be matched by multiple incoming
 # Kafka messages. This is useful in case e.g. we are expecting message duplicates from multiple pmacct instances.
 def compare_messages_to_json_file(message_dicts: List[Dict], jsonfile: str, ignore_fields: List[str] = None,
-                                  multi_match_allowed: bool = False) -> bool:
+                                  multi_match_allowed: bool = False, max_matches: int = -1) -> bool:
     with open(jsonfile) as f:
         lines = f.readlines()
     jsons = [json.dumps(msg) for msg in message_dicts]
     if multi_match_allowed:
-        return compare_json_lists_multi_match(jsons, lines, ignore_fields, 3)
+        return compare_json_lists_multi_match(jsons, lines, ignore_fields, max_matches)
     return compare_json_lists(jsons, lines, ignore_fields)

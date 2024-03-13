@@ -21,21 +21,28 @@ def test(test_core, consumer_setup_teardown):
 
 def main(consumers):
     th = KTestHelper(testParams, consumers)
+
+    # Reproduce pcap traffic
     assert th.spawn_traffic_container('traffic-reproducer-400a', detached=True)
     assert th.spawn_traffic_container('traffic-reproducer-400b', detached=True)
 
+    # Compare received messages on topic daisy.flow to reference file output-flow-00.json
     th.set_ignored_fields(['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])
     assert th.read_and_compare_messages('daisy.flow', 'flow-00')
+
+    # Compare received messages on topic daisy.bmp to reference file output-bmp-00.json
     th.set_ignored_fields(['seq', 'timestamp', 'timestamp_arrival', 'bmp_router_port'])
     assert th.read_and_compare_messages('daisy.bmp', 'bmp-00')
 
+    # Check logs for BMP peer up notification
     th.transform_log_file('log-00')
     assert th.check_file_regex_sequence_in_pmacct_log('log-00')
     assert not th.check_regex_in_pmacct_log('ERROR|WARN')
 
-    # Close connections
+    # Close connections and check logs
     logger.info('Stopping traffic container (closing TCP connections)')
     assert th.delete_traffic_container('traffic-reproducer-400a')
     assert th.delete_traffic_container('traffic-reproducer-400b')
 
+    # Compare received messages on topic daisy.bmp to reference file output-bmp-01.json
     assert th.read_and_compare_messages('daisy.bmp', 'bmp-01')

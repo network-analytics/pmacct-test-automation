@@ -1,0 +1,20 @@
+{
+   "BGP Information": {
+      "2001:4d98:a100:401:0:923:f:1": {
+         "bgp_version": 4,
+         "bgp_id": "10.215.182.46",
+         "as_number": 64969,
+         "capabilities": [
+            "BGPCapFourBytesASN",
+            "BGPCapGracefulRestart",
+            "BGPCapMultiprotocol: AFI_1 + SAFI_128",
+            "BGPCapMultiprotocol: AFI_2 + SAFI_128",
+            "BGPCapGeneric_128",
+            "BGPCapGeneric_2",
+            "BGPCapExtendedNHEnconding"
+         ],
+         "updates_counter": 25,
+         "keepalives_counter": 1
+      }
+   }
+}

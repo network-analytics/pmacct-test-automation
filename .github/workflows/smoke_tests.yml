@@ -11,6 +11,8 @@ on:
   workflow_dispatch:
   push:
   pull_request:
+  schedule:
+    - cron: '0 2 * * *'  # every day at 2am
 
 jobs:
   ### Build Traffic Reproducer Images

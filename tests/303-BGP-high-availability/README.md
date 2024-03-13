@@ -2,7 +2,6 @@
 
 The purpose of this test is to verify the BGP High-Availability feature in pmacct ([README](https://github.com/pmacct/pmacct/blob/master/docs/README_BGP_BMP_HA.md)).
 
-
 ### Provided files:
 ```
 - 303_test.py                               pytest file defining test execution
@@ -18,6 +17,11 @@ The purpose of this test is to verify the BGP High-Availability feature in pmacc
 - output-bgp-00.json                        desired nfacctd kafka output [daisy.bgp topic] containing json messages
 ```
 
+### Scenarios
+
+- Default scenario: message_timeout=10s, queue_max_size=1000, ha_cluster_id=0
+- Scenario-01: message_timeout=5s, queue_max_size=unlimited, ha_cluster_id=30  (just changing some of the HA parameters...)
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator
@@ -29,8 +33,6 @@ t=0s --> the first full minute after starting the traffic generator
 ### Test execution and results:
 
 Start the nfacctd deamon one after the other (give 1s delay), like shown in the following table:
-
-**HINT**: there are some changes that need to be done s.t. Framework runs with core_proc_name != nfacctd_core. Reason is that HA scenarios require different proc name within the cluster, as it is used within the redis key to distinguish between the other daemons.
 
 |  Action  | Result |  Log Pattern ID(s) |
 |:-----:|:-----:|:-------:|
@@ -46,7 +48,7 @@ The 3 daemons are configured in HA, meaning that when started they will negotiat
 
 Then start 3 instances of the traffic reproducer in detached mode: same pcap, same config, only difference is each one is replaying the traffic to one of the nfacctd collectors. The traffic reproducers will not kill the TCP connection after finishing replaying the packets (keep_open=true). 
 
-**HINT**: ensure that the traffic reproducers are not started when time \> XX:55 or time \< XX:05. That's to avoid a situation where traffic repro 1 is started at XX:04 and the others after XX:05 leading to the reproduction being out of sync for the 3 daemons.
+**HINT**: ensure that the traffic reproducers are not started when time \> XX:55 or time \< XX:10. That's to avoid a situation where traffic repro 1 is started at XX:04 and the others after XX:05 leading to the reproduction being out of sync for the 3 daemons (since the BGP sessions start at XX:05s).
 
 **Now perform the following actions:**
 
@@ -67,7 +69,6 @@ Then start 3 instances of the traffic reproducer in detached mode: same pcap, sa
 | Set B to auto-mode | - | B:8 |
 | Wait 5s |   -   |  - |
 | Set C to auto-mode | C goes to standby (only A stays active) | C:8,3 |
-
 
 Also check that the log pattern(s) (if given) is found in the live pmacct log before moving to the next action.
 

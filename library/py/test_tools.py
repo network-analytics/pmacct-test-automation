@@ -105,7 +105,7 @@ def transform_log_file(filename: str, repro_ip: str = None):
 # Checks current second and, if needed, waits until the sleep period ends.
 # Example: a process should not start before hh:mm:15 (=end_of_period) and it might take up to 30 seconds (=length).
 # --> avoid_time_period_in_seconds(15, 30) will sleep when time is greater than mm:45 or smaller than mm:15, 
-#     and exits when time arrives at (or is already bigger then) mm:15.
+#     and exits when time arrives at (or is already bigger than) mm:15.
 def avoid_time_period_in_seconds(end_of_period: int, length: int):
     if length > 60:
         raise Exception('Avoided time period longer than 1 minute (must be <= 60sec)')

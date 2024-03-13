@@ -127,6 +127,8 @@ Local folders **results/\<test case\>/\<container name>** are mounted on traffic
 - 203: BMP-HUAWEI-dump
 - 204: BMP-CISCO-peer_down
 - 205: BMP-6wind-FRR-peer_down
+- 206: BMP-high-availability
+- 207: BMP-CISCO-HUAWEI-multiple-sources-dump-spreading
 ```
 
 ### 3XX - BGP
@@ -135,12 +137,14 @@ Local folders **results/\<test case\>/\<container name>** are mounted on traffic
 - 301: BGP-CISCO-pretag
 - 302: BGP-IPv6-multiple-sources
 - 303: BGP-high-availability
+- 304: BGP-IPv6-multiple-sources-dump-spreading
 ```
 
 ### 4XX - IPFIX/NFv9 + BMP
 ```
 - 400: IPFIXv10-BMP-CISCO-SRv6-multiple-sources
 - 401: IPFIXv10-BMP-IPv6-CISCO-MPLS-multiple-sources
+- 402: IPFIXv10-BMP-IPv6-high-availability
 ```
 
 ### 5XX - IPFIX/NFv9 + BGP
@@ -210,13 +214,8 @@ def main(consumers):
 
 To overcome this, we can temporarily replace that function with another one specifically developed for this purpose:
 ```
-    assert test_tools.read_messages_dump_only(consumers[0], testParams, 'flow-00', wait_time=120)             # wait_time is optional (default=120s)
-```
-
-It's also possible to keep all the original arguments and just replace the function name, as the ignore_fields parameter will simply be ignored:
-```
-    assert test_tools.read_messages_dump_only(consumers[0], testParams, 'flow-00',
-        ['stamp_inserted', 'stamp_updated', 'timestamp_max', 'timestamp_arrival', 'timestamp_min'])       # wait_time is optional (default=120s)
+    consumer = consumers.get_consumer_of_topic_like('daisy.flow')
+    assert test_tools.read_messages_dump_only(consumers[0], testParams, wait_time=120)             # wait_time is optional (default=120s)
 ```
 
 This way we can simply call:
