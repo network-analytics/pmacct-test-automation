@@ -129,7 +129,7 @@ def setup_pmacct(params):
     for pmacct in params.pmacct:
         assert scripts.start_pmacct_container(pmacct.name, pmacct.docker_compose_file)
         assert scripts.wait_pmacct_running(pmacct.name, 5)  # wait 5 seconds
-        time.sleep(1)
+        time.sleep(5)
 
 
 # Setup and Teardown fixture for pmacct container
