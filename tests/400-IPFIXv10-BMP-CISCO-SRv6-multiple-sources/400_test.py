@@ -37,7 +37,7 @@ def main(consumers):
     # Check logs for BMP peer up notification
     th.transform_log_file('log-00')
     assert th.check_file_regex_sequence_in_pmacct_log('log-00')
-    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!(.*Unable to get kafka_host)|(.*connect to redis server))')
 
     # Close connections and check logs
     logger.info('Stopping traffic container (closing TCP connections)')

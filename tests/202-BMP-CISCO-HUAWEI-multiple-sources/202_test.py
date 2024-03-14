@@ -32,7 +32,6 @@ def main(consumers):
     assert th.check_regex_in_pmacct_log('\\[172\\.21\\.1\\.101] BMP peers usage')
     assert th.check_regex_in_pmacct_log('\\[172\\.21\\.1\\.102] BMP peers usage')
     assert th.check_regex_in_pmacct_log('\\[172\\.21\\.1\\.103] BMP peers usage')
-    assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!.*Unable to get kafka_host)')
 
     for suffix in ['a', 'b', 'c']:
         th.delete_traffic_container('traffic-reproducer-202' + suffix)
@@ -41,4 +40,4 @@ def main(consumers):
     th.transform_log_file_with_ip('log-01', '172.21.1.1\\d{2}')
     assert th.wait_and_check_logs('log-01', 30, 10)
 
-    assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!.*Unable to get kafka_host)')
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!(.*Unable to get kafka_host)|(.*connect to redis server))')

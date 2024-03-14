@@ -27,6 +27,11 @@ Testing with BMP traffic from 3 different source IPs.
 - output-log-01.txt                         log messages that need to be in the logfile [after closing socket] 
 ```
 
+### Scenarios
+
+- Default scenario: pmbmpd with basic configuration
+- Scenario-01: BMP HA enabled (to ensure single daemon works correclty when started in HA mode but redis not available)
+
 ### Test timeline:
 
 t=0s --> the first full minute after starting the traffic generator
