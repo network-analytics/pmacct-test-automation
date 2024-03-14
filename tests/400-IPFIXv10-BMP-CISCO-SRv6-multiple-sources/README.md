@@ -28,6 +28,7 @@ Complete test with IPFIX and BMP from daisy44. Cisco IOS XR 7.10.1. BMP glob-ins
 
 - Default scenario: comms, ecomms, as_path, ... are encoded as array
 - Scenario-01: comms, ecomms, as_path, ... are encoded as strings
+- Scenario-02: BMP HA enabled (to ensure single daemon works correclty when started in HA mode but redis not available)
 
 ### Test timeline:
 

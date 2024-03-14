@@ -30,6 +30,7 @@ BGP and IPFIX v10 from CISCO IOS XR 7.8.2 with data [260,340,342] and options [2
 
 - Default scenario: comms, ecomms, as_path, ... are encoded as array
 - Scenario-01: comms, ecomms, as_path, ... are encoded as strings
+- Scenario-02: BGP HA enabled (to ensure single daemon works correclty when started in HA mode but redis not available)
 
 ### Test timeline:
 

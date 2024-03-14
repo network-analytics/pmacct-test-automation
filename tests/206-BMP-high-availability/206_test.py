@@ -47,11 +47,11 @@ def main(consumers):
     assert th.wait_and_check_regex_in_pmacct_log(loglines[3], 20, 2, 'nfacctd-01')
 
     # Start HA Failover Scenarios
-    time.sleep(10)
+    time.sleep(15)
     scripts.stop_and_remove_redis_container()       # Simulate redis outage
     assert th.wait_and_check_regex_sequence_in_pmacct_log([loglines[2], loglines[1]], 10, 2, 'nfacctd-01')
 
-    time.sleep(10)
+    time.sleep(5)
     scripts.start_redis_container()                 # Bring redis back up
     assert th.wait_and_check_regex_sequence_in_pmacct_log([loglines[2], loglines[1], loglines[2]], 10, 2, 'nfacctd-01')
 

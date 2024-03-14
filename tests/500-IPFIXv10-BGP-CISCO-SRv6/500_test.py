@@ -27,7 +27,7 @@ def main(consumers):
 
     th.transform_log_file('log-00', 'traffic-reproducer-500')
     assert th.check_file_regex_sequence_in_pmacct_log('log-00')
-    assert not th.check_regex_in_pmacct_log('ERROR|WARN')
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!(.*connect to redis server))')
 
     logger.info('Stopping traffic container (closing TCP connections)')
     assert th.delete_traffic_container('traffic-reproducer-500')
@@ -36,4 +36,5 @@ def main(consumers):
 
     th.transform_log_file('log-01', 'traffic-reproducer-500')
     assert th.check_file_regex_sequence_in_pmacct_log('log-01')
-    assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!.*Unable to get kafka_host)')
+
+    assert not th.check_regex_in_pmacct_log('ERROR|WARN(?!(.*Unable to get kafka_host)|(.*connect to redis server))')
