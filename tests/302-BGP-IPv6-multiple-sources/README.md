@@ -11,10 +11,11 @@ TODO DAISY: this test is not 100% (sometimes duplicated connection is not attemp
 - traffic-01.pcap                           pcap file (for traffic reproducer)
 - traffic-02.pcap                           pcap file (for traffic reproducer)
 - traffic-02.pcap                           pcap file (for traffic reproducer)
-- traffic-03.pcap                           pcap file (for traffic reproducer)
+- traffic-03.pcap                           pcap file (for traffic reproducer)          --> same as traffic-02.pcap but with higher timestamp!
 - traffic-info-00.json                      some info about content of pcap file 0
 - traffic-info-01.json                      some info about content of pcap file 1
-- traffic-info-02.json                      some info about content of pcap file 2 (3)
+- traffic-info-02.json                      some info about content of pcap file 2
+- traffic-info-03.json                      some info about content of pcap file 3
 - traffic-reproducer-00.yml                 traffic replay function config file
 - traffic-reproducer-01.yml                 traffic replay function config file
 - traffic-reproducer-02.yml                 traffic replay function config file
@@ -33,8 +34,8 @@ TODO DAISY: this test is not 100% (sometimes duplicated connection is not attemp
 t=0s --> the first full minute after starting the traffic generator
 
 pcaps file time duration: 
-- t=1-2s: BGP packets sent (from reproducers 00-02)
-- t=20-21s: BGP packets sent (from reproducer 03)
+- t=5-7s: BGP packets sent (from reproducers 00-02)
+- t=20-22s: BGP packets sent (from reproducer 03)
 
 ### Test execution and results:
 
