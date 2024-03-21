@@ -7,7 +7,6 @@ BMP test with pcap from Huawei VRP 8.210 (daisy-61 IETF lab) [with global and lo
 - 200_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-info-00.json                      some info about content of pcap file 0
 - traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file

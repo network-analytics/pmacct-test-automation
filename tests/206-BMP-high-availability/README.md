@@ -8,7 +8,6 @@ Traffic taken from test 205 (only a subset and timestamps adjusted and messages 
 - 206_test.py                  pytest file defining test execution
 
 - traffic-00.pcap              pcap file 1 (for traffic generator)
-- traffic-info-00.json         some info about content of pcap file 2
 - traffic-reproducer-00.yml    traffic replay function config file
 
 - nfacctd-00.conf              nfacctd daemon configuration file

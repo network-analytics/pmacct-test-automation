@@ -9,7 +9,6 @@ f2rd_map is used to set MPLS VPN RD. Pretag map is used as well. Map reload is a
 - 102_test.py                             pytest file defining test execution
 
 - traffic-00.pcap                         pcap file (for traffic generator)
-- traffic-info-00.json                    some info about content of pcap file
 - traffic-reproducer-00.yml               traffic replay function config file
 
 - nfacctd-00.conf                         nfacctd daemon configuration file
