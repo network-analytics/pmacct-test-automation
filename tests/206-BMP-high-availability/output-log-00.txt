@@ -1,4 +1,4 @@
-${RANDOM} BMP-BGP-HA - Redis connection successful
+${RANDOM} BMP-BGP-HA - Redis loop starting!
 ${RANDOM} BMP-BGP-HA Daemon state: ACTIVE
 ${RANDOM} BMP-BGP-HA Daemon state: STANDBY
 ${RANDOM} [${repro_ip}] BMP peers usage: 1/600
