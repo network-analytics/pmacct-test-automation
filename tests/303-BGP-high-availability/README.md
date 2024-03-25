@@ -7,7 +7,6 @@ The purpose of this test is to verify the BGP High-Availability feature in pmacc
 - 303_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic reproducer)
-- traffic-info-00.json                      some info about content of pcap file 0
 - traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file for location A

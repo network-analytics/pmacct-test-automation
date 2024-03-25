@@ -7,7 +7,6 @@ Test with BMP peer-up, route-monitoring, stats and peer-down messages from 6wind
 - 205_test.py                  pytest file defining test execution
 
 - traffic-00.pcap              pcap file 1 (for traffic generator)
-- traffic-info-00.json         some info about content of pcap file 2
 - traffic-reproducer-00.yml    traffic replay function config file
 
 - nfacctd-00.conf              nfacctd daemon configuration file

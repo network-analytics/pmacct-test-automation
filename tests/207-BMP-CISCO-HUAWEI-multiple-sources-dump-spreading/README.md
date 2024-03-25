@@ -15,9 +15,6 @@ The goal of this test is to validate functionality of the table dump also with t
 - traffic-00.pcap                           pcap file 1 (for traffic generator)
 - traffic-01.pcap                           pcap file 2 (for traffic generator)
 - traffic-02.pcap                           pcap file 3 (for traffic generator)
-- traffic-info-00.json                      some info about content of pcap file 1
-- traffic-info-01.json                      some info about content of pcap file 2
-- traffic-info-02.json                      some info about content of pcap file 3
 - traffic-reproducer-00.yml                 traffic replay function config file
 - traffic-reproducer-01.yml                 traffic replay function config file
 - traffic-reproducer-02.yml                 traffic replay function config file

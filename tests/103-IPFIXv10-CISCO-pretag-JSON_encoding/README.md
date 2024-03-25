@@ -9,7 +9,6 @@ Otherwise this is the same test as 100: IPFIX v10 from CISCO ASR9k IOS XR 7.5.2 
 - 103_test.py                  pytest file defining test execution
 
 - traffic-00.pcap              pcap file (for traffic generator)
-- traffic-info-00.json         some info about content of pcap file
 - traffic-reproducer-00.yml    traffic replay function config file
 
 - nfacctd-00.conf              nfacctd daemon configuration file

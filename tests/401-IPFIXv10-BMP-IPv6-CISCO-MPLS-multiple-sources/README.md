@@ -8,8 +8,6 @@ IPFIX v10 + BMP with IPV6 transport from CISCO IOS XR 7.10.1. BMP glob-instance 
 
 - traffic-00.pcap                           pcap file (for traffic generator)
 - traffic-01.pcap                           pcap file (for traffic generator)
-- traffic-info-00.json                      some info about content of pcap file 0
-- traffic-info-01.json                      some info about content of pcap file 1
 - traffic-reproducer-00.yml                 traffic replay function config file
 - traffic-reproducer-01.yml                 traffic replay function config file
 

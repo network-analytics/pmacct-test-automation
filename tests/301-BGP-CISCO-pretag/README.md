@@ -9,7 +9,6 @@ Testing with BGP ipv4 traffic with RD, comms, ecomms, AS_path. Testing also pret
 - 301_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-info-00.json                      some info about content of pcap file 0
 - traffic-reproducer-00.yml                 traffic replay function config file
 
 - pmbgpd-00.conf                            pmbgpd daemon configuration file

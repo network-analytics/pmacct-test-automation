@@ -7,7 +7,6 @@ NetFlow v9 from CISCO ASR9k IOS XR with IPFIX data only (template 313).
 - 101_test.py                               pytest file defining test execution
 
 - traffic-00.pcap                           pcap file (for traffic generator)
-- traffic-info-00.json                      some info about content of pcap file
 - traffic-reproducer-00.yml                 traffic replay function config file
 
 - nfacctd-00.conf                           nfacctd daemon configuration file
