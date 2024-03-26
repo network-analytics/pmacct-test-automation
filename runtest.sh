@@ -24,8 +24,8 @@ function print_help() {
                [<test-case number or wildcard>[:<scenario or wildcard>] ... ]"  
   echo
   echo "Arguments:"
+  echo "    --dry           Dry-run (print pytest command only without executing)"
   echo "    --exitfirst     Exit immediately after the first failed test case"
-  echo "    --dry           Dry-run (print pytest command only without executing)" 
   echo "    --loglevel      Log level: INFO(=default log level) or DEBUG"
   echo "    --mark          Select test cases with pytest marker specified in the *_test.py file"
   echo "    --key           Select test cases with provided keyword in the test name (folder name)"
