@@ -7,5 +7,8 @@ if [ -z "$1" ]; then
 fi
 DOCKER_COMPOSE_FILE="$1"
 DETACHED="$2"
-docker-compose -f $DOCKER_COMPOSE_FILE up $DETACHED
 
+# find directory, where this script resides
+SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
+
+$SCRIPT_DIR/../../../tools/docker_compose_wrapper.sh -f $DOCKER_COMPOSE_FILE up $DETACHED

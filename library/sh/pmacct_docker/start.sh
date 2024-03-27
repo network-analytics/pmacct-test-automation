@@ -6,5 +6,8 @@ if [ -z "$1" ]; then
     exit 1
 fi
 DOCKER_COMPOSE_FILE="$1"
-docker-compose -f $DOCKER_COMPOSE_FILE up -d
 
+# find directory, where this script resides
+SCRIPT_DIR=$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )
+
+$SCRIPT_DIR/../../../tools/docker_compose_wrapper.sh -f $DOCKER_COMPOSE_FILE up -d
